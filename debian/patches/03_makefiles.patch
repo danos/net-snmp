@@ -1,0 +1,391 @@
+--- net-snmp-5.1.2.orig/snmplib/Makefile.in
++++ net-snmp-5.1.2/snmplib/Makefile.in
+@@ -178,11 +178,11 @@
+ 
+ # how to build the libraries.
+ libnetsnmp.$(LIB_EXTENSION)$(LIB_VERSION):    ${TOBJS}
+-	$(LIB_LD_CMD) libnetsnmp.$(LIB_EXTENSION)$(LIB_VERSION) ${TOBJS}
++	$(LIB_LD_CMD) libnetsnmp.$(LIB_EXTENSION)$(LIB_VERSION) ${TOBJS} @CRYPTOLIBS@
+ 	$(RANLIB) libnetsnmp.$(LIB_EXTENSION)$(LIB_VERSION)
+ 
+ libsnmp.$(LIB_EXTENSION)$(LIB_VERSION):    ${TOBJS}
+-	$(LIB_LD_CMD) libsnmp.$(LIB_EXTENSION)$(LIB_VERSION) ${TOBJS}
++	$(LIB_LD_CMD) libsnmp.$(LIB_EXTENSION)$(LIB_VERSION) ${TOBJS} @CRYPTOLIBS@
+ 	$(RANLIB) libsnmp.$(LIB_EXTENSION)$(LIB_VERSION)
+ 
+ #
+--- net-snmp-5.1.2.orig/agent/Makefile.in
++++ net-snmp-5.1.2/agent/Makefile.in
+@@ -94,7 +94,7 @@
+ 	 agent_handler.o @agentgroup_list_o@ @OTHERAGENTLIBOBJS@
+ LLIBAGENTOBJS=snmp_agent.lo snmp_vars.lo agent_read_config.lo \
+ 	agent_registry.lo agent_index.lo agent_trap.lo kernel.lo \
+-	agent_handler.lo @agentgroup_list_lo@ @OTHERAGENTLIBLOBJS@
++	agent_handler.lo @agentgroup_list_lo@ @OTHERAGENTLIBLOBJS@ @WRAPLIBS@
+ 
+ # The agent objects.
+ AGENTOBJS=snmpd.o @other_agentobjs@
+@@ -129,11 +129,11 @@
+ 
+ 
+ libnetsnmpagent.$(LIB_EXTENSION)$(LIB_VERSION):    ${LLIBAGENTOBJS} libnetsnmpmibs.$(LIB_EXTENSION)$(LIB_VERSION)
+-	$(LIB_LD_CMD) libnetsnmpagent.$(LIB_EXTENSION)$(LIB_VERSION) ${LLIBAGENTOBJS}  $(LIB_LD_LIBS)
++	$(LIB_LD_CMD) libnetsnmpagent.$(LIB_EXTENSION)$(LIB_VERSION) ${LLIBAGENTOBJS}  $(LIB_LD_LIBS)
+ 	$(RANLIB) libnetsnmpagent.$(LIB_EXTENSION)$(LIB_VERSION)
+ 
+ libnetsnmpmibs.$(LIB_EXTENSION)$(LIB_VERSION):    ${LMIBOBJS}
+-	$(LIB_LD_CMD) libnetsnmpmibs.$(LIB_EXTENSION)$(LIB_VERSION) ${LMIBOBJS}  $(LIB_LD_LIBS)
++	$(LIB_LD_CMD) libnetsnmpmibs.$(LIB_EXTENSION)$(LIB_VERSION) ${LMIBOBJS}  $(LIB_LD_LIBS) $(LIBSENSORS)
+ 	$(RANLIB) libnetsnmpmibs.$(LIB_EXTENSION)$(LIB_VERSION)
+ 
+ embedperlinstall:
+--- net-snmp-5.1.2.orig/local/Makefile.in
++++ net-snmp-5.1.2/local/Makefile.in
+@@ -58,7 +58,7 @@
+ 
+ mib2c.made: $(srcdir)/mib2c
+ 	if test "x$(PERLPROG)" != "x" ; then \
+-	  $(PERLPROG) -p -e 's%^#!.*/perl.*%#!$(PERLPROG)%;s#/usr/local/share/snmp#$(snmplibdir)#;' ${srcdir}/mib2c > mib2c.made; \
++	  $(PERLPROG) -p -e 's%^#!.*/perl.*%#!$(PERLPROG)%;s#/usr/local/share/snmp#$(snmplibdir)#;s#/usr/local/etc/snmp#$(SNMPCONFPATH)#;' ${srcdir}/mib2c > mib2c.made; \
+ 	else \
+ 	  touch mib2c.made; \
+         fi
+--- net-snmp-5.1.2.orig/mibs/Makefile.in
++++ net-snmp-5.1.2/mibs/Makefile.in
+@@ -43,11 +43,15 @@
+ UCDMIBS = UCD-SNMP-MIB.txt UCD-DEMO-MIB.txt UCD-IPFWACC-MIB.txt \
+ 	UCD-DLMOD-MIB.txt UCD-DISKIO-MIB.txt
+ 
++EXTRAMIBS = BGP4-MIB.txt BRIDGE-MIB.txt GNOME-SMI.txt OSPF-MIB.txt \
++	OSPF-TRAP-MIB.txt RIPv2-MIB.txt SOURCE-ROUTING-MIB.txt \
++	LM-SENSORS-MIB.txt
++
+ DEFAULTMIBS = @default_mibs_install@
+ 
+ MIBS	= $(V1MIBS) $(V2MIBS) $(V3MIBS) $(RFCMIBS) \
+ 	$(AGENTMIBS) $(IANAMIBS) \
+-	$(NETSNMPMIBS) $(UCDMIBS) $(DEFAULTMIBS)
++	$(NETSNMPMIBS) $(UCDMIBS) $(DEFAULTMIBS) $(EXTRAMIBS)
+ 
+ all: standardall
+ 
+--- net-snmp-5.1.2.orig/net-snmp-config.in
++++ net-snmp-5.1.2/net-snmp-config.in
+@@ -136,13 +136,13 @@
+     #################################################### client lib
+     --libs)
+       # use this one == --netsnmp-libs + --external-libs
+-      echo $NSC_LDFLAGS $NSC_LIBDIR -lnetsnmp $NSC_LIBS
++      echo $NSC_LDFLAGS $NSC_LIBDIR -lnetsnmp $NSC_LIBS @WRAPLIBS@
+       ;;
+     --netsnmp-libs)
+       echo $NSC_LIBDIR -lnetsnmp
+       ;;
+     --external-libs)
+-      echo $NSC_LDFLAGS $NSC_LIBS
++      echo $NSC_LDFLAGS $NSC_LIBS @WRAPLIBS@
+       ;;
+     #################################################### agent lib
+     --base-agent-libs)
+@@ -153,13 +153,13 @@
+       ;;
+     --agent-libs)
+       # use this one == --netsnmp-agent-libs + --external-libs
+-      echo $NSC_LDFLAGS $NSC_LIBDIR $NSC_BASE_AGENT_LIBS $NSC_AGENTLIBS
++      echo $NSC_LDFLAGS $NSC_LIBDIR $NSC_BASE_AGENT_LIBS $NSC_AGENTLIBS @WRAPLIBS@
+       ;;
+     --netsnmp-agent-libs)
+       echo $NSC_LIBDIR $NSC_BASE_AGENT_LIBS
+       ;;
+     --external-agent-libs)
+-      echo $NSC_LDFLAGS $NSC_AGENTLIBS
++      echo $NSC_LDFLAGS $NSC_AGENTLIBS @WRAPLIBS@
+       ;;
+     ####################################################
+     --version|--ver*)
+@@ -445,7 +445,7 @@
+         echo "Ack.  Can't create $tmpfile."
+ 	exit 1
+       fi
+-      cmd="@CC@ $cflags @CFLAGS@ @DEVFLAGS@ -I. -I${NSC_INCLUDEDIR} -o $outname $tmpfile $cfiles $NSC_LDFLAGS $NSC_LIBDIR $NSC_BASE_AGENT_LIBS $NSC_AGENTLIBS $ldflags"
++      cmd="@CC@ $cflags @CFLAGS@ @DEVFLAGS@ -I. -I${NSC_INCLUDEDIR} -o $outname $tmpfile $cfiles $NSC_LDFLAGS $NSC_LIBDIR $NSC_BASE_AGENT_LIBS $NSC_AGENTLIBS @WRAPLIBS@ $ldflags"
+       echo "running: $cmd"
+       `$cmd`
+       if test "x$norm" != "x1" ; then
+--- net-snmp-5.1.2.orig/Makefile.top
++++ net-snmp-5.1.2/Makefile.top
+@@ -27,6 +27,7 @@
+ snmplibdir	= $(datadir)/snmp
+ mibdir		= $(snmplibdir)/mibs
+ persistentdir	= @PERSISTENT_DIRECTORY@
++sysconfdir	= @sysconfdir@
+ INSTALL_PREFIX  = @INSTALL_PREFIX@
+ 
+ #
+--- net-snmp-5.1.2.orig/acconfig.h
++++ net-snmp-5.1.2/acconfig.h
+@@ -560,6 +560,9 @@
+ /* define if you have getservbyname */
+ #undef HAVE_GETSERVBYNAME
+ 
++/* define if you have dlopen */
++#undef HAVE_DLOPEN
++
+ /* printing system */
+ #undef HAVE_LPSTAT
+ #undef LPSTAT_PATH
+--- net-snmp-5.1.2.orig/configure.in
++++ net-snmp-5.1.2/configure.in
+@@ -161,6 +161,9 @@
+     AC_DEFINE(SNMP_NO_DEBUGGING)
+ fi
+ 
++AC_ARG_WITH(rpm,
++[  --without-rpm                   Don't use RPM even if available.])
++
+ AC_ARG_WITH(dmalloc,
+ [  --with-dmalloc=PATH             Use dmalloc library (www.dmalloc.com)],
+     if test "x$withval" = "xyes"; then
+@@ -1539,12 +1542,13 @@
+          AC_CHECK_LIB(RSAglue, RSA_PKCS1_RSAref)
+       fi
+ 
+-      AC_CHECK_LIB(crypto, EVP_md5)
++      AC_CHECK_LIB(crypto, EVP_md5, [CRYPTOLIBS=-lcrypto], , )
+       AC_CHECK_FUNCS(AES_cfb128_encrypt)
+     fi
+ elif test "x$askedpkcs" = "xyes"; then
+     AC_CHECK_LIB(pkcs11, C_Initialize)
+ fi
++AC_SUBST(CRYPTOLIBS)
+ 
+ # Check for libraries that the agent needs
+ # saving old libraries
+@@ -1664,8 +1668,9 @@
+ # Replace `main' with a function in -lkvm:
+ AC_CHECK_LIB(kvm, kvm_read)
+ # DYNAMIC MODULE SUPPORT
+-AC_CHECK_LIB(dl, dlopen)
+-AC_CHECK_FUNCS(dlopen)
++AC_CHECK_FUNC(dlopen, AC_DEFINE(HAVE_DLOPEN),
++	AC_CHECK_LIB(dl, dlopen, AC_DEFINE(HAVE_DLOPEN)
++	LIBS="${LIBS} -ldl"))
+ 
+ AC_CHECK_FUNCS(kvm_openfiles nlist knlist kvm_getprocs)
+ echo "$with_mib_modules" | grep "ucd-snmp/diskio" >/dev/null
+@@ -1979,7 +1984,7 @@
+ 
+ AC_MSG_RESULT([$ac_cv_type_ssize_t])
+ if test $ac_cv_type_ssize_t = yes; then
+-  AC_DEFINE(HAVE_SSIZE_T)
++  AC_DEFINE(HAVE_SSIZE_T, 1, [Define if type ssize_t is available])
+ fi
+ 
+ # Check ps args
+--- net-snmp-5.1.2.orig/Makefile.rules
++++ net-snmp-5.1.2/Makefile.rules
+@@ -301,7 +301,7 @@
+ # cleaning targets
+ #
+ clean: cleansubdirs $(OTHERCLEANTODOS)
+-	rm -f core ${OBJS} ${LOBJS} $(STANDARDCLEANTARGETS) $(OTHERCLEANTARGETS)
++	rm -f -- core ${OBJS} ${LOBJS} $(STANDARDCLEANTARGETS) $(OTHERCLEANTARGETS)
+ 	rm -rf .libs
+ 
+ cleansubdirs:
+--- net-snmp-5.1.2.orig/acinclude.m4
++++ net-snmp-5.1.2/acinclude.m4
+@@ -0,0 +1,193 @@
++dnl @synopsis AC_PROMPT_USER_NO_DEFINE(VARIABLENAME,QUESTION,[DEFAULT])
++dnl
++dnl Asks a QUESTION and puts the results in VARIABLENAME with an optional
++dnl DEFAULT value if the user merely hits return.
++dnl
++dnl @version 1.15
++dnl @author Wes Hardaker <hardaker@users.sourceforge.net>
++dnl
++AC_DEFUN([AC_PROMPT_USER_NO_DEFINE],
++dnl changequote(<<, >>) dnl
++dnl <<
++[
++if test "x$defaults" = "xno"; then
++echo $ac_n "$2 ($3): $ac_c"
++read tmpinput
++if test "$tmpinput" = "" -a "$3" != ""; then
++  tmpinput="$3"
++fi
++eval $1=\"$tmpinput\"
++else
++tmpinput="$3"
++eval $1=\"$tmpinput\"
++fi
++]
++dnl >>
++dnl changequote([, ])
++) dnl done AC_PROMPT_USER
++
++dnl @synopsis AC_PROMPT_USER(VARIABLENAME,QUESTION,[DEFAULT],QUOTED)
++dnl
++dnl Asks a QUESTION and puts the results in VARIABLENAME with an optional
++dnl DEFAULT value if the user merely hits return.  Also calls 
++dnl AC_DEFINE_UNQUOTED() on the VARIABLENAME for VARIABLENAMEs that should
++dnl be entered into the config.h file as well.  If QUOTED is "quoted" then
++dnl the result will be defined within quotes.
++dnl
++dnl @version 1.15
++dnl @author Wes Hardaker <hardaker@users.sourceforge.net>
++dnl
++AC_DEFUN([AC_PROMPT_USER],
++[
++MSG_CHECK=`echo "$2" | tail -1`
++AC_CACHE_CHECK($MSG_CHECK, ac_cv_user_prompt_$1,
++[echo "" >&AC_FD_MSG
++AC_PROMPT_USER_NO_DEFINE($1,[$2],$3)
++eval ac_cv_user_prompt_$1=\$$1
++echo $ac_n "setting $MSG_CHECK to...  $ac_c" >&AC_FD_MSG
++])
++if test "$ac_cv_user_prompt_$1" != "none"; then
++  if test "x$4" = "xquoted" -o "x$4" = "xQUOTED"; then
++    AC_DEFINE_UNQUOTED($1,"$ac_cv_user_prompt_$1")
++  else
++    AC_DEFINE_UNQUOTED($1,$ac_cv_user_prompt_$1)
++  fi
++fi
++]) dnl
++
++dnl @synopsis AC_CHECK_STRUCT_FOR(INCLUDES,STRUCT,MEMBER,DEFINE,[no])
++dnl
++dnl Checks STRUCT for MEMBER and defines DEFINE if found.
++dnl
++dnl @version 1.15
++dnl @author Wes Hardaker <hardaker@users.sourceforge.net>
++dnl
++AC_DEFUN(AC_CHECK_STRUCT_FOR,[
++
++ac_safe_struct=`echo "$2" | sed 'y%./+-%__p_%'`
++ac_safe_member=`echo "$3" | sed 'y%./+-%__p_%'`
++ac_safe_all="ac_cv_struct_${ac_safe_struct}_has_${ac_safe_member}"
++changequote(, )dnl
++  ac_uc_define=STRUCT_`echo "${ac_safe_struct}_HAS_${ac_safe_member}" | sed 'y%abcdefghijklmnopqrstuvwxyz./-%ABCDEFGHIJKLMNOPQRSTUVWXYZ___%'`
++changequote([, ])dnl
++
++AC_MSG_CHECKING([for $2.$3])
++AC_CACHE_VAL($ac_safe_all,
++[
++if test "x$4" = "x"; then
++  defineit="= 0"
++elif test "x$4" = "xno"; then
++  defineit=""
++else
++  defineit="$4"
++fi
++AC_TRY_COMPILE([
++$1
++],[
++struct $2 testit; 
++testit.$3 $defineit;
++], eval "${ac_safe_all}=yes", eval "${ac_safe_all}=no" )
++])
++
++if eval "test \"x$`echo ${ac_safe_all}`\" = \"xyes\""; then
++  AC_MSG_RESULT(yes)
++  AC_DEFINE_UNQUOTED($ac_uc_define)
++else
++  AC_MSG_RESULT(no)
++fi
++
++])
++
++dnl AC_CHECK_IFNET_FOR(SUBSTRUCT,[no])
++AC_DEFUN(AC_CHECK_IFNET_FOR,[
++dnl check for $1 in struct ifnet
++AC_CHECK_STRUCT_FOR([
++#ifdef IFNET_NEEDS_KERNEL
++#define _KERNEL 1
++#endif
++#include <sys/types.h>
++#include <sys/socket.h>
++#ifdef HAVE_SYS_TIME_H
++#include <sys/time.h>
++#endif
++#include <net/if.h>
++#ifdef HAVE_NET_IF_VAR_H
++#include <net/if_var.h>
++#endif
++#ifdef HAVE_SYS_QUEUE_H
++#include <sys/queue.h>
++#endif
++#ifdef linux
++struct ifnet {
++	char	*if_name;		/* name, e.g. "en" or "lo" */
++	short	if_unit;		/* sub-unit for lower level driver */
++	short	if_mtu;			/* maximum transmission unit */
++	short	if_flags;		/* up/down, broadcast, etc. */
++	int	if_metric;		/* routing metric (external only) */
++	char    if_hwaddr [6];		/* ethernet address */
++	int	if_type;		/* interface type: 1=generic,
++					   28=slip, ether=6, loopback=24 */
++	int	if_speed;		/* interface speed: in bits/sec */
++
++	struct sockaddr if_addr;	/* interface's address */
++	struct sockaddr ifu_broadaddr;	/* broadcast address */
++	struct sockaddr ia_subnetmask; 	/* interface's mask */
++
++	struct	ifqueue {
++		int	ifq_len;
++		int	ifq_drops;
++	} if_snd;			/* output queue */
++	int	if_ibytes;		/* octets received on interface */
++	int	if_ipackets;		/* packets received on interface */
++	int	if_ierrors;		/* input errors on interface */
++        int     if_iqdrops;             /* input queue overruns */
++	int	if_obytes;		/* octets sent on interface */
++	int	if_opackets;		/* packets sent on interface */
++	int	if_oerrors;		/* output errors on interface */
++	int	if_collisions;		/* collisions on csma interfaces */
++/* end statistics */
++	struct	ifnet *if_next;
++};
++#endif
++], ifnet, $1, $2)
++])
++
++dnl
++dnl Add a search path to the LIBS and CFLAGS variables
++dnl
++AC_DEFUN(AC_ADD_SEARCH_PATH,[
++  if test "x$1" != x -a -d $1; then
++     if test -d $1/lib; then
++       LDFLAGS="-L$1/lib $LDFLAGS"
++     fi
++     if test -d $1/include; then
++	CPPFLAGS="-I$1/include $CPPFLAGS"
++     fi
++  fi
++])
++
++dnl
++dnl Store information for displaying later.
++dnl
++AC_DEFUN(AC_MSG_CACHE_INIT,[
++  rm -f configure-summary
++])
++
++AC_DEFUN(AC_MSG_CACHE_ADD,[
++  cat >> configure-summary << EOF
++  $1
++EOF
++])
++
++AC_DEFUN(AC_MSG_CACHE_DISPLAY,[
++  echo ""
++  echo "---------------------------------------------------------"
++  echo "            Net-SNMP configuration summary:"
++  echo "---------------------------------------------------------"
++  echo ""
++  cat configure-summary
++  echo ""
++  echo "---------------------------------------------------------"
++  echo ""
++])
++

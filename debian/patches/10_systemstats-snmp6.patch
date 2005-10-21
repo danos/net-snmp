@@ -1,0 +1,38 @@
+Index: agent/mibgroup/ip-mib/data_access/systemstats_linux.c
+===================================================================
+RCS file: /cvsroot/net-snmp/net-snmp/agent/mibgroup/ip-mib/data_access/systemstats_linux.c,v
+retrieving revision 1.6
+retrieving revision 1.3.2.5
+diff -u -p -r1.6 -r1.3.2.5
+--- agent/mibgroup/ip-mib/data_access/systemstats_linux.c	8 Jun 2005 19:57:57 -0000	1.6
++++ agent/mibgroup/ip-mib/data_access/systemstats_linux.c	16 Aug 2005 21:16:04 -0000	1.3.2.5
+@@ -222,6 +223,7 @@ _systemstats_v6(netsnmp_container* conta
+     int             len, rc;
+     uintmax_t       scan_val;
+     const char     *filename = "/proc/net/snmp6";
++    static int      warned_open = 0;
+ 
+     DEBUGMSGTL(("access:systemstats:container:arch", "load v6 (flags %p)\n",
+                 load_flags));
+@@ -232,12 +234,19 @@ _systemstats_v6(netsnmp_container* conta
+     if(NULL == entry)
+         return -3;
+     
++    /*
++     * try to open file. If we can't, that's ok - maybe the module hasn't
++     * been loaded yet.
++     */
+     if (!(devin = fopen(filename, "r"))) {
+         DEBUGMSGTL(("access:systemstats",
+                     "Failed to load Systemstats Table (linux1)\n"));
+-        snmp_log(LOG_ERR, "cannot open %s ...\n", filename);
++        if(!warned_open) {
++            ++warned_open;
++            snmp_log(LOG_ERR, "cannot open %s ...\n", filename);
++        }
+         free(entry);
+-        return -2;
++        return 0;
+     }
+ 
+     /*

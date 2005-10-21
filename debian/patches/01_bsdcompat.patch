@@ -1,0 +1,23 @@
+--- net-snmp-5.1.2.orig/snmplib/snmpUDPDomain.c
++++ net-snmp-5.1.2/snmplib/snmpUDPDomain.c
+@@ -589,20 +589,6 @@
+ void
+ _netsnmp_udp_sockopt_set(int fd, int local)
+ {
+-#ifdef  SO_BSDCOMPAT
+-    /*
+-     * Patch for Linux.  Without this, UDP packets that fail get an ICMP
+-     * response.  Linux turns the failed ICMP response into an error message
+-     * and return value, unlike all other OS's.  
+-     */
+-    if (0 == netsnmp_os_prematch("Linux","2.4"))
+-    {
+-        int             one = 1;
+-        DEBUGMSGTL(("socket:option", "setting socket option SO_BSDCOMPAT\n"));
+-        setsockopt(fd, SOL_SOCKET, SO_BSDCOMPAT, (void *) &one,
+-                   sizeof(one));
+-    }
+-#endif                          /*SO_BSDCOMPAT */
+     /*
+      * SO_REUSEADDR will allow multiple apps to open the same port at
+      * the same time. Only the last one to open the socket will get

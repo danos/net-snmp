@@ -1,0 +1,27 @@
+Index: agent/mibgroup/ip-mib/inetNetToMediaTable/inetNetToMediaTable.c
+===================================================================
+RCS file: /cvsroot/net-snmp/net-snmp/agent/mibgroup/ip-mib/inetNetToMediaTable/inetNetToMediaTable.c,v
+retrieving revision 1.4
+diff -u -p -r1.4 inetNetToMediaTable.c
+--- agent/mibgroup/ip-mib/inetNetToMediaTable/inetNetToMediaTable.c	16 Oct 2004 00:21:20 -0000	1.4
++++ agent/mibgroup/ip-mib/inetNetToMediaTable/inetNetToMediaTable.c	16 Aug 2005 23:44:14 -0000
+@@ -374,11 +374,16 @@ inetNetToMediaPhysAddress_get(inetNetToM
+      * TODO:231:o: |-> Extract the current value of the inetNetToMediaPhysAddress data.
+      * set (* inetNetToMediaPhysAddress_val_ptr_ptr ) and (* inetNetToMediaPhysAddress_val_ptr_len_ptr ) from rowreq_ctx->data
+      */
+-    (*inetNetToMediaPhysAddress_val_ptr_ptr) =
+-        rowreq_ctx->data->arp_physaddress;
++    if ((*inetNetToMediaPhysAddress_val_ptr_len_ptr) <
++        rowreq_ctx->data->arp_physaddress_len)
++        return MFD_SKIP;
++
++    memcpy((*inetNetToMediaPhysAddress_val_ptr_ptr),
++           rowreq_ctx->data->arp_physaddress,
++           rowreq_ctx->data->arp_physaddress_len);
+     (*inetNetToMediaPhysAddress_val_ptr_len_ptr) =
+         rowreq_ctx->data->arp_physaddress_len;
+-
++    
+     return MFD_SUCCESS;
+ }                               /* inetNetToMediaPhysAddress_get */
+ 
