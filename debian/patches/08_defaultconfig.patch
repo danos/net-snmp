@@ -4,7 +4,7 @@
  ###############################################################################
  #
  # This file is intended to only be an example.  If, however, you want
--# to use it, it should be placed in SYSCONFDIR/share/snmp/snmpd.conf.
+-# to use it, it should be placed in SYSCONFDIR/snmp/snmpd.conf.
 +# to use it, it should be placed in /etc/snmp/snmpd.conf.
  # When the snmpd agent starts up, this is where it will look for it.
  #

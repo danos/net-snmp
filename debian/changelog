@@ -1,3 +1,9 @@
+net-snmp (5.2.2-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Jochen Friedrich <jochen@scram.de>  Wed, 18 Jan 2006 13:24:25 +0100
+
 net-snmp (5.2.1.2-4) unstable; urgency=low
 
   * Version builddep on libssl-dev and rebuild, for openssl transition

@@ -13,7 +13,7 @@ export DH_COMPAT=4
 include debian/cbs-patches.Makefile
 
 v = 9
-vv = 5.2.1.2-3
+vv = 5.2.2
 
 tmp=$(shell pwd)/debian/tmp
 

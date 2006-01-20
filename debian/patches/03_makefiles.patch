@@ -44,9 +44,9 @@
 @@ -58,7 +58,7 @@
  
  mib2c.made: $(srcdir)/mib2c
- 	if test "x$(PERLPROG)" != "x" ; then \
--	  $(PERLPROG) -p -e 's%^#!.*/perl.*%#!$(PERLPROG)%;s#/usr/local/share/snmp#$(snmplibdir)#;' ${srcdir}/mib2c > mib2c.made; \
-+	  $(PERLPROG) -p -e 's%^#!.*/perl.*%#!$(PERLPROG)%;s#/usr/local/share/snmp#$(snmplibdir)#;s#/usr/local/etc/snmp#$(SNMPCONFPATH)#;' ${srcdir}/mib2c > mib2c.made; \
+ 	if test "x$(PERL)" != "x" ; then \
+-	  $(PERL) -p -e 's%^#!.*/perl.*%#!$(PERL)%;s#/usr/local/share/snmp#$(snmplibdir)#;' ${srcdir}/mib2c > mib2c.made; \
++	  $(PERL) -p -e 's%^#!.*/perl.*%#!$(PERL)%;s#/usr/local/share/snmp#$(snmplibdir)#;s#/usr/local/etc/snmp#$(SNMPCONFPATH)#;' ${srcdir}/mib2c > mib2c.made; \
  	else \
  	  touch mib2c.made; \
          fi
