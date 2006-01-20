@@ -1,8 +1,11 @@
 net-snmp (5.2.2-1) unstable; urgency=low
 
   * New upstream release
+  * Added man page for snmpnetstat53
+  * Fix typos in man pages. Thanks to Nicolas François
+    <nicolas.francois@centraliens.net> (Closes: #326515, #326530, #326532).
 
- -- Jochen Friedrich <jochen@scram.de>  Wed, 18 Jan 2006 13:24:25 +0100
+ -- Jochen Friedrich <jochen@scram.de>  Fri, 20 Jan 2006 14:53:15 +0100
 
 net-snmp (5.2.1.2-4) unstable; urgency=low
 
