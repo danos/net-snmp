@@ -67,7 +67,7 @@ Architecture: any
 Replaces: libsnmp-dev, libsnmp-perl (<<${Source-Version})
 Provides: libsnmp-dev
 Conflicts: libsnmp-dev, libsnmp5-dev
-Depends: libc6-dev, libsnmp9 (=${Source-Version}), libsnmp-perl (=${Source-Version}), libwrap0-dev, libssl-dev
+Depends: libc6-dev, libsnmp9 (=${Source-Version}), libsnmp-perl (=${Source-Version}), libwrap0-dev, libssl-dev, libsensors-dev (>=2.8.5)
 Description: NET SNMP (Simple Network Management Protocol) Development Files
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
