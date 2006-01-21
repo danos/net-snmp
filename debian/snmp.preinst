@@ -2,8 +2,16 @@
 
 set -e
 
-if [ -d /usr/doc/snmp ]; then
+action = "$1"
+
+if [ "$action" = upgrade ]
+then
+  if [ -L /usr/share/doc/snmp ]; then
+    rm -f /usr/share/doc/snmp
+  fi
+  if [ -d /usr/doc/snmp ]; then
     rm -rf /usr/doc/snmp
+  fi
 fi
 
 #DEBHELPER#

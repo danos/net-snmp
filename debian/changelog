@@ -6,8 +6,13 @@ net-snmp (5.2.2-1) unstable; urgency=low
     <nicolas.francois@centraliens.net> (Closes: #326515, #326530, #326532).
   * Fix libsnmp9-dev dependencies. Thanks to Ahmed Baizid <ahmed@baizid.org>
     (Closes: #343577).
+  * Listen on 127.0.0.1 by default and turn off SMUX port in
+    /etc/defaults/snmpd. (Closes: #294309, #314907, #216108)
+  * Remove dangling symlinks /etc/doc/snmp[d] -> libsnmp5 which might
+    eventually be left over from old packages. Thanks to "Mario 'BitKoenig'
+    Holbe" <Mario.Holbe@TU-Ilmenau.DE> (Closes: #336365)
 
- -- Jochen Friedrich <jochen@scram.de>  Fri, 20 Jan 2006 15:11:07 +0100
+ -- Jochen Friedrich <jochen@scram.de>  Sat, 21 Jan 2006 16:56:28 +0100
 
 net-snmp (5.2.1.2-4) unstable; urgency=low
 
