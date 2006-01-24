@@ -2,7 +2,7 @@
 
 set -e
 
-action = "$1"
+action="$1"
 
 if [ "$action" = upgrade ]
 then
