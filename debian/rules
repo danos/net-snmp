@@ -42,11 +42,11 @@ build-stamp: debian/stamp-patched
 
 	# Backup files expected to be modified.
 	for i in $(BACKUP); do \
-		if [ ! -f $$i.backup ]; then mv $$i $$i.backup; fi ; \
+		if [ ! -f $$i.backup ]; then cp $$i $$i.backup; fi ; \
 	done
 	# Add here commands to compile the package.
 	libtoolize --force --copy
-	aclocal
+	#aclocal
 	autoconf
 	LC_COLLATE=C autoheader
 	echo timestamp >stamp-h.in
