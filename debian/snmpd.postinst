@@ -2,20 +2,8 @@
 
 set -e
 
-if [ "x$1" = xconfigure -a "x$2" = x ]; then
-    case "$2" in
-    3.6-*)
-	cat <<EOF
-Debian now uses the NET SNMP agent/daemon.  Since the new agent uses
-an entirely new configuration file format, any configuration you may
-have previously had can not be automatically updated and must be
-replaced.  Consequently, a security-conscious configuration will be
-installed by default.  Please read the snmpd.conf(5) manual page and
-then edit /etc/snmp/snmpd.conf accordingly to change the configuration
-to suit your needs.
-EOF
-	;;
-    esac
+if [ "x$1" = xconfigure ]; then
+	adduser --quiet --system --no-create-home --home /var/lib/snmp snmp
 fi
 
 #DEBHELPER#

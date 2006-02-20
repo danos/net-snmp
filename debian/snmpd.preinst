@@ -3,11 +3,31 @@
 set -e
 
 action="$1"
-
+version="$2"
 if [ "$action" = upgrade ]
 then
   if [ -L /usr/share/doc/snmpd ]; then
     rm -f /usr/share/doc/snmpd
+  fi
+fi
+
+if [ "$action" = upgrade ] || [ "$action" = install ]
+then
+# check if debconf is missing
+  if test -f /usr/share/debconf/confmodule
+  then
+    # Source debconf library.
+    . /usr/share/debconf/confmodule
+    db_version 2.0
+    if [ -n "$version" ] && dpkg --compare-versions "$version" lt 3.7
+    then
+      db_input critical snmpd/upgradefrom36 || true
+    fi
+    if [ -n "$version" ] && dpkg --compare-versions "$version" lt 5.2.2
+    then
+      db_input critical snmpd/upgradefrom521 || true
+    fi
+    db_go
   fi
 fi
 

@@ -11,8 +11,12 @@ net-snmp (5.2.2-1) unstable; urgency=low
   * Remove dangling symlinks /etc/doc/snmp[d] -> libsnmp5 which might
     eventually be left over from old packages. Thanks to "Mario 'BitKoenig'
     Holbe" <Mario.Holbe@TU-Ilmenau.DE> (Closes: #336365)
+  * Run snmpd as snmp user by default (Closes: #275374, #337053)
+  * Depend and Builddepend libsnmpd9-dev on procps. Thanks to 
+    Peder Chr. Norgaard <Peder.Chr.Norgaard> for pointing this out.
+    (Closes: #325840)
 
- -- Jochen Friedrich <jochen@scram.de>  Sat, 21 Jan 2006 16:56:28 +0100
+ -- Jochen Friedrich <jochen@scram.de>  Mon, 20 Feb 2006 14:52:38 +0100
 
 net-snmp (5.2.1.2-4) unstable; urgency=low
 

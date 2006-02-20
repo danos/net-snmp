@@ -170,6 +170,7 @@ binary-indep: build install
 binary-arch: build install
 	dh_testdir -a
 	dh_testroot -a
+	dh_installdebconf -a
 	dh_installdocs -a
 	for f in libsnmp$(v)-dev ; do \
 	  rm -rf debian/$$f/usr/share/doc/$$f ; \
