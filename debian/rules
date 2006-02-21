@@ -133,6 +133,7 @@ install-stamp: build-stamp
 			mv $$i.new $$i ; \
 	done )
 
+	po2debconf -e utf8 debian/snmpd.templates.master > debian/snmpd.templates
 	# make lintian happy
 	mkdir -p debian/tmp/usr/share/lintian/overrides
 	cp debian/snmpd.lintian-overrides debian/tmp/usr/share/lintian/overrides/snmpd

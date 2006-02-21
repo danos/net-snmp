@@ -2,7 +2,7 @@ Source: net-snmp
 Section: net
 Priority: optional
 Maintainer: Jochen Friedrich <jochen@scram.de>
-Build-Depends: debhelper (>=4.0), libtool, libwrap0-dev, libssl-dev (>> 0.9.8), perl (>=5.8), autoconf, automake, debianutils (>=1.13.1), bash (>=2.05), findutils (>=4.1.20), libsensors-dev (>=2.8.5), procps
+Build-Depends: debhelper (>=4.0), libtool, libwrap0-dev, libssl-dev (>> 0.9.8), perl (>=5.8), autoconf, automake, debianutils (>=1.13.1), bash (>=2.05), findutils (>=4.1.20), libsensors-dev (>=2.8.5), procps, po-debconf
 Standards-Version: 3.6.2
 
 Package: snmpd
@@ -11,7 +11,7 @@ Priority: optional
 Architecture: any
 Conflicts: snmp (<<3.6-3), snmptraplogd
 Replaces: snmptraplogd
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, adduser, debconf
 Description: NET SNMP (Simple Network Management Protocol) Agents
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
