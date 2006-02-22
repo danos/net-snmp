@@ -15,8 +15,9 @@ net-snmp (5.2.2-1) unstable; urgency=low
   * Depend and Builddepend libsnmpd9-dev on procps. Thanks to 
     Peder Chr. Norgaard <Peder.Chr.Norgaard> for pointing this out.
     (Closes: #325840)
+  * Fix man page section mismatch found by lintian.
 
- -- Jochen Friedrich <jochen@scram.de>  Mon, 20 Feb 2006 14:52:38 +0100
+ -- Jochen Friedrich <jochen@scram.de>  Wed, 22 Feb 2006 16:01:32 +0100
 
 net-snmp (5.2.1.2-4) unstable; urgency=low
 
