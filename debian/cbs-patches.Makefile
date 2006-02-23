@@ -81,7 +81,7 @@ debian/stamp-patched reverse-patches:
 
 post-patches:: apply-patches
 
-clean:: reverse-patches
+patch-clean: reverse-patches
 	rm -f debian/stamp-patch*
 	rm -f debian/patches/*.log
 

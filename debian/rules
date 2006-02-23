@@ -65,7 +65,8 @@ build-stamp: debian/stamp-patched
 	$(MAKE) LIBSENSORS=$(LIBSENSORS) LD_RUN_PATH=
 	touch build-stamp
 
-clean::
+clean: real-clean patch-clean
+real-clean:
 	dh_testdir
 	dh_testroot
 
