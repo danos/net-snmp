@@ -17,7 +17,7 @@ net-snmp (5.2.2-1) unstable; urgency=low
     (Closes: #325840)
   * Fix man page section mismatch found by lintian.
 
- -- Jochen Friedrich <jochen@scram.de>  Wed, 22 Feb 2006 16:01:32 +0100
+ -- Jochen Friedrich <jochen@scram.de>  Wed, 23 Feb 2006 15:05:32 +0100
 
 net-snmp (5.2.1.2-4) unstable; urgency=low
 
