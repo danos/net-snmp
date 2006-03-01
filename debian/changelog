@@ -1,3 +1,9 @@
+net-snmp (5.2.2-2) unstable; urgency=low
+
+  * Redo CVS Checkout from alioth (Closes: #354779)
+
+ -- Jochen Friedrich <jochen@scram.de>  Wed, 01 Mar 2006 20:32:01 +0100
+
 net-snmp (5.2.2-1) unstable; urgency=low
 
   * New upstream release
