@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: jochen@scram.de\n"
-"POT-Creation-Date: 2006-02-21 12:50+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-03-03 15:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,15 +18,16 @@ msgstr ""
 
 #. Type: note
 #. Description
-#: ../snmpd.templates:3
-msgid "Debian now uses the NET SNMP agent/daemon.  Since the new agent uses"
+#: snmpd.templates:3
+msgid "Upgrade warning from version 3.6 and below"
 msgstr ""
 
 #. Type: note
 #. Description
-#: ../snmpd.templates:3
+#: snmpd.templates:3
 msgid ""
-"an entirely new configuration file format, any configuration you may have "
+"Debian now uses the NET SNMP agent/daemon.  Since the new agent uses an "
+"entirely new configuration file format, any configuration you may have "
 "previously had can not be automatically updated and must be replaced.  "
 "Consequently, a security-conscious configuration will be installed by "
 "default.  Please read the snmpd.conf(5) manual page and then edit /etc/snmp/"
@@ -35,15 +36,15 @@ msgstr ""
 
 #. Type: note
 #. Description
-#: ../snmpd.templates:13
-msgid ""
-"Debian has changed the default start parameters of the snmpd agent/daemon."
+#: snmpd.templates:14
+msgid "Upgrade warning from version 5.2.1 and below"
 msgstr ""
 
 #. Type: note
 #. Description
-#: ../snmpd.templates:13
+#: snmpd.templates:14
 msgid ""
+"Debian has changed the default start parameters of the snmpd agent/daemon. "
 "The daemon is now started as user snmp, binds to localhost only and SMUX "
 "support is disabled. These parameters can all be individually changed in /"
 "etc/default/snmpd. Please see /usr/share/doc/snmpd/NEWS.Debian.gz for more "

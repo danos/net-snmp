@@ -16,7 +16,7 @@
  #
 --- net-snmp-5.1.2.orig/agent/Makefile.in
 +++ net-snmp-5.1.2/agent/Makefile.in
-@@ -94,7 +94,7 @@
+@@ -98,7 +98,7 @@
  	 agent_handler.o @agentgroup_list_o@ @OTHERAGENTLIBOBJS@
  LLIBAGENTOBJS=snmp_agent.lo snmp_vars.lo agent_read_config.lo \
  	agent_registry.lo agent_index.lo agent_trap.lo kernel.lo \
@@ -25,20 +25,6 @@
  
  # The agent objects.
  AGENTOBJS=snmpd.o @other_agentobjs@
-@@ -129,11 +129,11 @@
- 
- 
- libnetsnmpagent.$(LIB_EXTENSION)$(LIB_VERSION):    ${LLIBAGENTOBJS} libnetsnmpmibs.$(LIB_EXTENSION)$(LIB_VERSION)
--	$(LIB_LD_CMD) libnetsnmpagent.$(LIB_EXTENSION)$(LIB_VERSION) ${LLIBAGENTOBJS}  $(LIB_LD_LIBS)
-+	$(LIB_LD_CMD) libnetsnmpagent.$(LIB_EXTENSION)$(LIB_VERSION) ${LLIBAGENTOBJS}  $(LIB_LD_LIBS)
- 	$(RANLIB) libnetsnmpagent.$(LIB_EXTENSION)$(LIB_VERSION)
- 
- libnetsnmpmibs.$(LIB_EXTENSION)$(LIB_VERSION):    ${LMIBOBJS}
--	$(LIB_LD_CMD) libnetsnmpmibs.$(LIB_EXTENSION)$(LIB_VERSION) ${LMIBOBJS}  $(LIB_LD_LIBS)
-+	$(LIB_LD_CMD) libnetsnmpmibs.$(LIB_EXTENSION)$(LIB_VERSION) ${LMIBOBJS}  $(LIB_LD_LIBS) $(LIBSENSORS)
- 	$(RANLIB) libnetsnmpmibs.$(LIB_EXTENSION)$(LIB_VERSION)
- 
- embedperlinstall:
 --- net-snmp-5.1.2.orig/local/Makefile.in
 +++ net-snmp-5.1.2/local/Makefile.in
 @@ -58,7 +58,7 @@

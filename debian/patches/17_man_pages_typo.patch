@@ -1,14 +1,3 @@
---- net-snmp-5.2.2.orig/man/snmp.conf.5.def	2005-09-04 00:42:52.000000000 +0200
-+++ net-snmp-5.2.2/man/snmp.conf.5.def	2005-09-04 00:43:12.000000000 +0200
-@@ -169,7 +169,7 @@
- Some platforms may decide to increment the actual buffersize themselves 
- for internal housekeeping.
- This directive will be ignored on platforms that don't support
--..I setsockopt()
-+.I setsockopt()
- .IP "serverSendBuf integer"
- Similar to serverRecvBuf, but this directive applies to the send 
- buffer of server sockets. 
 --- net-snmp-5.2.2.orig/man/snmpnetstat.1.def	2005-09-03 23:25:45.000000000 +0200
 +++ net-snmp-5.2.2/man/snmpnetstat.1.def	2005-09-03 23:26:11.000000000 +0200
 @@ -243,7 +243,7 @@
