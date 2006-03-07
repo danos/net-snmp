@@ -10,6 +10,7 @@ MIB_MODULES = host smux ucd-snmp/dlmod ucd-snmp/diskio ucd-snmp/lmSensors
 
 DEB_DH_MAKESHLIBS_ARGS_libsnmp$(LIB_VERSION) := -V"libsnmp$(LIB_VERSION) (>= $(COMPAT_VERSION))"
 DEB_MAKE_INSTALL_TARGET=install	INSTALL_PREFIX=$(CURDIR)/debian/tmp DESTDIR=$(CURDIR)/debian/tmp
+DEB_MAKE_BUILD_TARGET=LD_RUN_PATH=
 DEB_CONFIGURE_EXTRA_FLAGS := --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man \
 	  --with-persistent-directory=/var/lib/snmp \
 	  --enable-ucd-snmp-compatibility \
