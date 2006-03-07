@@ -1,7 +1,7 @@
-usr/bin/snmp*
-usr/bin/encode*
-usr/bin/fixproc
-usr/bin/traptoemail
-usr/bin/mib2c-update
-usr/share/man/man1/snmp*
-usr/share/snmp/snmpconf-data/snmp-data
+debian/tmp/usr/bin/snmp*
+debian/tmp/usr/bin/encode*
+debian/tmp/usr/bin/fixproc
+debian/tmp/usr/bin/traptoemail
+debian/tmp/usr/bin/mib2c-update
+debian/tmp/usr/share/man/man1/snmp*
+debian/tmp/usr/share/snmp/snmpconf-data/snmp-data

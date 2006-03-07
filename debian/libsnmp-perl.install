@@ -1,2 +1,2 @@
-usr/lib/perl*
-usr/share/perl*
+debian/tmp/usr/lib/perl*
+debian/tmp/usr/share/perl*
