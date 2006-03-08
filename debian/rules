@@ -7,6 +7,12 @@ include /usr/share/cdbs/1/class/autotools.mk
 LIB_VERSION = 10
 COMPAT_VERSION = 5.3.0.1
 MIB_MODULES = host smux ucd-snmp/dlmod ucd-snmp/diskio ucd-snmp/lmSensors
+BACKUP = aclocal.m4 configure ltmain.sh stamp-h stamp-h.in \
+         include/net-snmp/net-snmp-config.h.in
+
+DEB_AUTO_UPDATE_LIBTOOL  = pre
+DEB_AUTO_UPDATE_ACLOCAL  = 1.9
+DEB_AUTO_UPDATE_AUTOCONF = 2.59
 
 DEB_DH_MAKESHLIBS_ARGS_libsnmp$(LIB_VERSION) := -V"libsnmp$(LIB_VERSION) (>= $(COMPAT_VERSION))"
 DEB_MAKE_INSTALL_TARGET=install	INSTALL_PREFIX=$(CURDIR)/debian/tmp DESTDIR=$(CURDIR)/debian/tmp
@@ -23,6 +29,20 @@ DEB_CONFIGURE_EXTRA_FLAGS := --prefix=/usr --sysconfdir=/etc --mandir=/usr/share
 	  --with-mib-modules="$(MIB_MODULES)" \
 	  --enable-mfd-rewrites \
 	  --with-defaults
+
+pre-build::
+	# Backup files expected to be modified.
+	for i in $(BACKUP); do \
+		if [ ! -f $$i.backup ]; then cp $$i $$i.backup; fi ; \
+	done
+
+clean::
+	dh_clean /perl/SNMP/t/snmptest.cmd
+	rm -rf `find . -name .libs`
+	rm -rf `find . -name .svn`
+	for i in $(BACKUP); do \
+		if [ -f $$i.backup ]; then mv -f $$i.backup $$i; fi ; \
+	done
 
 common-install-arch::
 	# Install the "broke" headers

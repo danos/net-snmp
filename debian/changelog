@@ -3,15 +3,18 @@ net-snmp (5.3.0.1-1) experimental; urgency=low
   * New upstream version
   * Convert build system to cdbs. (Closes: #323074)
 
- -- Jochen Friedrich <jochen@scram.de>  Mon,  6 Mar 2006 13:46:49 +0100
+ -- Jochen Friedrich <jochen@scram.de>  Wed,  8 Mar 2006 15:30:49 +0100
 
 net-snmp (5.2.2-3) unstable; urgency=low
 
   * Add short description to debconf templates (Closes: #355119)
   * Add Danish translation. Thanks to Claus Hindsgaul
     <claus.hindsgaul@gmail.com> (Closes: #355375)
+  * Add patch to add m4 directory with extracted net-snmp specific
+    aclocal definitions. Required to make libtool work correctly
+    (Closes: #355850)
 
- -- Jochen Friedrich <jochen@scram.de>  Mon,  6 Mar 2006 12:24:27 +0100
+ -- Jochen Friedrich <jochen@scram.de>  Wed,  8 Mar 2006 13:50:40 +0100
 
 net-snmp (5.2.2-2) unstable; urgency=low
 

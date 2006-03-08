@@ -122,16 +122,6 @@
  #undef LPSTAT_PATH
 --- net-snmp-5.1.2.orig/configure.in
 +++ net-snmp-5.1.2/configure.in
-@@ -161,6 +161,9 @@
-     AC_DEFINE(SNMP_NO_DEBUGGING)
- fi
- 
-+AC_ARG_WITH(rpm,
-+[  --without-rpm                   Don't use RPM even if available.])
-+
- AC_ARG_WITH(dmalloc,
- [  --with-dmalloc=PATH             Use dmalloc library (www.dmalloc.com)],
-     if test "x$withval" = "xyes"; then
 @@ -1539,12 +1542,13 @@
           AC_CHECK_LIB(RSAglue, RSA_PKCS1_RSAref)
        fi
