@@ -105,9 +105,9 @@
  mibdir		= $(snmplibdir)/mibs
  persistentdir	= @PERSISTENT_DIRECTORY@
 +sysconfdir	= @sysconfdir@
+ DESTDIR         = @INSTALL_PREFIX@
  INSTALL_PREFIX  = @INSTALL_PREFIX@
  
- #
 --- net-snmp-5.1.2.orig/acconfig.h
 +++ net-snmp-5.1.2/acconfig.h
 @@ -560,6 +560,9 @@

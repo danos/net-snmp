@@ -1,9 +1,9 @@
-net-snmp (5.3.0.1-1) experimental; urgency=low
+net-snmp (5.3.1+rc1-1) experimental; urgency=low
 
   * New upstream version
   * Convert build system to cdbs. (Closes: #323074)
 
- -- Jochen Friedrich <jochen@scram.de>  Wed,  8 Mar 2006 15:30:49 +0100
+ -- Jochen Friedrich <jochen@scram.de>  Wed, 21 Jun 2006 20:03:24 +0200
 
 net-snmp (5.2.2-3) unstable; urgency=low
 
