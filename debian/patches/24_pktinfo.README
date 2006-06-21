@@ -1,0 +1,9 @@
+ send udp replies from the ip alias they have been received
+ if you have a box with some virtual/cluster/alias ips,
+ currently a udp request received on the alias ip will be
+ answered using the primary ip.
+ this patch uses the linux IP_PKTINFO socket option to
+ be able to send back replies with the same source ip
+ the corresponding request has been received on.
+
+ -- Lars Ellenberg
