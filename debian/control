@@ -2,8 +2,8 @@ Source: net-snmp
 Section: net
 Priority: optional
 Maintainer: Jochen Friedrich <jochen@scram.de>
-Build-Depends: debhelper (>=5), libtool, libwrap0-dev, libssl-dev (>> 0.9.8), perl (>=5.8), autoconf, automake1.9, debianutils (>=1.13.1), bash (>=2.05), findutils (>=4.1.20), libsensors-dev (>=2.8.5), procps, cdbs (>=0.4.37)
-Standards-Version: 3.6.2
+Build-Depends: debhelper (>=5), libtool, libwrap0-dev, libssl-dev (>> 0.9.8), perl (>=5.8), autoconf, automake1.9, debianutils (>=1.13.1), bash (>=2.05), findutils (>=4.1.20), libsensors-dev (>=2.8.5), procps, cdbs (>=0.4.40)
+Standards-Version: 3.7.2
 
 Package: snmpd
 Section: net
