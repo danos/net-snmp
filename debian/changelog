@@ -1,13 +1,13 @@
-net-snmp (5.3.1+rc2-1) experimental; urgency=low
+net-snmp (5.3.1-1) experimental; urgency=low
 
-  * New upstream version (Closes: #358079)
+  * New upstream version (Closes: #358079, #252893)
   * Convert build system to cdbs. (Closes: #323074)
   * Add patch from Lars Ellenberg to answer with the same
     IP address the request was sent to. (Closes: #111263)
   * Add patch from Sven Schnelle to prevent duplicate iftable
     entries (Closes: #368617)
 
- -- Jochen Friedrich <jochen@scram.de>  Wed,  5 Jul 2006 14:23:42 +0200
+ -- Jochen Friedrich <jochen@scram.de>  Wed, 26 Jul 2006 12:08:46 +0200
      
 net-snmp (5.2.2-4) unstable; urgency=low
 
@@ -776,6 +776,7 @@ snmp (3.3-2) unstable; urgency=low
   * Updated init.d script messages to current standards.
 
  -- David Engel <david@sw.ods.com>  Tue, 13 May 1997 20:40:37 -0500
+
 
 snmp (3.3-1) unstable; urgency=low
 
