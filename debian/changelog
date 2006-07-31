@@ -1,3 +1,14 @@
+net-snmp (5.3.1-2) experimental; urgency=low
+
+  * Add kfreebsd support. Thanks to Petr Salinger 
+    <Petr.Salinger@seznam.cz> (Closes: #380252)
+  * Add Russian translation. Thanks to Yuri Kozlov 
+    <kozlov.y@gmail.com> (Closes: #380300)
+  * Update Czech translation. Thanks to Miroslav Kure
+    <kurem@upcase.inf.upol.cz> (Closes: #380528)
+
+ -- Jochen Friedrich <jochen@scram.de>  Mon, 31 Jul 2006 16:57:13 +0200
+
 net-snmp (5.3.1-1) experimental; urgency=low
 
   * New upstream version (Closes: #358079, #252893)

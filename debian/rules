@@ -49,7 +49,7 @@ pre-build::
 	done
 
 clean::
-	dh_clean /perl/SNMP/t/snmptest.cmd
+	dh_clean perl/SNMP/t/snmptest.cmd
 	rm -rf `find . -name .libs`
 	rm -rf `find . -name .svn`
 	for i in $(BACKUP); do \
