@@ -3,7 +3,7 @@ Section: net
 Priority: optional
 Maintainer: Net-SNMP Packaging Team <pkg-net-snmp-devel@lists.alioth.debian.org>
 Uploaders: Jochen Friedrich <jochen@scram.de>
-Build-Depends: debhelper (>=5), libtool, libwrap0-dev, libssl-dev (>> 0.9.8), perl (>=5.8), autoconf, automake1.9, debianutils (>=1.13.1), bash (>=2.05), findutils (>=4.1.20), libsensors-dev (>=2.8.5), procps, cdbs (>=0.4.40)
+Build-Depends: debhelper (>=5), libtool, libwrap0-dev, libssl-dev (>> 0.9.8), perl (>=5.8), autoconf, automake1.9, debianutils (>=1.13.1), bash (>=2.05), findutils (>=4.1.20), procps, cdbs (>=0.4.40), libkvm-dev [kfreebsd-i386 kfreebsd-amd64], libsensors-dev (>=2.8.5) [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64]
 Standards-Version: 3.7.2
 
 Package: snmpd
@@ -68,7 +68,7 @@ Architecture: any
 Replaces: libsnmp-dev, libsnmp-perl (<<${Source-Version})
 Provides: libsnmp-dev
 Conflicts: libsnmp-dev, libsnmp5-dev, libsnmp9-dev
-Depends: libc6-dev, libsnmp10 (=${Source-Version}), libsnmp-perl (=${Source-Version}), libwrap0-dev, libssl-dev, libsensors-dev (>=2.8.5), procps
+Depends: libc6-dev, libsnmp10 (=${Source-Version}), libsnmp-perl (=${Source-Version}), libwrap0-dev, libssl-dev, procps, ${os-specific-dev}
 Description: NET SNMP (Simple Network Management Protocol) Development Files
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)

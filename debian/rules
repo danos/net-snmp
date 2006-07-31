@@ -6,9 +6,21 @@ include /usr/share/cdbs/1/class/autotools.mk
 
 LIB_VERSION = 10
 COMPAT_VERSION = 5.3.1
-MIB_MODULES = host smux ucd-snmp/dlmod ucd-snmp/diskio ucd-snmp/lmSensors
 BACKUP = aclocal.m4 configure ltmain.sh stamp-h stamp-h.in \
          include/net-snmp/net-snmp-config.h.in
+
+MIB_MODULES = host smux ucd-snmp/dlmod
+
+ifeq (linux,$(DEB_HOST_ARCH_OS))
+MIB_MODULES += ucd-snmp/diskio ucd-snmp/lmSensors 
+IPV6 = --enable-ipv6
+DEB_DH_GENCONTROL_ARGS=-- -Vos-specific-dev="libsensors-dev (>= 2.8.5)"
+else
+ifeq (kfreebsd,$(DEB_HOST_ARCH_OS))
+IPV6 = --disable-ipv6
+DEB_DH_GENCONTROL_ARGS=-- -Vos-specific-dev="libkvm-dev"
+endif
+endif
 
 DEB_AUTO_UPDATE_LIBTOOL  = pre
 DEB_AUTO_UPDATE_ACLOCAL  = 1.9
@@ -22,7 +34,7 @@ DEB_CONFIGURE_EXTRA_FLAGS := --prefix=/usr --sysconfdir=/etc --mandir=/usr/share
 	  --enable-ucd-snmp-compatibility \
 	  --enable-shared --with-cflags="$(CFLAGS)" \
 	  --with-perl-modules="INSTALLDIRS=vendor" \
-	  --enable-ipv6 --with-logfile=none \
+	  $(IPV6) --with-logfile=none \
 	  --without-rpm --with-libwrap --with-openssl \
 	  --without-dmalloc --without-efence --without-rsaref \
 	  --with-sys-contact="root" --with-sys-location="Unknown" \
