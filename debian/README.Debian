@@ -10,11 +10,7 @@ the snmp applications and daemons.
 
 You can individually control whether or not snmpd and snmpdtrap are
 run by editing /etc/default/snmp.  In addition, neither daemon will be
-run if its config file /etc/snmp is removed.
-
-As of net-snmp version 5.0, master agentx support must be enabled in
-snmpd before snmptrapd can be run.  See snmpd.conf(5) for how to do
-this.
+run if its config file in /etc/snmp is removed.
 
 As of net-snmp version 5.0, the community string can no longer be
 specified after the agent parameter on the command line.  It must now
