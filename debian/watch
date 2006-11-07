@@ -1,2 +1,2 @@
-version=2
-ftp://ftp.jaist.ac.jp/pub/sourceforge/n/ne/net-snmp/net-snmp-([\d+\.]+|\d+)\.tar\.gz debian uupdate
+version=3
+http://sf.net/net-snmp/net-snmp-([\d+\.]+|\d+)\.tar\.gz

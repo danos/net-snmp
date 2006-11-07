@@ -1,33 +1,16 @@
 only in patch2:
 unchanged:
---- net-snmp-5.3.1.orig/agent/mibgroup/ucd_snmp.h
-+++ net-snmp-5.3.1/agent/mibgroup/ucd_snmp.h
-@@ -41,6 +41,12 @@
- config_arch_require(freebsd5, ucd-snmp/memory_freebsd2)
- config_arch_require(freebsd6, ucd-snmp/vmstat_freebsd2)
- config_arch_require(freebsd6, ucd-snmp/memory_freebsd2)
-+config_arch_require(kfreebsd5, ucd-snmp/vmstat_freebsd2)
-+config_arch_require(kfreebsd5, ucd-snmp/memory_freebsd2)
-+config_arch_require(kfreebsd6, ucd-snmp/vmstat_freebsd2)
-+config_arch_require(kfreebsd6, ucd-snmp/memory_freebsd2)
-+config_arch_require(kfreebsd7, ucd-snmp/vmstat_freebsd2)
-+config_arch_require(kfreebsd7, ucd-snmp/memory_freebsd2)
- config_arch_require(netbsd1, ucd-snmp/vmstat_netbsd1)
- config_arch_require(netbsd1, ucd-snmp/memory_netbsd1)
- config_arch_require(netbsd, ucd-snmp/vmstat_netbsd1)
-only in patch2:
-unchanged:
 --- net-snmp-5.3.1.orig/Makefile.in
 +++ net-snmp-5.3.1/Makefile.in
 @@ -17,8 +17,8 @@
  INCLUDESUBDIR=system
  INCLUDESUBDIRHEADERS= aix.h bsd.h bsdi3.h bsdi4.h bsdi.h cygwin.h \
- 	darwin.h darwin7.h darwin8.h freebsd5.h freebsd6.h \
+ 	darwin.h darwin7.h darwin8.h darwin9.h freebsd5.h freebsd6.h \
 -	dynix.h freebsd2.h freebsd3.h freebsd4.h freebsd.h generic.h hpux.h \
 -	irix.h linux.h mingw32.h mips.h netbsd.h openbsd.h osf5.h \
 +	dynix.h freebsd2.h freebsd3.h freebsd4.h freebsd.h generic.h kfreebsd.h \
 +	hpux.h irix.h linux.h mingw32.h mips.h netbsd.h openbsd.h osf5.h \
- 	solaris2.6.h solaris2.7.h solaris2.8.h solaris2.9.h solaris2.10.h \
+ 	solaris2.3.h solaris2.4.h solaris2.5.h solaris2.6.h \
  	solaris.h sunos.h svr5.h sysv.h ultrix4.h
  INCLUDESUBDIR2=machine
 only in patch2:

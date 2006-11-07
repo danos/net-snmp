@@ -1,3 +1,9 @@
+net-snmp (5.4+rc1-1) experimental; urgency=low
+
+  * New upstream version
+
+ -- Jochen Friedrich <jochen@scram.de>  Mon,  6 Nov 2006 14:05:28 +0100
+
 net-snmp (5.3.1-2) experimental; urgency=low
 
   * Add kfreebsd support. Thanks to Petr Salinger 

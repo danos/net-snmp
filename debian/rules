@@ -4,8 +4,8 @@ include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/rules/simple-patchsys.mk
 include /usr/share/cdbs/1/class/autotools.mk
 
-LIB_VERSION = 10
-COMPAT_VERSION = 5.3.1
+LIB_VERSION = 15
+COMPAT_VERSION = 5.4.0
 BACKUP = aclocal.m4 configure ltmain.sh stamp-h stamp-h.in \
          include/net-snmp/net-snmp-config.h.in
 
@@ -34,6 +34,7 @@ DEB_CONFIGURE_EXTRA_FLAGS := --prefix=/usr --sysconfdir=/etc --mandir=/usr/share
 	  --enable-ucd-snmp-compatibility \
 	  --enable-shared --with-cflags="$(CFLAGS)" \
 	  --with-perl-modules="INSTALLDIRS=vendor" \
+	  --with-python-modules \
 	  $(IPV6) --with-logfile=none \
 	  --without-rpm --with-libwrap --with-openssl \
 	  --without-dmalloc --without-efence --without-rsaref \
