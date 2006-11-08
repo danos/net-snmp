@@ -7,6 +7,11 @@ if [ "x$1" = xconfigure ]; then
 	chown -R snmp /var/lib/snmp
 fi
 
+if [ -S /var/run/agentx ]; then
+	rm -f /var/run/agentx
+	ln -sf /var/agentx/socket /var/run/agentx
+fi
+
 . /usr/share/debconf/confmodule
 db_version 2.0
 
