@@ -1,11 +1,11 @@
---- net-snmp-5.1.2.orig/agent/Makefile.in
-+++ net-snmp-5.1.2/agent/Makefile.in
-@@ -98,7 +98,7 @@
- 	 agent_handler.o @agentgroup_list_o@ @OTHERAGENTLIBOBJS@
+--- net-snmp-5.4.rc2.orig/agent/Makefile.in	2006-11-07 15:54:25.000000000 +0100
++++ net-snmp-5.4.rc2/agent/Makefile.in	2006-11-15 00:29:26.818214140 +0100
+@@ -102,7 +102,7 @@
+ 	 agent_handler.o $(agentgroup_list_o) @OTHERAGENTLIBOBJS@
  LLIBAGENTOBJS=snmp_agent.lo snmp_vars.lo agent_read_config.lo \
  	agent_registry.lo agent_index.lo agent_trap.lo kernel.lo \
--	agent_handler.lo @agentgroup_list_lo@ @OTHERAGENTLIBLOBJS@
-+	agent_handler.lo @agentgroup_list_lo@ @OTHERAGENTLIBLOBJS@ @WRAPLIBS@
+-	agent_handler.lo $(agentgroup_list_lo) @OTHERAGENTLIBLOBJS@
++	agent_handler.lo $(agentgroup_list_lo) @OTHERAGENTLIBLOBJS@ @WRAPLIBS@
  
  # The agent objects.
  AGENTOBJS=snmpd.o @other_agentobjs@
