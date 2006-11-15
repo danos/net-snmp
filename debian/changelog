@@ -1,8 +1,12 @@
 net-snmp (5.4+rc2-1) experimental; urgency=low
 
+  [ Jochen Friedrich ]
   * New upstream version
 
- -- Jochen Friedrich <jochen@scram.de>  Mon, 13 Nov 2006 12:50:28 +0100
+  [ Thomas Anders ]
+  * Change makefile patch for 5.4.rc2
+
+ -- Jochen Friedrich <jochen@scram.de>  Wed, 15 Nov 2006 15:42:54 +0100
 
 net-snmp (5.3.1-2) experimental; urgency=low
 
