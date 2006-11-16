@@ -2,6 +2,11 @@ net-snmp (5.4+rc2-1) experimental; urgency=low
 
   [ Jochen Friedrich ]
   * New upstream version
+  * Don't fail postrm on non-existant deluser (Closes: #398540)
+  * Add German debconf translation (Closes: #397823)
+    Thanks to Helge Kreutzmann <debian@helgefjell.de>.
+  * Add Italian debconf translation (Closes: #398047)
+    Thanks to Luca Monducci <luca.mo@tiscali.it>.
 
   [ Thomas Anders ]
   * Change makefile patch for 5.4.rc2
