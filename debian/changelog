@@ -1,4 +1,4 @@
-net-snmp (5.4+rc2-1) experimental; urgency=low
+net-snmp (5.4+rc3-1) experimental; urgency=low
 
   [ Jochen Friedrich ]
   * New upstream version
@@ -7,9 +7,13 @@ net-snmp (5.4+rc2-1) experimental; urgency=low
     Thanks to Helge Kreutzmann <debian@helgefjell.de>.
   * Add Italian debconf translation (Closes: #398047)
     Thanks to Luca Monducci <luca.mo@tiscali.it>.
+  * Add LSB section to startup file.
+  * Add Thomas Anders as co-Maintainer.
 
   [ Thomas Anders ]
-  * Change makefile patch for 5.4.rc2
+  * Change makefile patch for 5.4.rc3
+  * Add missing copyrights to copyright file.
+  * Fix spelling errors and wrong path names in documentation.
 
  -- Jochen Friedrich <jochen@scram.de>  Wed, 15 Nov 2006 15:42:54 +0100
 
