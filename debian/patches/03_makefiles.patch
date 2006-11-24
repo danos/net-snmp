@@ -138,3 +138,22 @@
  	rm -rf .libs
  
  cleansubdirs:
+--- net-snmp-5.4.rc3.orig/agent/mibgroup/Makefile.in	2006-11-24 11:08:13.000000000 +0100
++++ net-snmp-5.4.rc3/agent/mibgroup/Makefile.in	2006-11-24 11:09:06.000000000 +0100
+@@ -22,9 +22,13 @@
+ .c.o:
+ 	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+ 
+-OBJS  = @mib_module_list_o@
+-LOBJS = @mib_module_list_lo@
+-SRCS  = @mib_module_list_c@
++@mib_module_list_o@
++@mib_module_list_lo@
++@mib_module_list_c@
++
++OBJS  = $(mib_module_list_o)
++LOBJS = $(mib_module_list_lo)
++SRCS  = $(mib_module_list_c)
+ 
+ all: standardall $(LOBJS)
+ 
