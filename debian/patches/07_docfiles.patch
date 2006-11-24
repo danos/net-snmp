@@ -12,29 +12,6 @@
  Running mib2c without the -c CONFIGFILE option will display
  a description of the valid values for CONFIGFILE, that is,
  the available config files, including new ones that you might
---- net-snmp-5.1.2.orig/man/snmpset.1.def
-+++ net-snmp-5.1.2/man/snmpset.1.def
-@@ -73,7 +73,7 @@
- .PD
- .RE
- Most of these will use the obvious corresponding ASN.1 type.
--'s', 'x', 'd' and 'b' are all different ways of specifying an OCTET STRING
-+\&'s', 'x', 'd' and 'b' are all different ways of specifying an OCTET STRING
- value, and the 'u' unsigned type is also used for handling Gauge32 values.
- .PP
- If you have the proper MIB file loaded, you can, in most cases, replace the
---- net-snmp-5.1.2.orig/man/snmp_trap_api.3.def
-+++ net-snmp-5.1.2/man/snmp_trap_api.3.def
-@@ -1,8 +1,7 @@
- .TH SNMP_TRAP_API 3 "7 Mar 2002" VVERSIONINFO "Net-SNMP"
- .UC 5
- .SH NAME
--send_easy_trap, send_trap_vars, send_v2trap - send TRAPs or INFORMs
--from a Net-SNMP MIB module
-+send_easy_trap, send_trap_vars, send_v2trap - send TRAPs or INFORMs from a Net-SNMP MIB module
- .SH SYNOPSIS
- .B #include <net-snmp/agent/agent_trap.h>
- .PP
 --- net-snmp-5.1.2.orig/man/snmp_config.5.def
 +++ net-snmp-5.1.2/man/snmp_config.5.def
 @@ -11,7 +11,7 @@
