@@ -1,5 +1,17 @@
-#! /bin/sh
-# /etc/init.d/snmpd: start snmp daemon.
+#! /bin/sh -e
+### BEGIN INIT INFO
+# Provides:           snmpd snmptrapd
+# Required-Start:     $network $local_fs
+# Required-Stop:      $network $local_fs
+# Default-Start:      2 3 4 5
+# Default-Stop:       0 6
+# Short-Description:  SNMP agents
+# Description:        NET SNMP (Simple Network Management Protocol) Agents
+### END INIT INFO
+#
+# Author:    Jochen Friedrich <jochen@scram.de>
+#
+set -e
 
 test -x /usr/sbin/snmpd || exit 0
 test -x /usr/sbin/snmptrapd || exit 0
@@ -34,9 +46,9 @@ case "$1" in
     ;;
   stop)
     echo -n "Stopping network management services:"
-    start-stop-daemon --quiet --stop --exec /usr/sbin/snmpd
+    start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmpd
     echo -n " snmpd"
-    start-stop-daemon --quiet --stop --exec /usr/sbin/snmptrapd
+    start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmptrapd
     echo -n " snmptrapd"
     echo "."
     ;;
