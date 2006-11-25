@@ -1,4 +1,4 @@
-net-snmp (5.4+rc3-1) experimental; urgency=low
+net-snmp (5.4-1) experimental; urgency=low
 
   [ Jochen Friedrich ]
   * New upstream version
@@ -12,6 +12,7 @@ net-snmp (5.4+rc3-1) experimental; urgency=low
 
   [ Thomas Anders ]
   * Change makefile patch for 5.4.rc3
+  * Change docfile patch for 5.4
   * Add missing copyrights to copyright file.
   * Fix spelling errors and wrong path names in documentation.
 
