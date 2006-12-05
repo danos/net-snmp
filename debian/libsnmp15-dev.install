@@ -1,6 +1,5 @@
 debian/tmp/etc/snmp/mib2c*.conf
 debian/tmp/usr/bin/mib2c
-debian/tmp/usr/bin/net-snmp-config
 debian/tmp/usr/include
 debian/tmp/usr/lib/lib*.{a,so,la}
 debian/tmp/usr/share/man/man1/mib2c.1
