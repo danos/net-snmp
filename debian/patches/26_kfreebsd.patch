@@ -17,9 +17,9 @@ only in patch2:
 unchanged:
 --- net-snmp-5.3.1.orig/include/net-snmp/system/kfreebsd.h
 +++ net-snmp-5.3.1/include/net-snmp/system/kfreebsd.h
-@@ -0,0 +1,71 @@
+@@ -0,0 +1,65 @@
 +#include "freebsd6.h"
-+#define freebsd6
++#define freebsd6 freebsd6
 +
 +#include <osreldate.h>
 +#define __FreeBSD_version __FreeBSD_kernel_version
@@ -83,9 +83,3 @@ unchanged:
 +        u_quad_t        xt_alignment_hack;
 +};
 +
-+/* Segment flag values. */
-+enum uio_seg {
-+        UIO_USERSPACE,          /* from user data space */
-+        UIO_SYSSPACE,           /* from system space */
-+        UIO_NOCOPY              /* don't copy, already in object */
-+};
