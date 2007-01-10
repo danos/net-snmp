@@ -52,10 +52,10 @@ case "$1" in
     echo -n " snmptrapd"
     echo "."
     ;;
-  restart|reload|force-reload)
+  restart)
     echo -n "Restarting network management services:"
-    start-stop-daemon --quiet --stop --exec /usr/sbin/snmpd
-    start-stop-daemon --quiet --stop --exec /usr/sbin/snmptrapd
+    start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmpd
+    start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmptrapd
     # Allow the daemons time to exit completely.
     sleep 2
     if [ "$SNMPDRUN" = "yes" -a -f /etc/snmp/snmpd.conf ]; then
@@ -67,6 +67,15 @@ case "$1" in
 	sleep 1
 	start-stop-daemon --quiet --start --exec /usr/sbin/snmptrapd -- $TRAPDOPTS
 	echo -n " snmptrapd"
+    fi
+    echo "."
+    ;;
+  reload|force-reload)
+    echo -n "Reloading network management services:"
+    if [ "$SNMPDRUN" = "yes" -a -f /etc/snmp/snmpd.conf ]; then
+        start-stop-daemon --quiet --stop --signal 1 \
+	    --pidfile /var/run/snmpd.pid --exec /usr/sbin/snmpd
+	echo -n " snmpd"
     fi
     echo "."
     ;;
