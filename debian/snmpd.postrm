@@ -2,6 +2,8 @@
 
 set -e
 
+#DEBHELPER#
+
 if [ $1 = purge ]; then  
     rm -f /var/lib/snmp/snmpd.conf*
     rm -f /var/lib/snmp/snmptrapd.conf*
@@ -14,7 +16,5 @@ if [ $1 = purge ]; then
       echo "Can't remove user snmp. Please remove this user by hand."
     fi
 fi 
-
-#DEBHELPER#
 
 exit 0
