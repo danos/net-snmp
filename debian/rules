@@ -77,6 +77,7 @@ common-install-arch::
 	# make lintian happy
 	mkdir -p debian/tmp/usr/share/lintian/overrides
 	cp debian/snmpd.lintian-overrides debian/tmp/usr/share/lintian/overrides/snmpd
+	cp debian/snmp.lintian-overrides debian/tmp/usr/share/lintian/overrides/snmp
 
 binary/libsnmp-perl::
 	dh_installexamples -plibsnmp-perl $(shell ls -d perl/SNMP/examples/* | grep -v SCCS)
