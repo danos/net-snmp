@@ -1,14 +1,3 @@
---- net-snmp-5.4.rc2.orig/agent/Makefile.in	2006-11-07 15:54:25.000000000 +0100
-+++ net-snmp-5.4.rc2/agent/Makefile.in	2006-11-15 00:29:26.818214140 +0100
-@@ -102,7 +102,7 @@
- 	 agent_handler.o $(agentgroup_list_o) @OTHERAGENTLIBOBJS@
- LLIBAGENTOBJS=snmp_agent.lo snmp_vars.lo agent_read_config.lo \
- 	agent_registry.lo agent_index.lo agent_trap.lo kernel.lo \
--	agent_handler.lo $(agentgroup_list_lo) @OTHERAGENTLIBLOBJS@
-+	agent_handler.lo $(agentgroup_list_lo) @OTHERAGENTLIBLOBJS@ @WRAPLIBS@
- 
- # The agent objects.
- AGENTOBJS=snmpd.o @other_agentobjs@
 --- net-snmp-5.1.2.orig/local/Makefile.in
 +++ net-snmp-5.1.2/local/Makefile.in
 @@ -58,7 +58,7 @@
@@ -39,49 +28,6 @@
  
  all: standardall
  
---- net-snmp-5.1.2.orig/net-snmp-config.in
-+++ net-snmp-5.1.2/net-snmp-config.in
-@@ -136,13 +136,13 @@
-     #################################################### client lib
-     --libs)
-       # use this one == --netsnmp-libs + --external-libs
--      echo $NSC_LDFLAGS $NSC_LIBDIR -lnetsnmp $NSC_LIBS
-+      echo $NSC_LDFLAGS $NSC_LIBDIR -lnetsnmp $NSC_LIBS @WRAPLIBS@
-       ;;
-     --netsnmp-libs)
-       echo $NSC_LIBDIR -lnetsnmp
-       ;;
-     --external-libs)
--      echo $NSC_LDFLAGS $NSC_LIBS
-+      echo $NSC_LDFLAGS $NSC_LIBS @WRAPLIBS@
-       ;;
-     #################################################### agent lib
-     --base-agent-libs)
-@@ -153,13 +153,13 @@
-       ;;
-     --agent-libs)
-       # use this one == --netsnmp-agent-libs + --external-libs
--      echo $NSC_LDFLAGS $NSC_LIBDIR $NSC_BASE_AGENT_LIBS $NSC_AGENTLIBS
-+      echo $NSC_LDFLAGS $NSC_LIBDIR $NSC_BASE_AGENT_LIBS $NSC_AGENTLIBS @WRAPLIBS@
-       ;;
-     --netsnmp-agent-libs)
-       echo $NSC_LIBDIR $NSC_BASE_AGENT_LIBS
-       ;;
-     --external-agent-libs)
--      echo $NSC_LDFLAGS $NSC_AGENTLIBS
-+      echo $NSC_LDFLAGS $NSC_AGENTLIBS @WRAPLIBS@
-       ;;
-     ####################################################
-     --version|--ver*)
-@@ -445,7 +445,7 @@
-         echo "Ack.  Can't create $tmpfile."
- 	exit 1
-       fi
--      cmd="@CC@ $cflags @CFLAGS@ @DEVFLAGS@ -I. -I${NSC_INCLUDEDIR} -o $outname $tmpfile $cfiles $NSC_LDFLAGS $NSC_LIBDIR $NSC_BASE_AGENT_LIBS $NSC_AGENTLIBS $ldflags"
-+      cmd="@CC@ $cflags @CFLAGS@ @DEVFLAGS@ -I. -I${NSC_INCLUDEDIR} -o $outname $tmpfile $cfiles $NSC_LDFLAGS $NSC_LIBDIR $NSC_BASE_AGENT_LIBS $NSC_AGENTLIBS @WRAPLIBS@ $ldflags"
-       echo "running: $cmd"
-       `$cmd`
-       if test "x$norm" != "x1" ; then
 --- net-snmp-5.1.2.orig/Makefile.top
 +++ net-snmp-5.1.2/Makefile.top
 @@ -27,6 +27,7 @@
@@ -91,69 +37,4 @@
 +sysconfdir	= @sysconfdir@
  DESTDIR         = @INSTALL_PREFIX@
  INSTALL_PREFIX  = @INSTALL_PREFIX@
- 
---- net-snmp-5.1.2.orig/acconfig.h
-+++ net-snmp-5.1.2/acconfig.h
-@@ -560,6 +560,9 @@
- /* define if you have getservbyname */
- #undef HAVE_GETSERVBYNAME
- 
-+/* define if you have dlopen */
-+#undef HAVE_DLOPEN
-+
- /* printing system */
- #undef HAVE_LPSTAT
- #undef LPSTAT_PATH
---- net-snmp-5.1.2.orig/configure.in
-+++ net-snmp-5.1.2/configure.in
-@@ -1664,8 +1668,9 @@
- # Replace `main' with a function in -lkvm:
- AC_CHECK_LIB(kvm, kvm_read)
- # DYNAMIC MODULE SUPPORT
--AC_CHECK_LIB(dl, dlopen)
--AC_CHECK_FUNCS(dlopen)
-+AC_CHECK_FUNC(dlopen, AC_DEFINE(HAVE_DLOPEN),
-+	AC_CHECK_LIB(dl, dlopen, AC_DEFINE(HAVE_DLOPEN)
-+	LIBS="${LIBS} -ldl"))
- 
- AC_CHECK_FUNCS(kvm_openfiles nlist knlist kvm_getprocs)
- echo "$with_mib_modules" | grep "ucd-snmp/diskio" >/dev/null
-@@ -1979,7 +1984,7 @@
- 
- AC_MSG_RESULT([$ac_cv_type_ssize_t])
- if test $ac_cv_type_ssize_t = yes; then
--  AC_DEFINE(HAVE_SSIZE_T)
-+  AC_DEFINE(HAVE_SSIZE_T, 1, [Define if type ssize_t is available])
- fi
- 
- # Check ps args
---- net-snmp-5.1.2.orig/Makefile.rules
-+++ net-snmp-5.1.2/Makefile.rules
-@@ -301,7 +301,7 @@
- # cleaning targets
- #
- clean: cleansubdirs $(OTHERCLEANTODOS)
--	rm -f core ${OBJS} ${LOBJS} $(STANDARDCLEANTARGETS) $(OTHERCLEANTARGETS)
-+	rm -f -- core ${OBJS} ${LOBJS} $(STANDARDCLEANTARGETS) $(OTHERCLEANTARGETS)
- 	rm -rf .libs
- 
- cleansubdirs:
---- net-snmp-5.4.rc3.orig/agent/mibgroup/Makefile.in	2006-11-24 11:08:13.000000000 +0100
-+++ net-snmp-5.4.rc3/agent/mibgroup/Makefile.in	2006-11-24 11:09:06.000000000 +0100
-@@ -22,9 +22,13 @@
- .c.o:
- 	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
- 
--OBJS  = @mib_module_list_o@
--LOBJS = @mib_module_list_lo@
--SRCS  = @mib_module_list_c@
-+@mib_module_list_o@
-+@mib_module_list_lo@
-+@mib_module_list_c@
-+
-+OBJS  = $(mib_module_list_o)
-+LOBJS = $(mib_module_list_lo)
-+SRCS  = $(mib_module_list_c)
- 
- all: standardall $(LOBJS)
  
