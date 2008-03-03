@@ -43,9 +43,9 @@ Package: libsnmp-base
 Section: libs
 Priority: optional
 Architecture: all
-Replaces: snmp (<=3.6.2-3), libsnmp, zebra, zebra-pj, quagga
+Replaces: snmp (<=3.6.2-3), libsnmp, zebra, zebra-pj, quagga, libsnmp-dev (<< 5.4~dfsg)
 Provides: libsnmp
-Conflicts: libsnmp
+Conflicts: libsnmp, libsnmp-dev (<< 5.4~dfsg)
 Depends: 
 Description: SNMP (Simple Network Management Protocol) MIBs and documentation
  The Simple Network Management Protocol (SNMP) provides a framework
@@ -76,9 +76,9 @@ Package: libsnmp-dev
 Section: libdevel
 Priority: optional
 Architecture: any
-Replaces: libsnmp9-dev, libsnmp10-dev, libsnmp15-dev
+Replaces: libsnmp9-dev, libsnmp10-dev, libsnmp15-dev, snmp (<< 5.4~dfsg)
 Provides: libsnmp9-dev
-Conflicts: libsnmp-dev, libsnmp9-dev, libsnmp10-dev, libsnmp15-dev
+Conflicts: libsnmp-dev, libsnmp9-dev, libsnmp10-dev, libsnmp15-dev, snmp (<< 5.4~dfsg)
 Depends: libc6-dev, libsnmp15 (=${binary:Version}), libsnmp-perl (=${binary:Version}), libwrap0-dev, libssl-dev, procps, ${os-specific-dev}
 Description: SNMP (Simple Network Management Protocol) development files
  The Simple Network Management Protocol (SNMP) provides a framework
