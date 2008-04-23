@@ -43,9 +43,9 @@ Package: libsnmp-base
 Section: libs
 Priority: optional
 Architecture: all
-Replaces: snmp (<=3.6.2-3), libsnmp, zebra, zebra-pj, quagga, libsnmp-dev (<< 5.4~dfsg)
+Replaces: snmp (<=3.6.2-3), libsnmp, zebra, zebra-pj, quagga, libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev, libsnmp5-dev
 Provides: libsnmp
-Conflicts: libsnmp, libsnmp-dev (<< 5.4~dfsg)
+Conflicts: libsnmp, libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev, libsnmp5-dev
 Depends: 
 Description: SNMP (Simple Network Management Protocol) MIBs and documentation
  The Simple Network Management Protocol (SNMP) provides a framework
