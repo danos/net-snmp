@@ -106,7 +106,7 @@ Package: libsnmp-python
 Section: python
 Priority: optional
 Architecture: any
-Depends: ${python:Depends}, ${shlibs:Depends}, libsnmp15 (=${Source-Version})
+Depends: ${python:Depends}, ${shlibs:Depends}
 XB-Python-Version: ${python:Versions}
 Provides: ${python:Provides}
 Description: SNMP (Simple Network Management Protocol) Python support
