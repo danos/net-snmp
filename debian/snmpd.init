@@ -35,12 +35,12 @@ case "$1" in
   start)
     echo -n "Starting network management services:"
     if [ "$SNMPDRUN" = "yes" -a -f /etc/snmp/snmpd.conf ]; then
-	start-stop-daemon --quiet --start --exec /usr/sbin/snmpd \
+	start-stop-daemon --quiet --start --oknodo --exec /usr/sbin/snmpd \
 	    -- $SNMPDOPTS
 	echo -n " snmpd"
     fi
     if [ "$TRAPDRUN" = "yes" -a -f /etc/snmp/snmptrapd.conf ]; then
-	start-stop-daemon --quiet --start --exec /usr/sbin/snmptrapd \
+	start-stop-daemon --quiet --start --oknodo --exec /usr/sbin/snmptrapd \
 	    -- $TRAPDOPTS
 	echo -n " snmptrapd"
     fi
