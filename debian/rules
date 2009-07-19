@@ -1,15 +1,23 @@
 #!/usr/bin/make -f
 
+# Fix for broken clean target. Must run before reversing patches
+cleanbuilddir::
+	[ ! -f Makefile ] || make clean
+
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/rules/simple-patchsys.mk
 include /usr/share/cdbs/1/class/autotools.mk
 
 LIB_VERSION = 15
-COMPAT_VERSION = 5.4
+UPSTREAM_VERSION = $(shell dpkg-parsechangelog | egrep '^Version:' | cut -f 2 -d ':' | sed 's/ //' | sed 's/~dfsg.*$$//')
+COMPAT_VERSION = $(UPSTREAM_VERSION)~dfsg
+PYTHON_VERSION = 1.0a1
 BACKUP = aclocal.m4 configure ltmain.sh stamp-h stamp-h.in \
          include/net-snmp/net-snmp-config.h.in
 
 MIB_MODULES = host smux ucd-snmp/dlmod
+
+PYVERS=$(shell pyversions -vr)
 
 ifeq (linux,$(DEB_HOST_ARCH_OS))
 MIB_MODULES += ucd-snmp/diskio ucd-snmp/lmSensors 
@@ -24,7 +32,7 @@ endif
 
 DEB_AUTO_UPDATE_LIBTOOL  = pre
 DEB_AUTO_UPDATE_ACLOCAL  = 1.9
-DEB_AUTO_UPDATE_AUTOCONF = 2.61
+DEB_AUTO_UPDATE_AUTOCONF = 2.59
 
 DEB_DH_MAKESHLIBS_ARGS_libsnmp$(LIB_VERSION) := -V"libsnmp$(LIB_VERSION) (>= $(COMPAT_VERSION))"
 DEB_MAKE_INSTALL_TARGET=install	INSTALL_PREFIX=$(CURDIR)/debian/tmp DESTDIR=$(CURDIR)/debian/tmp
@@ -32,14 +40,15 @@ DEB_MAKE_BUILD_TARGET=LD_RUN_PATH=
 DEB_CONFIGURE_EXTRA_FLAGS := --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man \
 	  --with-persistent-directory=/var/lib/snmp \
 	  --enable-ucd-snmp-compatibility \
-	  --enable-shared --with-cflags="$(CFLAGS)" \
-	  --with-perl-modules="INSTALLDIRS=vendor" \
+	  --enable-shared --with-cflags="$(CFLAGS) -DNETSNMP_USE_INLINE" \
+	  --with-perl-modules="INSTALLDIRS=vendor" --enable-as-needed \
 	  $(IPV6) --with-logfile=none \
 	  --without-rpm --with-libwrap --with-openssl \
 	  --without-dmalloc --without-efence --without-rsaref \
 	  --with-sys-contact="root" --with-sys-location="Unknown" \
 	  --with-mib-modules="$(MIB_MODULES)" \
 	  --enable-mfd-rewrites \
+	  --with-mnttab=/etc/mtab \
 	  --with-defaults
 
 pre-build::
@@ -55,8 +64,19 @@ clean::
 	for i in $(BACKUP); do \
 		if [ -f $$i.backup ]; then mv -f $$i.backup $$i; fi ; \
 	done
+	find . -name *\.py[co] -exec rm {} \;
+	find debian -name python-*-stamp-* -exec rm {} \;
+	rm -rf python/build
+	rm -rf python/netsnmp_python.egg-info
 
-common-install-arch::
+common-build-arch:: $(PYVERS:%=debian/python-build-stamp-%)
+
+debian/python-build-stamp-%:
+	# Build python modules manually as the net-snmp Makefile is too limited.
+	cd python; python$* setup.py build --basedir=$(CURDIR)
+	touch $@
+
+common-install-arch:: $(PYVERS:%=debian/python-install-stamp-%)
 	# Install the "broke" headers
 	cp agent/mibgroup/struct.h debian/tmp/usr/include/net-snmp/agent
 	cp agent/mibgroup/util_funcs.h debian/tmp/usr/include/net-snmp
@@ -79,6 +99,16 @@ common-install-arch::
 	cp debian/snmpd.lintian-overrides debian/tmp/usr/share/lintian/overrides/snmpd
 	cp debian/snmp.lintian-overrides debian/tmp/usr/share/lintian/overrides/snmp
 
+debian/python-install-stamp-%:
+	# Build python modules manually as the net-snmp Makefile is too limited.
+	cd python; python$* setup.py install --root $(CURDIR)/debian/tmp
+	mv debian/tmp/usr/lib/python$*/site-packages/netsnmp_python-$(PYTHON_VERSION)-py$*.egg-info \
+	   debian/tmp/usr/lib/python$*/site-packages/netsnmp_python.egg-info
+	touch $@
+
+binary-install/libsnmp-python::
+	dh_pycentral -plibsnmp-python
+
 binary/libsnmp-perl::
 	dh_installexamples -plibsnmp-perl $(shell ls -d perl/SNMP/examples/* | grep -v SCCS)
 
@@ -88,3 +118,13 @@ binary/snmpd::
 binary/libsnmp$(LIB_VERSION)-dev::
 	rm -rf debian/libsnmp$(LIB_VERSION)-dev/usr/share/doc/libsnmp$(LIB_VERSION)-dev
 	ln -sf libsnmp$(LIB_VERSION) debian/libsnmp$(LIB_VERSION)-dev/usr/share/doc/libsnmp$(LIB_VERSION)-dev
+
+get-orig-source:
+	@uscan --download-version $(UPSTREAM_VERSION) --destdir /tmp --force-download --no-symlink
+	@tar xfz /tmp/net-snmp-$(UPSTREAM_VERSION).tar.gz -C /tmp
+	@rm -rf /tmp/net-snmp-$(UPSTREAM_VERSION)/doc
+	@cd /tmp/net-snmp-$(UPSTREAM_VERSION)/mibs; \
+	cat rfclist ianalist | while read rfc mibs; do rm -f `echo $$mibs | sed 's/:/.txt /g' | sed 's/$$/.txt/'`; done
+	@rm -f /tmp/net-snmp-$(UPSTREAM_VERSION)/mibs/RFC-1215.txt
+	@cd /tmp; tar czf net-snmp-$(COMPAT_VERSION).tar.gz net-snmp-$(UPSTREAM_VERSION)
+	@rm -rf /tmp/net-snmp-$(UPSTREAM_VERSION)
