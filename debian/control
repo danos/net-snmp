@@ -16,7 +16,7 @@ Priority: optional
 Architecture: any
 Conflicts: snmp (<<3.6-3), snmptraplogd
 Replaces: snmptraplogd
-Depends: ${shlibs:Depends}, adduser, debconf
+Depends: ${shlibs:Depends}, adduser, debconf, lsb-base (>= 3.2-13)
 Description: SNMP (Simple Network Management Protocol) agents
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)

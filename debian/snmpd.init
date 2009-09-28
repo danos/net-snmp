@@ -13,6 +13,8 @@
 #
 set -e
 
+. /lib/lsb/init-functions
+
 export PATH=/sbin:/usr/sbin:/bin:/usr/bin
 
 test -x /usr/sbin/snmpd || exit 0
@@ -30,6 +32,11 @@ TRAPDOPTS='-Lsd -p /var/run/snmptrapd.pid'
 
 # Cd to / before starting any daemons.
 cd /
+
+# Create compatibility link to old AgentX socket location
+if [ "$SNMPDCOMPAT" = "yes" ] && [ "$1" != status ]; then
+  ln -sf /var/agentx/master /var/run/agentx
+fi
 
 case "$1" in
   start)
@@ -81,8 +88,14 @@ case "$1" in
     fi
     echo "."
     ;;
+  status)
+    status=0
+    status_of_proc /usr/sbin/snmpd snmpd || status=$?
+    status_of_proc /usr/sbin/snmptrapd snmptrapd || status=$?
+    exit $status
+    ;;
   *)
-    echo "Usage: /etc/init.d/snmpd {start|stop|restart|reload|force-reload}"
+    echo "Usage: /etc/init.d/snmpd {start|stop|restart|reload|force-reload|status}"
     exit 1
 esac
 
