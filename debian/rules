@@ -124,5 +124,5 @@ get-orig-source:
 	@cd /tmp/net-snmp-$(UPSTREAM_VERSION)/mibs; \
 	cat rfclist ianalist | while read rfc mibs; do rm -f `echo $$mibs | sed 's/:/.txt /g' | sed 's/$$/.txt/'`; done
 	@rm -f /tmp/net-snmp-$(UPSTREAM_VERSION)/mibs/RFC-1215.txt
-	@cd /tmp; tar czf net-snmp-$(COMPAT_VERSION).tar.gz net-snmp-$(UPSTREAM_VERSION)
+	@cd /tmp; tar czf net-snmp_$(COMPAT_VERSION).orig.tar.gz net-snmp-$(UPSTREAM_VERSION)
 	@rm -rf /tmp/net-snmp-$(UPSTREAM_VERSION)
