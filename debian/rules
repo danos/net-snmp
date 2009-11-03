@@ -92,11 +92,6 @@ common-install-arch:: $(PYVERS:%=debian/python-install-stamp-%)
 	# Perform other man pages fixups.
 	bash ./debian/fixman
 
-	# make lintian happy
-	mkdir -p debian/tmp/usr/share/lintian/overrides
-	cp debian/snmpd.lintian-overrides debian/tmp/usr/share/lintian/overrides/snmpd
-	cp debian/snmp.lintian-overrides debian/tmp/usr/share/lintian/overrides/snmp
-
 debian/python-install-stamp-%:
 	# Build python modules manually as the net-snmp Makefile is too limited.
 	cd python; python$* setup.py install --root $(CURDIR)/debian/tmp
