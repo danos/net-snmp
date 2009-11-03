@@ -89,6 +89,7 @@ common-install-arch:: $(PYVERS:%=debian/python-install-stamp-%)
 	cp debian/snmpd.default debian/tmp/etc/default/snmpd
 	dh_installdocs -plibsnmp-base mibs/README.mibs
 
+common-install-indep::
 	# Perform other man pages fixups.
 	bash ./debian/fixman
 
