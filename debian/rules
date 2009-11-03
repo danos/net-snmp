@@ -8,11 +8,12 @@ include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/rules/patchsys-quilt.mk
 include /usr/share/cdbs/1/class/autotools.mk
 
+include /usr/share/python/python.mk
+
 LIB_VERSION = 15
 UPSTREAM_VERSION = $(shell dpkg-parsechangelog | egrep '^Version:' | cut -f 2 -d ':' | sed 's/ //' | sed 's/~dfsg.*$$//')
 COMPAT_VERSION = $(UPSTREAM_VERSION)~dfsg
 PYTHON_VERSION = 1.0a1
-EXTRACLEAN = aclocal.m4 configure ltmain.sh stamp-h stamp-h.in include/net-snmp/net-snmp-config.h.in
 
 MIB_MODULES = host smux ucd-snmp/dlmod
 
@@ -56,10 +57,9 @@ pre-build::
 	touch aclocal.m4
 
 clean::
-	dh_clean perl/SNMP/t/snmptest.cmd
+	dh_clean
 	rm -rf `find . -name .libs`
 	rm -rf `find . -name .svn`
-	rm -rf $(EXTRACLEAN);
 	find . -name *\.py[co] -exec rm {} \;
 	find debian -name python-*-stamp-* -exec rm {} \;
 	rm -rf python/build
