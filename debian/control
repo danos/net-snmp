@@ -16,7 +16,7 @@ Priority: optional
 Architecture: any
 Conflicts: snmp (<<3.6-3), snmptraplogd
 Replaces: snmptraplogd
-Depends: ${shlibs:Depends}, adduser, debconf, lsb-base (>= 3.2-13)
+Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, debconf, lsb-base (>= 3.2-13)
 Description: SNMP (Simple Network Management Protocol) agents
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
@@ -30,7 +30,7 @@ Section: net
 Priority: optional
 Architecture: any
 Recommends: perl-modules
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: SNMP (Simple Network Management Protocol) applications
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
@@ -46,7 +46,7 @@ Architecture: all
 Replaces: snmp (<=3.6.2-3), libsnmp, zebra, zebra-pj, quagga, libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev (<< 5.4~dfsg), libsnmp5-dev
 Provides: libsnmp
 Conflicts: libsnmp, libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev (<< 5.4~dfsg), libsnmp5-dev
-Depends: 
+Depends: ${misc:Depends}
 Description: SNMP (Simple Network Management Protocol) MIBs and documentation
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
@@ -62,7 +62,7 @@ Section: libs
 Priority: optional
 Architecture: any
 Replaces: snmp (<=3.6.2-3), snmpd (<=4.1.2-1)
-Depends: libsnmp-base (>=${source:Version}), ${shlibs:Depends}
+Depends: libsnmp-base (>=${source:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: SNMP (Simple Network Management Protocol) library
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
@@ -76,7 +76,7 @@ Package: libsnmp15-dbg
 Section: debug
 Priority: extra
 Architecture: any
-Depends: libsnmp15 (=${binary:Version})
+Depends: libsnmp15 (=${binary:Version}), ${misc:Depends}
 Description: SNMP (Simple Network Management Protocol) library debug
  Debug sybols for libsnmp15.
 
@@ -87,7 +87,7 @@ Architecture: any
 Replaces: libsnmp9-dev, libsnmp10-dev, libsnmp15-dev, snmp (<< 5.4~dfsg)
 Provides: libsnmp9-dev
 Conflicts: libsnmp-dev, libsnmp9-dev, libsnmp10-dev, libsnmp15-dev, snmp (<< 5.4~dfsg)
-Depends: libc6-dev, libsnmp15 (=${binary:Version}), libsnmp-perl (=${binary:Version}), libwrap0-dev, libssl-dev, procps, ${os-specific-dev}
+Depends: libc6-dev, libsnmp15 (=${binary:Version}), libsnmp-perl (=${binary:Version}), libwrap0-dev, libssl-dev, procps, ${os-specific-dev}, ${misc:Depends}
 Description: SNMP (Simple Network Management Protocol) development files
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
@@ -101,7 +101,7 @@ Package: libsnmp-perl
 Section: perl
 Priority: optional
 Architecture: any
-Depends: ${perl:Depends}, libsnmp15 (=${binary:Version}), ${shlibs:Depends}
+Depends: ${perl:Depends}, libsnmp15 (=${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: SNMP (Simple Network Management Protocol) Perl5 support
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
@@ -114,7 +114,7 @@ Package: libsnmp-python
 Section: python
 Priority: optional
 Architecture: any
-Depends: ${python:Depends}, ${shlibs:Depends}
+Depends: ${python:Depends}, ${shlibs:Depends}, ${misc:Depends}
 XB-Python-Version: ${python:Versions}
 Provides: ${python:Provides}
 Description: SNMP (Simple Network Management Protocol) Python support
@@ -129,7 +129,7 @@ Package: tkmib
 Section: net
 Priority: optional
 Architecture: all
-Depends: libsnmp-perl (>=${source:Version}), perl-tk
+Depends: libsnmp-perl (>=${source:Version}), perl-tk, ${misc:Depends}
 Description: SNMP (Simple Network Management Protocol) MIB browser
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
