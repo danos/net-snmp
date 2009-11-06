@@ -5,3 +5,4 @@
 07_docfiles.patch
 08_defaultconfig.patch
 25_duplicate_iftable.patch
+56_manpage.patch
