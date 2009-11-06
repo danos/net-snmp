@@ -51,6 +51,7 @@ DEB_CONFIGURE_EXTRA_FLAGS := --prefix=/usr --sysconfdir=/etc --mandir=/usr/share
 	  --with-mib-modules="$(MIB_MODULES)" \
 	  --enable-mfd-rewrites \
 	  --with-mnttab=/etc/mtab \
+	  --with-mibdirs="\$HOME/.snmp/mibs:/usr/share/mibs/iana:/usr/share/mibs/ietf:/usr/share/mibs/netsnmp" \
 	  --with-defaults
 
 pre-build::

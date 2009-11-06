@@ -2,7 +2,7 @@
 
 # MIB directories.  /usr/share/snmp/mibs is the default, but
 # including it here avoids some strange problems.
-export MIBDIRS=/usr/share/snmp/mibs
+export MIBDIRS=/usr/share/mibs/iana:/usr/share/mibs/ietf:/usr/share/mibs/netsnmp
 
 # snmpd control (yes means start daemon).
 SNMPDRUN=yes

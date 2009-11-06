@@ -1,7 +1,7 @@
 Index: net-snmp-5.4.2.1/local/Makefile.in
 ===================================================================
---- net-snmp-5.4.2.1.orig/local/Makefile.in	2009-11-06 15:03:06.000000000 +0100
-+++ net-snmp-5.4.2.1/local/Makefile.in	2009-11-06 15:05:53.000000000 +0100
+--- net-snmp-5.4.2.1.orig/local/Makefile.in	2009-11-06 17:21:05.000000000 +0100
++++ net-snmp-5.4.2.1/local/Makefile.in	2009-11-06 17:25:10.000000000 +0100
 @@ -100,7 +100,7 @@
  
  mib2c.made: $(srcdir)/mib2c
@@ -13,11 +13,14 @@ Index: net-snmp-5.4.2.1/local/Makefile.in
          fi
 Index: net-snmp-5.4.2.1/Makefile.top
 ===================================================================
---- net-snmp-5.4.2.1.orig/Makefile.top	2009-11-06 15:03:06.000000000 +0100
-+++ net-snmp-5.4.2.1/Makefile.top	2009-11-06 15:05:53.000000000 +0100
-@@ -26,6 +26,7 @@
+--- net-snmp-5.4.2.1.orig/Makefile.top	2009-11-06 17:21:05.000000000 +0100
++++ net-snmp-5.4.2.1/Makefile.top	2009-11-06 17:25:41.000000000 +0100
+@@ -24,8 +24,9 @@
+ man5dir		= $(mandir)/man5
+ man8dir		= $(mandir)/man8
  snmplibdir	= $(datadir)/snmp
- mibdir		= $(snmplibdir)/mibs
+-mibdir		= $(snmplibdir)/mibs
++mibdir		= $(datadir)/mibs/netsnmp
  persistentdir	= @PERSISTENT_DIRECTORY@
 +sysconfdir	= @sysconfdir@
  DESTDIR         = @INSTALL_PREFIX@
@@ -25,17 +28,21 @@ Index: net-snmp-5.4.2.1/Makefile.top
  
 Index: net-snmp-5.4.2.1/mibs/Makefile.in
 ===================================================================
---- net-snmp-5.4.2.1.orig/mibs/Makefile.in	2009-11-06 15:03:06.000000000 +0100
-+++ net-snmp-5.4.2.1/mibs/Makefile.in	2009-11-06 15:07:25.000000000 +0100
-@@ -13,57 +13,35 @@
+--- net-snmp-5.4.2.1.orig/mibs/Makefile.in	2009-11-06 17:21:05.000000000 +0100
++++ net-snmp-5.4.2.1/mibs/Makefile.in	2009-11-06 17:25:10.000000000 +0100
+@@ -13,53 +13,33 @@
  OTHERUNINSTALL=mibsuninstall
  
  
 -V1MIBS	= RFC1155-SMI.txt RFC1213-MIB.txt RFC-1215.txt
--
++NETSNMPMIBS = NET-SNMP-TC NET-SNMP-MIB NET-SNMP-AGENT-MIB \
++	NET-SNMP-EXAMPLES-MIB NET-SNMP-EXTEND-MIB
+ 
 -V2MIBS = SNMPv2-CONF.txt SNMPv2-SMI.txt SNMPv2-TC.txt SNMPv2-TM.txt \
 -	SNMPv2-MIB.txt
--
++UCDMIBS = UCD-SNMP-MIB UCD-DEMO-MIB UCD-IPFWACC-MIB \
++	UCD-DLMOD-MIB UCD-DISKIO-MIB
+ 
 -V3MIBS	= SNMP-FRAMEWORK-MIB.txt SNMP-MPD-MIB.txt SNMP-TARGET-MIB.txt \
 -	SNMP-NOTIFICATION-MIB.txt SNMP-PROXY-MIB.txt \
 -	SNMP-USER-BASED-SM-MIB.txt SNMP-VIEW-BASED-ACM-MIB.txt \
@@ -60,20 +67,19 @@ Index: net-snmp-5.4.2.1/mibs/Makefile.in
 -	SNMP-USM-DH-OBJECTS-MIB.txt \
 -	SCTP-MIB.txt
 -
- NETSNMPMIBS = NET-SNMP-TC.txt NET-SNMP-MIB.txt NET-SNMP-AGENT-MIB.txt \
- 	NET-SNMP-EXAMPLES-MIB.txt NET-SNMP-EXTEND-MIB.txt
- 
- UCDMIBS = UCD-SNMP-MIB.txt UCD-DEMO-MIB.txt UCD-IPFWACC-MIB.txt \
- 	UCD-DLMOD-MIB.txt UCD-DISKIO-MIB.txt
- 
+-NETSNMPMIBS = NET-SNMP-TC.txt NET-SNMP-MIB.txt NET-SNMP-AGENT-MIB.txt \
+-	NET-SNMP-EXAMPLES-MIB.txt NET-SNMP-EXTEND-MIB.txt
+-
+-UCDMIBS = UCD-SNMP-MIB.txt UCD-DEMO-MIB.txt UCD-IPFWACC-MIB.txt \
+-	UCD-DLMOD-MIB.txt UCD-DISKIO-MIB.txt
+-
 -DEFAULTMIBS = @default_mibs_install@
-+EXTRAMIBS = BGP4-MIB.txt BRIDGE-MIB.txt GNOME-SMI.txt OSPF-MIB.txt \
-+	OSPF-TRAP-MIB.txt RIPv2-MIB.txt SOURCE-ROUTING-MIB.txt \
-+	LM-SENSORS-MIB.txt
- 
+-
 -MIBS	= $(V1MIBS) $(V2MIBS) $(V3MIBS) $(RFCMIBS) \
 -	$(AGENTMIBS) $(IANAMIBS) \
 -	$(NETSNMPMIBS) $(UCDMIBS) $(DEFAULTMIBS)
++EXTRAMIBS = GNOME-SMI LM-SENSORS-MIB
++
 +MIBS	= $(NETSNMPMIBS) $(UCDMIBS) $(EXTRAMIBS)
 +
 +HELPERS = Makefile.mib ianalist rfclist rfcmibs.diff
@@ -83,51 +89,37 @@ Index: net-snmp-5.4.2.1/mibs/Makefile.in
  
  mibsinstall: installdirs
 -	@for i in $(MIBS) ; do \
-+	@for i in $(MIBS) $(HELPERS) ; do \
- 		$(INSTALL_DATA) $(srcdir)/$$i $(INSTALL_PREFIX)$(mibdir) ; \
- 		echo "install: installed $$i in $(INSTALL_PREFIX)$(mibdir)" ; \
- 	done
-+	@for i in $(BINHELPERS) ; do \
-+		$(INSTALL) $(srcdir)/$$i $(INSTALL_PREFIX)$(mibdir) ; \
-+		echo "install: installed $$i in $(INSTALL_PREFIX)$(mibdir)" ; \
+-		$(INSTALL_DATA) $(srcdir)/$$i $(INSTALL_PREFIX)$(mibdir) ; \
+-		echo "install: installed $$i in $(INSTALL_PREFIX)$(mibdir)" ; \
++	@for i in $(MIBS); do \
++		$(INSTALL_DATA) $(srcdir)/$$i.txt $(INSTALL_PREFIX)$(mibdir)/$$i ; \
++		echo "install: installed $$i.txt in $(INSTALL_PREFIX)$(mibdir)/$$i" ; \
 +	done
++	@for i in $(HELPERS); do \
++		$(INSTALL_DATA) $(srcdir)/$$i $(INSTALL_PREFIX)$(datadir)/mibs ; \
++		echo "install: installed $$i in $(INSTALL_PREFIX)$(datadir)/mibs" ; \
++	done
++	@for i in $(BINHELPERS) ; do \
++		$(INSTALL) $(srcdir)/$$i $(INSTALL_PREFIX)$(datadir)/mibs ; \
++		echo "install: installed $$i in $(INSTALL_PREFIX)$(datadir)/mibs" ; \
+ 	done
  
  mibsuninstall: installdirs
--	@for i in $(MIBS) ; do \
-+	@for i in $(MIBS) $(HELPERS) $(BINHELPERS) ; do \
+@@ -67,6 +47,10 @@
  		rm -f $(INSTALL_PREFIX)$(mibdir)/$$i ; \
  		echo "removed $$i from $(INSTALL_PREFIX)$(mibdir)" ; \
  	done
-Index: net-snmp-5.4.2.1/mibs/Makefile.mib
-===================================================================
---- net-snmp-5.4.2.1.orig/mibs/Makefile.mib	2009-11-06 15:03:06.000000000 +0100
-+++ net-snmp-5.4.2.1/mibs/Makefile.mib	2009-11-06 15:05:53.000000000 +0100
-@@ -5,9 +5,9 @@
- IANAHOST =	http://www.iana.org
- IANADIR =	assignments
++	@for i in $(HELPERS) $(BINHELPERS) ; do \
++		rm -f $(INSTALL_PREFIX)$(mibdir)/$$i ; \
++		echo "removed $$i from $(INSTALL_PREFIX)$(datadir)/mibs" ; \
++	done
  
--PREFIX =	/usr/local
--ALLDIR =	$(PREFIX)/share/snmp/rfc.orig
--INSTDIR =	$(PREFIX)/share/snmp/rfc
-+PREFIX =	/usr
-+ALLDIR =	/var/tmp/rfc.orig
-+INSTDIR =	$(PREFIX)/share/snmp/mibs
- 
- MIBS =	SNMPv2-TC.txt SNMPv2-TM.txt SNMPv2-SMI.txt SNMPv2-MIB.txt \
- 	SNMPv2-CONF.txt HCNUM-TC.txt INET-ADDRESS-MIB.txt \
-@@ -158,7 +158,7 @@
- RFC1213-MIB.txt:	$(MIBDEPS)
- 	./mibfetch $(RFCHOST) $(RFCDIR) 1213
- 
--SCTP.txt:	$(MIBDEPS)
-+SCTP-MIB.txt:	$(MIBDEPS)
- 	./mibfetch $(RFCHOST) $(RFCDIR) 3873
- 
- ianamibs:	ianalist
+ installdirs:
+ 	@$(SHELL) $(srcdir)/../mkinstalldirs $(INSTALL_PREFIX)$(mibdir)
 Index: net-snmp-5.4.2.1/Makefile.in
 ===================================================================
---- net-snmp-5.4.2.1.orig/Makefile.in	2009-11-06 15:03:06.000000000 +0100
-+++ net-snmp-5.4.2.1/Makefile.in	2009-11-06 15:05:53.000000000 +0100
+--- net-snmp-5.4.2.1.orig/Makefile.in	2009-11-06 17:21:05.000000000 +0100
++++ net-snmp-5.4.2.1/Makefile.in	2009-11-06 17:25:10.000000000 +0100
 @@ -156,7 +156,7 @@
  #
  # override LD_RUN_PATH to avoid dependencies on the build directory
