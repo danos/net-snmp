@@ -1,6 +1,8 @@
---- net-snmp-5.1.2.orig/local/Makefile.in
-+++ net-snmp-5.1.2/local/Makefile.in
-@@ -58,7 +58,7 @@
+Index: net-snmp-5.4.2.1/local/Makefile.in
+===================================================================
+--- net-snmp-5.4.2.1.orig/local/Makefile.in	2009-11-06 15:03:06.000000000 +0100
++++ net-snmp-5.4.2.1/local/Makefile.in	2009-11-06 15:05:53.000000000 +0100
+@@ -100,7 +100,7 @@
  
  mib2c.made: $(srcdir)/mib2c
  	if test "x$(PERL)" != "x" ; then \
@@ -9,32 +11,129 @@
  	else \
  	  touch mib2c.made; \
          fi
---- net-snmp-5.1.2.orig/mibs/Makefile.in
-+++ net-snmp-5.1.2/mibs/Makefile.in
-@@ -43,11 +43,15 @@
- UCDMIBS = UCD-SNMP-MIB.txt UCD-DEMO-MIB.txt UCD-IPFWACC-MIB.txt \
- 	UCD-DLMOD-MIB.txt UCD-DISKIO-MIB.txt
- 
-+EXTRAMIBS = BGP4-MIB.txt BRIDGE-MIB.txt GNOME-SMI.txt OSPF-MIB.txt \
-+	OSPF-TRAP-MIB.txt RIPv2-MIB.txt SOURCE-ROUTING-MIB.txt \
-+	LM-SENSORS-MIB.txt
-+
- DEFAULTMIBS = @default_mibs_install@
- 
- MIBS	= $(V1MIBS) $(V2MIBS) $(V3MIBS) $(RFCMIBS) \
- 	$(AGENTMIBS) $(IANAMIBS) \
--	$(NETSNMPMIBS) $(UCDMIBS) $(DEFAULTMIBS)
-+	$(NETSNMPMIBS) $(UCDMIBS) $(DEFAULTMIBS) $(EXTRAMIBS)
- 
- all: standardall
- 
---- net-snmp-5.1.2.orig/Makefile.top
-+++ net-snmp-5.1.2/Makefile.top
-@@ -27,6 +27,7 @@
+Index: net-snmp-5.4.2.1/Makefile.top
+===================================================================
+--- net-snmp-5.4.2.1.orig/Makefile.top	2009-11-06 15:03:06.000000000 +0100
++++ net-snmp-5.4.2.1/Makefile.top	2009-11-06 15:05:53.000000000 +0100
+@@ -26,6 +26,7 @@
  snmplibdir	= $(datadir)/snmp
  mibdir		= $(snmplibdir)/mibs
  persistentdir	= @PERSISTENT_DIRECTORY@
 +sysconfdir	= @sysconfdir@
  DESTDIR         = @INSTALL_PREFIX@
- INSTALL_PREFIX  = @INSTALL_PREFIX@
+ INSTALL_PREFIX  = $(DESTDIR)
  
+Index: net-snmp-5.4.2.1/mibs/Makefile.in
+===================================================================
+--- net-snmp-5.4.2.1.orig/mibs/Makefile.in	2009-11-06 15:03:06.000000000 +0100
++++ net-snmp-5.4.2.1/mibs/Makefile.in	2009-11-06 15:07:25.000000000 +0100
+@@ -13,57 +13,35 @@
+ OTHERUNINSTALL=mibsuninstall
+ 
+ 
+-V1MIBS	= RFC1155-SMI.txt RFC1213-MIB.txt RFC-1215.txt
+-
+-V2MIBS = SNMPv2-CONF.txt SNMPv2-SMI.txt SNMPv2-TC.txt SNMPv2-TM.txt \
+-	SNMPv2-MIB.txt
+-
+-V3MIBS	= SNMP-FRAMEWORK-MIB.txt SNMP-MPD-MIB.txt SNMP-TARGET-MIB.txt \
+-	SNMP-NOTIFICATION-MIB.txt SNMP-PROXY-MIB.txt \
+-	SNMP-USER-BASED-SM-MIB.txt SNMP-VIEW-BASED-ACM-MIB.txt \
+-	SNMP-COMMUNITY-MIB.txt TRANSPORT-ADDRESS-MIB.txt
+-
+-AGENTMIBS = AGENTX-MIB.txt SMUX-MIB.txt
+-
+-IANAMIBS = IANAifType-MIB.txt IANA-LANGUAGE-MIB.txt \
+-	IANA-ADDRESS-FAMILY-NUMBERS-MIB.txt
+-
+-RFCMIBS	= IF-MIB.txt IF-INVERTED-STACK-MIB.txt \
+-	EtherLike-MIB.txt \
+-	IP-MIB.txt IP-FORWARD-MIB.txt IANA-RTPROTO-MIB.txt \
+-	TCP-MIB.txt UDP-MIB.txt \
+-	INET-ADDRESS-MIB.txt HCNUM-TC.txt \
+-	HOST-RESOURCES-MIB.txt HOST-RESOURCES-TYPES.txt \
+-	RMON-MIB.txt \
+-	IPV6-TC.txt IPV6-MIB.txt IPV6-ICMP-MIB.txt IPV6-TCP-MIB.txt \
+-	IPV6-UDP-MIB.txt \
+-	DISMAN-EVENT-MIB.txt DISMAN-SCRIPT-MIB.txt DISMAN-SCHEDULE-MIB.txt \
+-	NOTIFICATION-LOG-MIB.txt SNMP-USM-AES-MIB.txt \
+-	SNMP-USM-DH-OBJECTS-MIB.txt \
+-	SCTP-MIB.txt
+-
+ NETSNMPMIBS = NET-SNMP-TC.txt NET-SNMP-MIB.txt NET-SNMP-AGENT-MIB.txt \
+ 	NET-SNMP-EXAMPLES-MIB.txt NET-SNMP-EXTEND-MIB.txt
+ 
+ UCDMIBS = UCD-SNMP-MIB.txt UCD-DEMO-MIB.txt UCD-IPFWACC-MIB.txt \
+ 	UCD-DLMOD-MIB.txt UCD-DISKIO-MIB.txt
+ 
+-DEFAULTMIBS = @default_mibs_install@
++EXTRAMIBS = BGP4-MIB.txt BRIDGE-MIB.txt GNOME-SMI.txt OSPF-MIB.txt \
++	OSPF-TRAP-MIB.txt RIPv2-MIB.txt SOURCE-ROUTING-MIB.txt \
++	LM-SENSORS-MIB.txt
+ 
+-MIBS	= $(V1MIBS) $(V2MIBS) $(V3MIBS) $(RFCMIBS) \
+-	$(AGENTMIBS) $(IANAMIBS) \
+-	$(NETSNMPMIBS) $(UCDMIBS) $(DEFAULTMIBS)
++MIBS	= $(NETSNMPMIBS) $(UCDMIBS) $(EXTRAMIBS)
++
++HELPERS = Makefile.mib ianalist rfclist rfcmibs.diff
++BINHELPERS = mibfetch smistrip
+ 
+ all: standardall
+ 
+ mibsinstall: installdirs
+-	@for i in $(MIBS) ; do \
++	@for i in $(MIBS) $(HELPERS) ; do \
+ 		$(INSTALL_DATA) $(srcdir)/$$i $(INSTALL_PREFIX)$(mibdir) ; \
+ 		echo "install: installed $$i in $(INSTALL_PREFIX)$(mibdir)" ; \
+ 	done
++	@for i in $(BINHELPERS) ; do \
++		$(INSTALL) $(srcdir)/$$i $(INSTALL_PREFIX)$(mibdir) ; \
++		echo "install: installed $$i in $(INSTALL_PREFIX)$(mibdir)" ; \
++	done
+ 
+ mibsuninstall: installdirs
+-	@for i in $(MIBS) ; do \
++	@for i in $(MIBS) $(HELPERS) $(BINHELPERS) ; do \
+ 		rm -f $(INSTALL_PREFIX)$(mibdir)/$$i ; \
+ 		echo "removed $$i from $(INSTALL_PREFIX)$(mibdir)" ; \
+ 	done
+Index: net-snmp-5.4.2.1/mibs/Makefile.mib
+===================================================================
+--- net-snmp-5.4.2.1.orig/mibs/Makefile.mib	2009-11-06 15:03:06.000000000 +0100
++++ net-snmp-5.4.2.1/mibs/Makefile.mib	2009-11-06 15:05:53.000000000 +0100
+@@ -5,9 +5,9 @@
+ IANAHOST =	http://www.iana.org
+ IANADIR =	assignments
+ 
+-PREFIX =	/usr/local
+-ALLDIR =	$(PREFIX)/share/snmp/rfc.orig
+-INSTDIR =	$(PREFIX)/share/snmp/rfc
++PREFIX =	/usr
++ALLDIR =	/var/tmp/rfc.orig
++INSTDIR =	$(PREFIX)/share/snmp/mibs
+ 
+ MIBS =	SNMPv2-TC.txt SNMPv2-TM.txt SNMPv2-SMI.txt SNMPv2-MIB.txt \
+ 	SNMPv2-CONF.txt HCNUM-TC.txt INET-ADDRESS-MIB.txt \
+@@ -158,7 +158,7 @@
+ RFC1213-MIB.txt:	$(MIBDEPS)
+ 	./mibfetch $(RFCHOST) $(RFCDIR) 1213
+ 
+-SCTP.txt:	$(MIBDEPS)
++SCTP-MIB.txt:	$(MIBDEPS)
+ 	./mibfetch $(RFCHOST) $(RFCDIR) 3873
+ 
+ ianamibs:	ianalist
+Index: net-snmp-5.4.2.1/Makefile.in
+===================================================================
+--- net-snmp-5.4.2.1.orig/Makefile.in	2009-11-06 15:03:06.000000000 +0100
++++ net-snmp-5.4.2.1/Makefile.in	2009-11-06 15:05:53.000000000 +0100
+@@ -156,7 +156,7 @@
+ #
+ # override LD_RUN_PATH to avoid dependencies on the build directory
+ perlmodules: perlmakefiles subdirs
+-	@(cd perl ; $(MAKE) LD_RUN_PATH="$(libdir):`$(PERL) -e 'use Config; print qq($$Config{archlibexp}/CORE);'`") ; \
++	@(cd perl ; $(MAKE) LD_RUN_PATH="") ; \
+         if test $$? != 0 ; then \
+            exit 1 ; \
+         fi
