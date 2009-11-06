@@ -3,13 +3,8 @@
 set -e
 
 if [ "x$1" = xconfigure ]; then
-	adduser --quiet --system --no-create-home --home /var/lib/snmp snmp
-	chown -R snmp /var/lib/snmp
-fi
-
-if [ -S /var/run/agentx ]; then
-	rm -f /var/run/agentx
-	ln -sf /var/agentx/socket /var/run/agentx
+	adduser --quiet --system --group --no-create-home --home /var/lib/snmp snmp
+	chown -R snmp:snmp /var/lib/snmp
 fi
 
 . /usr/share/debconf/confmodule
