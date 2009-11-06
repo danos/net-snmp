@@ -3,6 +3,8 @@ configure
 ltmain.sh
 stamp-h
 stamp-h.in
+configure-summary
+config.log
 include/net-snmp/net-snmp-config.h.in
 perl/Makefile.old
 perl/SNMP/Makefile.old
