@@ -103,13 +103,13 @@ debian/python-install-stamp-%:
 binary-install/libsnmp-python::
 	dh_pycentral -plibsnmp-python
 
-binary/libsnmp-perl::
+binary-install/libsnmp-perl::
 	dh_installexamples -plibsnmp-perl $(shell ls -d perl/SNMP/examples/* | grep -v SCCS)
 
-binary/snmpd::
+binary-fixup/snmpd::
 	chmod 600 debian/snmpd/etc/snmp/snmp*d.conf
 
-binary/libsnmp$(LIB_VERSION)-dev::
+binary-install/libsnmp$(LIB_VERSION)-dev::
 	rm -rf debian/libsnmp$(LIB_VERSION)-dev/usr/share/doc/libsnmp$(LIB_VERSION)-dev
 	ln -sf libsnmp$(LIB_VERSION) debian/libsnmp$(LIB_VERSION)-dev/usr/share/doc/libsnmp$(LIB_VERSION)-dev
 
