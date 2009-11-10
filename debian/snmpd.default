@@ -1,8 +1,8 @@
 # This file controls the activity of snmpd and snmptrapd
 
-# MIB directories.  /usr/share/snmp/mibs is the default, but
-# including it here avoids some strange problems.
-export MIBDIRS=/usr/share/mibs/iana:/usr/share/mibs/ietf:/usr/share/mibs/netsnmp
+# Don't load any MIBs by default.
+# You might comment this lines once you have the MIBs downloaded.
+export MIBS=
 
 # snmpd control (yes means start daemon).
 SNMPDRUN=yes
