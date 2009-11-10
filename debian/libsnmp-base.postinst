@@ -6,7 +6,7 @@ set -e
 db_version 2.0
 
 db_get libsnmp-base/download_mibs
-if [ "$RET" = "true" ]; then
+if [ "$RET" = "true" ] && [ ! -d /usr/share/mibs/ietf -o ! -d /usr/share/mibs/iana ]; then
 	cd /usr/share/mibs; make -f Makefile.mib
 fi
 
