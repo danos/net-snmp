@@ -5,6 +5,12 @@ stamp-h
 stamp-h.in
 configure-summary
 config.log
+config.guess
+config.sub
+install-sh
+debian/stamp-autotools-files
+debian/stamp-patched
+debian/stamp-makefile-build
 include/net-snmp/net-snmp-config.h.in
 perl/Makefile.old
 perl/SNMP/Makefile.old
