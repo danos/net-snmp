@@ -1,3 +1,27 @@
+net-snmp (5.4.2.1~dfsg-1) unstable; urgency=low
+
+  As of version 5.4.2.1, the MIBs from IETF (the ones distributed as
+  RFC) and from IANA are no longer distributed with this package due to
+  license reasons.
+
+  By default, snmpd is now started without any MIBs loaded, so you can't
+  use symbolic names in the configuration anymore. Neither are the snmp
+  clients able to resolved numeric OIDs to symbolic names. This default
+  can be changed by editing the /etc/defaults/snmpd file and comment out
+  the MIB environment variable.
+
+  In order to download the MIBs, you can either do this during package
+  installation or later using the commands
+
+  cd /usr/share/mibs
+  make -f Makefile.mib
+
+  Note you need to be able to connect to
+  ftp://ftp.ietf.org for downloading the RFCs and
+  http://www.iana.org for downloading the IANA definitions.
+
+ -- Jochen Friedrich <jochen@scram.de>  Mon, 09 Nov 2009 17:42:36 +0100
+
 net-snmp (5.2.2-1) unstable; urgency=low
 
   As of version 5.2.2, the default configuration disables SMUX support
