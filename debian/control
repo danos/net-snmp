@@ -46,7 +46,7 @@ Architecture: all
 Replaces: snmp (<=3.6.2-3), libsnmp, zebra, zebra-pj, quagga, libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev (<< 5.4~dfsg), libsnmp5-dev
 Provides: libsnmp
 Conflicts: libsnmp, libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev (<< 5.4~dfsg), libsnmp5-dev, libsmi2-common (<< 0.4.8+dfsg-2)
-Depends: ${misc:Depends}, gawk, wget
+Depends: ${misc:Depends}, gawk, wget, make
 Description: SNMP (Simple Network Management Protocol) MIBs and documentation
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
