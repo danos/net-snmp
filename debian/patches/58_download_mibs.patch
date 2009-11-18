@@ -1,10 +1,11 @@
 Index: net-snmp-5.4.2.1/mibs/Makefile.mib
 ===================================================================
---- net-snmp-5.4.2.1.orig/mibs/Makefile.mib	2009-11-06 18:25:24.000000000 +0100
-+++ net-snmp-5.4.2.1/mibs/Makefile.mib	2009-11-06 18:27:03.000000000 +0100
-@@ -1,182 +1,45 @@
+--- net-snmp-5.4.2.1.orig/mibs/Makefile.mib	2009-11-18 16:17:41.000000000 +0100
++++ net-snmp-5.4.2.1/mibs/Makefile.mib	2009-11-18 17:09:13.000000000 +0100
+@@ -1,182 +1,56 @@
 -# RFCHOST =	ftp://ftp.nordu.net
- RFCHOST =	ftp://ftp.ietf.org
+-RFCHOST =	ftp://ftp.ietf.org
++RFCHOST =	http://www.rfc-editor.org
  RFCDIR =	rfc
  
  IANAHOST =	http://www.iana.org
@@ -32,15 +33,27 @@ Index: net-snmp-5.4.2.1/mibs/Makefile.mib
 -	RMON-MIB.txt \
 -	RFC1155-SMI.txt RFC1213-MIB.txt \
 -	SCTP-MIB.txt
+-
+-MIBDEPS = Makefile.mib mibfetch smistrip
+-
+-all:	$(MIBS)
 +PREFIX =	/usr
 +INSTDIR =	$(PREFIX)/share/mibs
 +RFCTMP =	$(INSTDIR)/ietf.orig
 +IANATMP =	$(INSTDIR)/iana.orig
- 
--MIBDEPS = Makefile.mib mibfetch smistrip
--
--all:	$(MIBS)
-+all:	rfc
++
++.PHONY: all allmsg allmibs rfc ianamibs rfcmibs
++all:	allmsg rfc
++
++allmsg:
++	@echo ""
++	@echo "Downloading RFCs and IANA documents and extracting MIB files."
++	@echo "This will take some minutes."
++	@echo ""
++	@echo "In case this process fails, it can always be repeated later by executing"
++	@echo "cd /usr/share/mibs"
++	@echo "make -f Makefile.mib"
++	@echo ""
  
  allmibs:	ianamibs rfcmibs
  
@@ -205,8 +218,8 @@ Index: net-snmp-5.4.2.1/mibs/Makefile.mib
  		done
 Index: net-snmp-5.4.2.1/mibs/mibfetch
 ===================================================================
---- net-snmp-5.4.2.1.orig/mibs/mibfetch	2009-11-06 18:25:23.000000000 +0100
-+++ net-snmp-5.4.2.1/mibs/mibfetch	2009-11-06 18:26:07.000000000 +0100
+--- net-snmp-5.4.2.1.orig/mibs/mibfetch	2009-11-18 16:17:41.000000000 +0100
++++ net-snmp-5.4.2.1/mibs/mibfetch	2009-11-18 16:17:43.000000000 +0100
 @@ -48,4 +48,4 @@
  # ncftpget -FV ftp://$host/$dir/$file
  wget -O - -q -nv $host/$dir/$file | \
@@ -215,8 +228,8 @@ Index: net-snmp-5.4.2.1/mibs/mibfetch
 +	./smistrip $verbose $mdir $mibs -
 Index: net-snmp-5.4.2.1/mibs/rfcmibs.diff
 ===================================================================
---- net-snmp-5.4.2.1.orig/mibs/rfcmibs.diff	2009-11-06 18:25:23.000000000 +0100
-+++ net-snmp-5.4.2.1/mibs/rfcmibs.diff	2009-11-06 18:26:07.000000000 +0100
+--- net-snmp-5.4.2.1.orig/mibs/rfcmibs.diff	2009-11-18 16:17:41.000000000 +0100
++++ net-snmp-5.4.2.1/mibs/rfcmibs.diff	2009-11-18 16:17:43.000000000 +0100
 @@ -1,7 +1,6 @@
 -Only in /usr/local/share/snmp/rfc: .index
 -diff -ru /usr/local/share/snmp/rfc.orig/ADSL-LINE-MIB.txt /usr/local/share/snmp/rfc/ADSL-LINE-MIB.txt
@@ -401,8 +414,8 @@ Index: net-snmp-5.4.2.1/mibs/rfcmibs.diff
           enterprises
 Index: net-snmp-5.4.2.1/mibs/rfclist
 ===================================================================
---- net-snmp-5.4.2.1.orig/mibs/rfclist	2009-11-06 18:25:23.000000000 +0100
-+++ net-snmp-5.4.2.1/mibs/rfclist	2009-11-06 18:26:07.000000000 +0100
+--- net-snmp-5.4.2.1.orig/mibs/rfclist	2009-11-18 16:17:41.000000000 +0100
++++ net-snmp-5.4.2.1/mibs/rfclist	2009-11-18 16:17:43.000000000 +0100
 @@ -1,4 +1,4 @@
 -# updated 2005-03-14
 +# updated 2007-10-15
