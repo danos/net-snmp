@@ -122,7 +122,7 @@ debian/python-build-stamp-%:
 
 debian/python-install-stamp-%:
 	# Build python modules manually as the net-snmp Makefile is too limited.
-	cd python; python$* setup.py install --root $(CURDIR)/debian/tmp
+	cd python; python$* setup.py install --root $(CURDIR)/debian/tmp $(py_setup_install_args)
 	mv debian/tmp/usr/lib/python$*/$(call py_sitename, $*)/netsnmp_python-$(PYTHON_VERSION).egg-info \
 	   debian/tmp/usr/lib/python$*/$(call py_sitename, $*)/netsnmp_python.egg-info
 	touch $@
