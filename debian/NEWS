@@ -1,3 +1,12 @@
+net-snmp (5.4.2.1~dfsg-4) unstable; urgency=low
+
+  As of version 5.4.2.1~dfsg-4, this package no longer downloads the MIBs
+  from IETF or IANA, but suggests the package snmp-mibs-downloader in
+  contrib to do this job. Please consider installing this package if you
+  need the SNMP MIBs.
+
+ -- Jochen Friedrich <jochen@scram.de>  Tue, 01 Dec 2009 14:29:14 +0100
+
 net-snmp (5.4.2.1~dfsg-1) unstable; urgency=low
 
   As of version 5.4.2.1, the MIBs from IETF (the ones distributed as

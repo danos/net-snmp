@@ -3,8 +3,6 @@
 set -e
 
 rm -f /usr/share/mibs/netsnmp/.index
-rm -f /usr/share/mibs/ietf/.index
-rm -f /usr/share/mibs/iana/.index
 
 #DEBHELPER#
 
