@@ -6,5 +6,3 @@ debian/tmp/usr/share/man/man5/snmp_config.5snmp
 debian/tmp/usr/share/man/man5/snmpd.examples.5snmp
 debian/tmp/usr/share/man/man5/snmpd.internal.5snmp
 debian/tmp/usr/share/man/man5/variables.5snmp
-debian/tmp/usr/bin/net-snmp-config
-debian/tmp/usr/share/man/man1/net-snmp-config.1

@@ -14,8 +14,6 @@ Package: snmpd
 Section: net
 Priority: optional
 Architecture: any
-Conflicts: snmp (<<3.6-3), snmptraplogd
-Replaces: snmptraplogd
 Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, debconf, lsb-base (>= 3.2-13)
 Description: SNMP (Simple Network Management Protocol) agents
  The Simple Network Management Protocol (SNMP) provides a framework
@@ -43,9 +41,8 @@ Package: libsnmp-base
 Section: libs
 Priority: optional
 Architecture: all
-Replaces: snmp (<=3.6.2-3), libsnmp, zebra, zebra-pj, quagga, libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev (<< 5.4~dfsg), libsnmp5-dev
-Provides: libsnmp
-Conflicts: libsnmp, libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev (<< 5.4~dfsg), libsnmp5-dev
+Replaces: libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev (<< 5.4~dfsg)
+Conflicts: libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev (<< 5.4~dfsg)
 Depends: ${misc:Depends}
 Suggests: snmp-mibs-downloader
 Description: SNMP (Simple Network Management Protocol) MIBs and documentation
@@ -62,7 +59,7 @@ Package: libsnmp15
 Section: libs
 Priority: optional
 Architecture: any
-Replaces: snmp (<=3.6.2-3), snmpd (<=4.1.2-1)
+Replaces: libsnmp-base (<< 5.4.2.1~dfsg-4)
 Depends: libsnmp-base (>=${source:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: SNMP (Simple Network Management Protocol) library
  The Simple Network Management Protocol (SNMP) provides a framework
@@ -89,9 +86,9 @@ Package: libsnmp-dev
 Section: libdevel
 Priority: optional
 Architecture: any
-Replaces: libsnmp9-dev, libsnmp10-dev, libsnmp15-dev, snmp (<< 5.4~dfsg)
+Replaces: libsnmp9-dev, libsnmp15-dev, snmp (<< 5.4~dfsg)
 Provides: libsnmp9-dev
-Conflicts: libsnmp-dev, libsnmp9-dev, libsnmp10-dev, libsnmp15-dev, snmp (<< 5.4~dfsg)
+Conflicts: libsnmp-dev, libsnmp9-dev, libsnmp15-dev, snmp (<< 5.4~dfsg)
 Depends: libc6-dev, libsnmp15 (=${binary:Version}), libsnmp-perl (=${binary:Version}), libwrap0-dev, libssl-dev, procps, ${os-specific-dev}, ${misc:Depends}
 Description: SNMP (Simple Network Management Protocol) development files
  The Simple Network Management Protocol (SNMP) provides a framework
