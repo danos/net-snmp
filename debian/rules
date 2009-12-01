@@ -7,7 +7,8 @@ UPSTREAM_VERSION = $(shell dpkg-parsechangelog | egrep '^Version:' | cut -f 2 -d
 COMPAT_VERSION = $(UPSTREAM_VERSION)~dfsg
 PYTHON_VERSION = 1.0a1
 
-MIB_MODULES = host smux ucd-snmp/dlmod
+MIB_MODULES = smux ucd-snmp/dlmod
+EXCL_MIB_MODULES =
 
 PYVERS=$(shell pyversions -vr)
 
@@ -21,14 +22,20 @@ IPV6 = --disable-ipv6
 DEB_DH_GENCONTROL_ARGS=-- -Vos-specific-dev="libkvm-dev"
 endif
 endif
+ifeq (hurd,$(DEB_HOST_ARCH_OS))
+IPV6 = --enable-ipv6
+EXCL_MIB_MODULES += mibII
+else
+MIB_MODULES += host
+endif
 
 %:
 	dh --with quilt,python-central $@
 
 .PHONY: override_dh_auto_configure
 override_dh_auto_configure:
-	ln -s /usr/share/misc/config.guess .
-	ln -s /usr/share/misc/config.sub .
+	ln -f -s /usr/share/misc/config.guess .
+	ln -f -s /usr/share/misc/config.sub .
 	libtoolize --install --copy
 	aclocal
 	autoheader
@@ -43,6 +50,7 @@ override_dh_auto_configure:
 	  --without-dmalloc --without-efence --without-rsaref \
 	  --with-sys-contact="root" --with-sys-location="Unknown" \
 	  --with-mib-modules="$(MIB_MODULES)" \
+	  --with-out-mib-modules="$(EXCL_MIB_MODULES)" \
 	  --enable-mfd-rewrites \
 	  --with-mnttab=/etc/mtab \
 	  --with-mibdirs="\$$HOME/.snmp/mibs:/usr/share/mibs/iana:/usr/share/mibs/ietf:/usr/share/mibs/netsnmp" \
