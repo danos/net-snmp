@@ -89,7 +89,7 @@ Architecture: any
 Replaces: libsnmp9-dev, libsnmp15-dev, snmp (<< 5.4~dfsg)
 Provides: libsnmp9-dev
 Conflicts: libsnmp-dev, libsnmp9-dev, libsnmp15-dev, snmp (<< 5.4~dfsg)
-Depends: libc6-dev, libsnmp15 (=${binary:Version}), libsnmp-perl (=${binary:Version}), libwrap0-dev, libssl-dev, procps, ${os-specific-dev}, ${misc:Depends}
+Depends: libc6-dev, libsnmp15 (=${binary:Version}), libsnmp-perl (=${binary:Version}), libwrap0-dev, libssl-dev, procps, libkvm-dev [kfreebsd-any], libsensors4-dev [linux-any], ${misc:Depends}
 Description: SNMP (Simple Network Management Protocol) development files
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
