@@ -30,7 +30,7 @@ MIB_MODULES += host
 endif
 
 %:
-	dh --with quilt,python-central $@
+	dh --with python-central $@
 
 .PHONY: override_dh_auto_configure
 override_dh_auto_configure:
