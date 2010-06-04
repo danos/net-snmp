@@ -1,7 +1,7 @@
-Index: net-snmp-5.4.2.1/local/Makefile.in
+Index: net-snmp-5.4.3/local/Makefile.in
 ===================================================================
---- net-snmp-5.4.2.1.orig/local/Makefile.in	2009-12-14 18:40:54.000000000 +0100
-+++ net-snmp-5.4.2.1/local/Makefile.in	2009-12-14 18:42:44.000000000 +0100
+--- net-snmp-5.4.3.orig/local/Makefile.in	2008-03-21 18:22:57.000000000 +0100
++++ net-snmp-5.4.3/local/Makefile.in	2010-06-04 17:10:51.000000000 +0200
 @@ -100,7 +100,7 @@
  
  mib2c.made: $(srcdir)/mib2c
@@ -11,10 +11,10 @@ Index: net-snmp-5.4.2.1/local/Makefile.in
  	else \
  	  touch mib2c.made; \
          fi
-Index: net-snmp-5.4.2.1/Makefile.top
+Index: net-snmp-5.4.3/Makefile.top
 ===================================================================
---- net-snmp-5.4.2.1.orig/Makefile.top	2009-12-14 18:40:54.000000000 +0100
-+++ net-snmp-5.4.2.1/Makefile.top	2009-12-14 18:42:44.000000000 +0100
+--- net-snmp-5.4.3.orig/Makefile.top	2009-10-29 10:55:42.000000000 +0100
++++ net-snmp-5.4.3/Makefile.top	2010-06-04 17:10:51.000000000 +0200
 @@ -24,8 +24,9 @@
  man5dir		= $(mandir)/man5
  man8dir		= $(mandir)/man8
@@ -26,17 +26,17 @@ Index: net-snmp-5.4.2.1/Makefile.top
  DESTDIR         = @INSTALL_PREFIX@
  INSTALL_PREFIX  = $(DESTDIR)
  
-Index: net-snmp-5.4.2.1/mibs/Makefile.in
+Index: net-snmp-5.4.3/mibs/Makefile.in
 ===================================================================
---- net-snmp-5.4.2.1.orig/mibs/Makefile.in	2009-12-14 18:40:54.000000000 +0100
-+++ net-snmp-5.4.2.1/mibs/Makefile.in	2009-12-14 18:48:11.000000000 +0100
+--- net-snmp-5.4.3.orig/mibs/Makefile.in	2009-05-29 11:08:28.000000000 +0200
++++ net-snmp-5.4.3/mibs/Makefile.in	2010-06-04 17:13:21.000000000 +0200
 @@ -13,53 +13,24 @@
  OTHERUNINSTALL=mibsuninstall
  
  
 -V1MIBS	= RFC1155-SMI.txt RFC1213-MIB.txt RFC-1215.txt
 +NETSNMPMIBS = NET-SNMP-TC NET-SNMP-MIB NET-SNMP-AGENT-MIB \
-+	NET-SNMP-EXAMPLES-MIB NET-SNMP-EXTEND-MIB \
++	NET-SNMP-EXAMPLES-MIB NET-SNMP-EXTEND-MIB NET-SNMP-PASS-MIB \
 +	NET-SNMP-MONITOR-MIB NET-SNMP-SYSTEM-MIB \
 +	NET-SNMP-VACM-MIB
  
@@ -70,7 +70,7 @@ Index: net-snmp-5.4.2.1/mibs/Makefile.in
 -	SCTP-MIB.txt
 -
 -NETSNMPMIBS = NET-SNMP-TC.txt NET-SNMP-MIB.txt NET-SNMP-AGENT-MIB.txt \
--	NET-SNMP-EXAMPLES-MIB.txt NET-SNMP-EXTEND-MIB.txt
+-	NET-SNMP-EXAMPLES-MIB.txt NET-SNMP-EXTEND-MIB.txt NET-SNMP-PASS-MIB.txt
 -
 -UCDMIBS = UCD-SNMP-MIB.txt UCD-DEMO-MIB.txt UCD-IPFWACC-MIB.txt \
 -	UCD-DLMOD-MIB.txt UCD-DISKIO-MIB.txt
@@ -96,10 +96,10 @@ Index: net-snmp-5.4.2.1/mibs/Makefile.in
  	done
  
  mibsuninstall: installdirs
-Index: net-snmp-5.4.2.1/Makefile.in
+Index: net-snmp-5.4.3/Makefile.in
 ===================================================================
---- net-snmp-5.4.2.1.orig/Makefile.in	2009-12-14 18:40:54.000000000 +0100
-+++ net-snmp-5.4.2.1/Makefile.in	2009-12-14 18:42:44.000000000 +0100
+--- net-snmp-5.4.3.orig/Makefile.in	2007-06-08 22:32:56.000000000 +0200
++++ net-snmp-5.4.3/Makefile.in	2010-06-04 17:10:51.000000000 +0200
 @@ -156,7 +156,7 @@
  #
  # override LD_RUN_PATH to avoid dependencies on the build directory
