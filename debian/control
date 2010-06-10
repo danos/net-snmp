@@ -59,7 +59,7 @@ Package: libsnmp15
 Section: libs
 Priority: optional
 Architecture: any
-Replaces: libsnmp-base (<< 5.4.2.1~dfsg-4)
+Replaces: libsnmp-base (<< 5.4.2.1~dfsg-4), snmp (<< 5.4.3~dfsg-1)
 Depends: libsnmp-base (>=${source:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: SNMP (Simple Network Management Protocol) library
  The Simple Network Management Protocol (SNMP) provides a framework
