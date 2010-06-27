@@ -2,7 +2,7 @@ net-snmp (5.4.3~dfsg-1) unstable; urgency=low
 
   As of version 5.4.3, upstream ships a new default configuration in
   /etc/snmp/snmpd.conf, which only uses SNMPv3 rather than SNMPv1 and
-  SNMPv2c. This new default configuration also binds to udp:172.0.0.1:161
+  SNMPv2c. This new default configuration also binds to udp:127.0.0.1:161
   by default which conflicts with the former specification of 127.0.0.1
   in /etc/default/snmpd, so now snmpd must be reconfigured here in order
   to be exposed to the network. Be sure to check both files after an
