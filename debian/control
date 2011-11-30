@@ -55,11 +55,12 @@ Description: SNMP (Simple Network Management Protocol) MIBs and documentation
  a formal description of the data that can be managed using SNMP.
  and applications.
 
-Package: libsnmp15
+Package: libsnmp30
 Section: libs
 Priority: optional
 Architecture: any
 Replaces: libsnmp-base (<< 5.4.2.1~dfsg-4), snmp (<< 5.4.3~dfsg-1)
+Conflicts: libsnmp15
 Depends: libsnmp-base (>=${source:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: SNMP (Simple Network Management Protocol) library
  The Simple Network Management Protocol (SNMP) provides a framework
@@ -70,11 +71,11 @@ Description: SNMP (Simple Network Management Protocol) library
  sending, receiving, decoding, and manipulation of the SNMP requests
  and responses.
 
-Package: libsnmp15-dbg
+Package: libsnmp30-dbg
 Section: debug
 Priority: extra
 Architecture: any
-Depends: libsnmp15 (=${binary:Version}), ${misc:Depends}
+Depends: libsnmp30 (=${binary:Version}), ${misc:Depends}
 Description: SNMP (Simple Network Management Protocol) library debug
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
@@ -89,7 +90,7 @@ Architecture: any
 Replaces: libsnmp9-dev, libsnmp15-dev, snmp (<< 5.4~dfsg)
 Provides: libsnmp9-dev
 Conflicts: libsnmp-dev, libsnmp9-dev, libsnmp15-dev, snmp (<< 5.4~dfsg)
-Depends: libc6-dev, libsnmp15 (=${binary:Version}), libsnmp-perl (=${binary:Version}), libwrap0-dev, libssl-dev, procps, libkvm-dev [kfreebsd-any], libsensors4-dev [linux-any], ${misc:Depends}
+Depends: libc6-dev, libsnmp30 (=${binary:Version}), libsnmp-perl (=${binary:Version}), libwrap0-dev, libssl-dev, procps, libkvm-dev [kfreebsd-any], libsensors4-dev [linux-any], ${misc:Depends}
 Description: SNMP (Simple Network Management Protocol) development files
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
@@ -103,7 +104,7 @@ Package: libsnmp-perl
 Section: perl
 Priority: optional
 Architecture: any
-Depends: ${perl:Depends}, libsnmp15 (=${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Depends: ${perl:Depends}, libsnmp30 (=${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: SNMP (Simple Network Management Protocol) Perl5 support
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)

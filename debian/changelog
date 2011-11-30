@@ -1,3 +1,11 @@
+net-snmp (5.7.1~dfsg-1~tobe) experimental; urgency=low
+
+  * New upstream version 5.7.1
+  * Switch to new LM-SENSORS-MIB implementation 
+    (MIB module ucd-snmp/lmsensorsMib)
+
+ -- Thomas Anders <tanders@users.sourceforge.net>  Wed, 30 Nov 2011 23:33:38 +0100
+
 net-snmp (5.4-1) experimental; urgency=low
 
   [ Jochen Friedrich ]
