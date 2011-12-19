@@ -2,7 +2,7 @@
 
 include /usr/share/python/python.mk
 
-LIB_VERSION = 30
+LIB_VERSION = 15
 UPSTREAM_VERSION = $(shell dpkg-parsechangelog | egrep '^Version:' | cut -f 2 -d ':' | sed 's/ //' | sed 's/~dfsg.*$$//')
 COMPAT_VERSION = $(UPSTREAM_VERSION)~dfsg
 PYTHON_VERSION = 1.0a1
@@ -13,7 +13,7 @@ EXCL_MIB_MODULES =
 PYVERS=$(shell pyversions -vr)
 
 ifeq (linux,$(DEB_HOST_ARCH_OS))
-MIB_MODULES += ucd-snmp/diskio ucd-snmp/lmsensorsMib
+MIB_MODULES += ucd-snmp/diskio ucd-snmp/lmSensors 
 IPV6 = --enable-ipv6
 DEB_DH_GENCONTROL_ARGS=-- -Vos-specific-dev="libsensors4-dev"
 else
@@ -37,7 +37,7 @@ override_dh_auto_configure:
 	ln -f -s /usr/share/misc/config.guess .
 	ln -f -s /usr/share/misc/config.sub .
 	libtoolize --install --copy
-	aclocal -I m4
+	aclocal
 	autoheader
 	autoconf
 	dh_auto_configure -- --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man \

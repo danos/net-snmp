@@ -1,10 +1,15 @@
-net-snmp (5.7.1~dfsg-1~tobe) experimental; urgency=low
+net-snmp (5.4.3~dfsg-2.4) unstable; urgency=low
 
-  * New upstream version 5.7.1
-  * Switch to new LM-SENSORS-MIB implementation 
-    (MIB module ucd-snmp/lmsensorsMib)
+  * Non-maintainer upload.
+  * Trivial lintian fix: don't use braces in libsnmp-dev.install
+  * Fix pending l10n issues. Debconf translations:
+    - Korean (si-cheol KO).  Closes: #630948
+    - Slovak (Slavko).  Closes: #634988
+    - Serbian (Zlatan Todoric).  Closes: #635066
+    - Serbian Latin (Zlatan Todoric).  Closes: #635067
+    - Catalan; (Innocent De Marchi).  Closes: #641829
 
- -- Thomas Anders <tanders@users.sourceforge.net>  Wed, 30 Nov 2011 23:33:38 +0100
+ -- Christian Perrier <bubulle@debian.org>  Mon, 19 Dec 2011 07:34:31 +0100
 
 net-snmp (5.4.3~dfsg-2.3) unstable; urgency=low
 

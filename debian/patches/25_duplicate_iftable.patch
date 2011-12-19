@@ -1,26 +1,27 @@
-diff -u -r net-snmp-5.7.1.pre2.orig/agent/mibgroup/if-mib/data_access/interface.c net-snmp-5.7.1.pre2/agent/mibgroup/if-mib/data_access/interface.c
---- net-snmp-5.7.1.pre2.orig/agent/mibgroup/if-mib/data_access/interface.c	2011-08-18 21:28:07.000000000 +0200
-+++ net-snmp-5.7.1.pre2/agent/mibgroup/if-mib/data_access/interface.c	2011-08-23 00:52:25.000000000 +0200
-@@ -484,11 +484,10 @@
-     }
-     else
-         if (index != (oid)tmp) {
--            NETSNMP_LOGONCE((LOG_ERR, "IfIndex of an interface changed. Such " \
--                         "interfaces will appear multiple times in IF-MIB.\n"));
--            DEBUGMSGTL(("access:interface:ifIndex",
--                        "index %" NETSNMP_PRIo "u != tmp for %s\n",
--                        index, name));
-+            NETSNMP_LOGONCE((LOG_ERR, "IfIndex of an interface changed.\n"));
-+            se_remove_value_from_slist("interfaces", name);
-+            se_add_pair_to_slist("interfaces", strdup(name), index);
-+            DEBUGMSGTL(("access:interface:ifIndex", "ifname %s, old index %d, already existing, replaced with %" NETSNMP_PRIo "u\n", name, tmp, index));
+diff -ru net-snmp-5.4.2.1.orig/agent/mibgroup/if-mib/data_access/interface.c net-snmp-5.4.2.1/agent/mibgroup/if-mib/data_access/interface.c
+--- net-snmp-5.4.2.1.orig/agent/mibgroup/if-mib/data_access/interface.c	2008-02-23 00:52:33.000000000 +0100
++++ net-snmp-5.4.2.1/agent/mibgroup/if-mib/data_access/interface.c	2009-07-31 17:10:49.000000000 +0200
+@@ -469,12 +469,12 @@
+         if (index != tmp) {
+             static int logged = 0;
+             if (!logged) {
+-                snmp_log(LOG_ERR, "IfIndex of an interface changed. Such " \
+-                         "interfaces will appear multiple times in IF-MIB.\n");
++                snmp_log(LOG_ERR, "IfIndex of an interface changed.\n");
+                 logged = 1;
+             }
+-            DEBUGMSGTL(("access:interface:ifIndex", "index %d != tmp for %s\n",
+-                         index, name));
++	    se_remove_value_from_slist("interfaces", name);
++	    se_add_pair_to_slist("interfaces", strdup(name), index);
++	    DEBUGMSGTL(("access:interface:ifIndex", "ifname %s, old index %d, already existing, replaced with %d\n", name, tmp, index));
          }
  }
  
-diff -u -r net-snmp-5.7.1.pre2.orig/agent/mibgroup/if-mib/ifTable/ifTable_data_access.c net-snmp-5.7.1.pre2/agent/mibgroup/if-mib/ifTable/ifTable_data_access.c
---- net-snmp-5.7.1.pre2.orig/agent/mibgroup/if-mib/ifTable/ifTable_data_access.c	2011-08-18 21:28:07.000000000 +0200
-+++ net-snmp-5.7.1.pre2/agent/mibgroup/if-mib/ifTable/ifTable_data_access.c	2011-08-23 00:42:41.000000000 +0200
-@@ -485,8 +485,21 @@
+diff -ru net-snmp-5.4.2.1.orig/agent/mibgroup/if-mib/ifTable/ifTable_data_access.c net-snmp-5.4.2.1/agent/mibgroup/if-mib/ifTable/ifTable_data_access.c
+--- net-snmp-5.4.2.1.orig/agent/mibgroup/if-mib/ifTable/ifTable_data_access.c	2008-02-12 20:05:24.000000000 +0100
++++ net-snmp-5.4.2.1/agent/mibgroup/if-mib/ifTable/ifTable_data_access.c	2009-07-31 17:04:17.000000000 +0200
+@@ -266,8 +266,21 @@
  _add_new_interface(netsnmp_interface_entry *ifentry,
                     netsnmp_container *container)
  {
@@ -44,10 +45,11 @@ diff -u -r net-snmp-5.7.1.pre2.orig/agent/mibgroup/if-mib/ifTable/ifTable_data_a
      DEBUGMSGTL(("ifTable:access", "creating new entry\n"));
  
      /*
-diff -u -r net-snmp-5.7.1.pre2.orig/snmplib/snmp_enum.c net-snmp-5.7.1.pre2/snmplib/snmp_enum.c
---- net-snmp-5.7.1.pre2.orig/snmplib/snmp_enum.c	2011-08-18 21:28:07.000000000 +0200
-+++ net-snmp-5.7.1.pre2/snmplib/snmp_enum.c	2011-08-23 00:42:41.000000000 +0200
-@@ -227,6 +227,27 @@
+Nur in net-snmp-5.4.2.1/agent/mibgroup/if-mib/ifTable: ifTable_data_access.c.orig.
+diff -ru net-snmp-5.4.2.1.orig/snmplib/snmp_enum.c net-snmp-5.4.2.1/snmplib/snmp_enum.c
+--- net-snmp-5.4.2.1.orig/snmplib/snmp_enum.c	2005-02-09 20:46:35.000000000 +0100
++++ net-snmp-5.4.2.1/snmplib/snmp_enum.c	2009-07-31 17:04:17.000000000 +0200
+@@ -213,6 +213,27 @@
      return SE_DNE;              /* XXX: um, no good solution here */
  }
  
@@ -75,8 +77,8 @@ diff -u -r net-snmp-5.7.1.pre2.orig/snmplib/snmp_enum.c net-snmp-5.7.1.pre2/snmp
  int
  se_find_free_value_in_list(struct snmp_enum_list *list)
  {
-@@ -346,6 +367,19 @@
-     return (se_find_label_in_list(se_find_slist(listname), value));
+@@ -331,6 +352,19 @@
+     return (se_find_value_in_list(se_find_slist(listname), label));
  }
  
 +void se_remove_value_from_slist(const char *listname, const char *label)
@@ -93,5 +95,5 @@ diff -u -r net-snmp-5.7.1.pre2.orig/snmplib/snmp_enum.c net-snmp-5.7.1.pre2/snmp
 +}
 +
  int
- se_find_value_in_slist(const char *listname, const char *label)
+ se_find_free_value_in_slist(const char *listname)
  {
