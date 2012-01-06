@@ -6,25 +6,381 @@ net-snmp (5.7.1~dfsg-1~tobe) experimental; urgency=low
 
  -- Thomas Anders <tanders@users.sourceforge.net>  Wed, 30 Nov 2011 23:33:38 +0100
 
-net-snmp (5.4-1) experimental; urgency=low
+net-snmp (5.4.3~dfsg-2.3) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Fix for init script status command when trapd is not running.  Thanks to
+    Steve Camfield <steve.camfield@scamfield.co.uk> for the patch
+    (closes: #610306)
+
+ -- Stephen Gran <sgran@debian.org>  Sat, 27 Aug 2011 09:10:09 +0000
+
+net-snmp (5.4.3~dfsg-2.2) unstable; urgency=high
+
+  * Non-maintainer upload.
+  * Fix FTBFS on kfreebsd-* by updating 44_nlist_kvm.patch to detect nlist
+    (in libbsd), thanks to Jakub Wilk (Closes: #625985).
+  * Add build-dependency on libbsd-dev on kfreebsd-* accordingly.
+
+ -- Cyril Brulebois <kibi@debian.org>  Mon, 09 May 2011 11:12:31 +0200
+
+net-snmp (5.4.3~dfsg-2.1) unstable; urgency=high
+
+  [ Julien Cristau ]
+  * Non-maintainer upload to fix FTBFS (closes: #625730).
+  * Don't hardcode SHELL to /bin/sh in Makefile.top, libtool wants bash
+    (closes: #617212).
+  * Add missing libraries to link commands to make newer gcc happy (closes:
+    #555767, #615756).
+
+  [ Cyril Brulebois ]
+  * Do the 3.0 (quilt) dance to get Julien's patches applied.
+  * Add some bug closures.
+
+ -- Cyril Brulebois <kibi@debian.org>  Sat, 07 May 2011 12:14:26 +0200
+
+net-snmp (5.4.3~dfsg-2) unstable; urgency=high
+
+  * Add libperl-dev to libsnmp-dev dependencies (Closes: #608794)
+  * Add missing include to 61_vacm_missing_dependency_check.patch
+    (Closes: #602809)
+  * High urgency due to RC bug fixes
+
+ -- Jochen Friedrich <jochen@scram.de>  Wed, 05 Jan 2011 13:03:32 +0100
+
+net-snmp (5.4.3~dfsg-1) unstable; urgency=low
+
+  * New upstream version (Closes: #559109)
+    - includes fix for CVE-2008-4309
+    - includes fix for CVE-2008-6123 (Closes: #516801)
+    - AgentX support listens on localhost (only) by default
+    - support for monitoring large disks (>2Tb)
+    - improved handling of multiple matching access control entries
+  * Remove patches included upstream:
+    - 31_silence_subcontainer.patch
+    - 57_fix_ipv6_memleak.patch
+    - 59_fix_python.patch
+  * Update patches:
+    - 03_makefiles.patch
+    - 07_docfiles.patch
+    - 08_defaultconfig.patch
+    - 32_mnttab_path.patch
+    - 56_manpage.patch (Closes: #582400)
+    - 60_libsensors_api.patch (Closes: #575810)
+  * Switch to dpkg-source 3.0 (quilt) format
+  * Bump Standards version to 3.8.4
+  * Moved snmp.conf from snmp to libsnmp15
+  * Don't bind to 172.0.0.1 in snmpd.default anymore. This is now
+    done in the upstream sample snmpd.conf file. Trying to bind to
+    127.0.0.1 in both places will make snmpd fail to start, at all.
+
+ -- Jochen Friedrich <jochen@scram.de>  Thu, 10 Jun 2010 18:02:54 +0200
+
+net-snmp (5.4.2.1~dfsg-5) unstable; urgency=low
+
+  * Add conditional depends back that were lost in the build system
+    change (Closes: #560408)
+  * Install all provided NET-SNMP MIBs.
+  * Install snmp.conf with empty MIB list so snmp tools work without
+    complaining about missing MIBs. (Closes: #559200)
+  * Add /usr/share/mibs/site and /usr/share/snmp/mibs to MIB search path
+    (Closes: #560371)
+
+ -- Jochen Friedrich <jochen@scram.de>  Tue, 15 Dec 2009 14:59:44 +0100
+
+net-snmp (5.4.2.1~dfsg-4) unstable; urgency=low
+
+  * Update 26_kfreebsd.patch with patch from Petr Salinger
+    <Petr.Salinger@seznam.cz> (Closes: #557244).
+  * Applied patch from Jakub Wilk <ubanus@users.sf.net> to make the
+    python module compile with python2.6 (Closes: #557540).
+  * Suggests snmp-mibs-downloader from contrib to download MIBs.
+    Remove the download scripts from this package (Closes: #557434, #557682)
+  * Move net-snmp-config to libsnmp15 as it contains platform dependent
+    code (Closes: #558488). Also clean up old Replaces / Conflicts.
+  * Add patch from Pino Toscano <pino@kde.org> for hurd-i386 support.
+    Closes: #530289.
+  * Provide a new option --base-lib-cflags for CFLAGS without perl dependent
+    stuff. (Closes: #502806)
+
+ -- Jochen Friedrich <jochen@scram.de>  Tue, 01 Dec 2009 18:40:38 +0100
+
+net-snmp (5.4.2.1~dfsg-3) unstable; urgency=low
+
+  * Fix typo in NEWS.
+  * Add make to libsnmp-base dependency (Closes: #556632).
+  * Use dh7 build system instead of cdbs (Closes: #552976).
+  * Fix man page .so links so they get installed correctly.
+  * Replace download host for RFCs for a faster one and add some better
+    documentation that this step takes some time and that it can be repeated
+    in case of a problem. (Closes: #556633, #556778, #556787, #556788)
+
+ -- Jochen Friedrich <jochen@scram.de>  Wed, 18 Nov 2009 16:54:11 +0100
+
+net-snmp (5.4.2.1~dfsg-2) unstable; urgency=low
+
+  * Add upstream patch R17470 to fix debugging output and numeric OID
+    reporting. (Closes: #524203, #509562) Thanks to Luca Ferroni
+    <luca.ferroni@labs.it> for the patch.
+  * Fix long description of debug package.
+  * Switch to libsensors4. (Closes: #518898) Thanks to Jonathan Nieder
+    <jrnieder@gmail.com> for the patch.
+
+ -- Jochen Friedrich <jochen@scram.de>  Thu, 12 Nov 2009 16:17:40 +0100
+
+net-snmp (5.4.2.1~dfsg-1) unstable; urgency=low
+
+  * New upstream version
+    - includes patch for CVE-2008-6123 (Closes: #516801)
+  * remove patches applied upstream:
+    - 55_cve2008_4309.patch
+    - 54_fix_xen.patch
+    - 53_fix_python_regression.patch
+    - 52_suppress_registration_warnings.patch 
+    - 51_allow_g_groupname.patch
+    - 50_cve2008_0960.patch
+    - 49_cve2008_2292_python.patch
+    - 48_cve2008_2292_perl.patch
+    - 47_prevent_partial_inserts.patch
+    - 46_ifname_crop.patch
+    - 45_process_race.patch
+    - 43_snmp_logging.patch
+    - 41_snmptrapd_close_handles.patch
+  * Updated patches:
+    - 31_silence_subcontainer.patch: Use upstream changeset 17254
+    - 25_duplicate_iftable.patch: Regenerated
+    - 03_makefiles.patch: Install Makefile.mib
+  * Removed non-free MIBS from distribution (Closes: #498475)
+  * Add debug package
+  * Implement "status" action in the init.d script. (Closes: #528107)
+    Thanks to Peter Eisentraut <petere@debian.org> for the patch
+  * Fix LSB dependencies (Closes: #541366). Thanks to Petter Reinholdtsen
+    <pere@hungry.com> for the patch.
+  * Let snmpd run as group snmp (Closes: #520724). Thanks to Russell Coker
+    <russell@coker.com.au> for the patch.
+  * Update standards version to 3.8.3.
+  * Get rid off lintian warnings.
+  * Fix memory leak when multiple interfaces have the same IPv6 address,
+    such as link-local addresses when VLAN subinterfaces are in use.
+    (Closes: #531056). Thanks to John Morrissey <jwm@horde.net> for the
+    patch.
+  * Rework build system (Closes: #528106)
+  * Change default configuration to make snmp daemons run without MIBs.
+
+ -- Jochen Friedrich <jochen@scram.de>  Mon, 09 Nov 2009 18:29:10 +0100
+
+net-snmp (5.4.1~dfsg-12) unstable; urgency=high
+
+  * Urgency high because of RC bug fix.
+  * Modify start action so it doesn't fail if the service is already running.
+    (Closes: #505237)
+  * Update Romanian translation (Closes: #505767)
+    Thanks to Eddy Petrișor <eddy.petrisor@gmail.com>.
+
+ -- Jochen Friedrich <jochen@scram.de>  Tue, 16 Dec 2008 15:29:28 +0100
+
+net-snmp (5.4.1~dfsg-11) unstable; urgency=high
+
+  * This update fixes the following security issue:
+    - CVE-2008-4309: A bug in the getbulk handling code could let anyone
+      with even minimal access crash the agent. (Closes: #504150)
+
+ -- Jochen Friedrich <jochen@scram.de>  Mon, 03 Nov 2008 17:58:35 +0100
+
+net-snmp (5.4.1~dfsg-10) unstable; urgency=high
+
+  * Fix python regression introduced by fix of CVE-2008-2292 (Closes: #497656)
+  * Fix xen dom0 problems (Closes: #500717)
+
+ -- Jochen Friedrich <jochen@scram.de>  Mon, 06 Oct 2008 22:35:57 +0200
+
+net-snmp (5.4.1~dfsg-9) unstable; urgency=low
+
+  * Ack NMU (Closes: #485945)
+  * Updated standards version to 3.8.0 (no changes)
+  * Update debconf translations:
+   o sv: Martin Bagge <brother@bsnet.se> (Closes: #491778)
+   o ja: Hideki Yamane (Debian-JP) <henrich@debian.or.jp> (Closes: #494118)
+  * Add patch to support -g {groupname} (Closes: #441871, #468577, #485948)
+  * Add official patch to suppress annoying warning in syslog (Closes: #493281)
+  * Fix default stop section in LSB header of start script.
+
+ -- Jochen Friedrich <jochen@scram.de>  Fri, 29 Aug 2008 18:13:49 +0200
+
+net-snmp (5.4.1~dfsg-8.1) unstable; urgency=high
+
+  * Non-maintainer upload by the Security Team.
+  * This update fixes the following security issue:
+    - CVE-2008-0960: The authentication code relies on the client specified
+      HMAC length which makes it easier for an attacker to match a correct HMAC
+      and authentication if a single byte HMAC is supplied (Closes: #485945)
+
+ -- Nico Golde <nion@debian.org>  Thu, 12 Jun 2008 22:22:52 +0200
+
+net-snmp (5.4.1~dfsg-8) unstable; urgency=low
+
+  * NACK NMU as the patch broke perl (Closes: #483588)
+  * Really fix CVE-2008-2292 using two upstream patches (Closes: #482333)
+  * Update nl translation (Closes: #460587)
+  * Update patch for support of long interface names to upstream version
+ 
+ -- Jochen Friedrich <jochen@scram.de>  Tue, 03 Jun 2008 13:06:57 +0200
+
+net-snmp (5.4.1~dfsg-7) unstable; urgency=low
+
+  * Add some more Conflicts: and Replaces: magic to allow moving
+    net-snmp-config to libsnmp-base. (Really Closes: #443420, #443396, #261686)
+  * Update debhelper to version 6
+  * Add patch for support of long interface names (Closes: #468260)
+    Thanks to Jonathan Steinert <debian@hachi.kuiki.net> for the patch.
+  * Add upstream patch to avoid a crash on pppoe tunnels (Closes: #451294)
+  * Convert copyright to UTF-8.
+  * Fix spelling error in NEWS: deamon -> daemon.
+
+ -- Jochen Friedrich <jochen@scram.de>  Tue, 29 Apr 2008 18:37:23 +0200
+
+net-snmp (5.4.1~dfsg-6) unstable; urgency=low
+
+  * Add Noah Meyerhans as uploader
+  * Add upstream patch for process regression (Closes: #460050)
+  * Fix build system for Perl 5.10 (Closes: #463059)
+
+ -- Jochen Friedrich <jochen@scram.de>  Tue, 29 Jan 2008 14:43:18 +0100
+
+net-snmp (5.4.1~dfsg-5) unstable; urgency=low
+
+  * Add upstream changeset 16721:
+   o snmplib: PATCH: 1806336: fix -LS option parsing (Closes: #444986)
+  * Add patch from Petr Salinger <Petr.Salinger@seznam.cz>:
+   o search nlist() in libkvm. (Closes: #449550)
+  * Add finish translation from Esko Arajärvi <edu@iki.fi>.
+    (Closes: #448421).
+  * Updated standards version to 3.7.3
+   o Add Homepage tag
+   o rename XS-Vcs-* to Vcs-*
+
+ -- Jochen Friedrich <jochen@scram.de>  Fri, 28 Dec 2007 12:43:21 +0100
+
+net-snmp (5.4.1~dfsg-4) unstable; urgency=low
+
+  * Do it right this time.
+
+ -- Jochen Friedrich <jochen@scram.de>  Fri, 21 Sep 2007 21:20:30 +0200
+
+net-snmp (5.4.1~dfsg-3) unstable; urgency=low
+
+  * Add some Conflicts: and Replaces: magic to allow moving 
+    net-snmp-config to libsnmp-base. (Closes: #443420, #443396, #261686)
+
+ -- Jochen Friedrich <jochen@scram.de>  Fri, 21 Sep 2007 16:47:48 +0200
+
+net-snmp (5.4.1~dfsg-2) unstable; urgency=low
+
+  * Fixed extra MIB patch, so the extra MIBS are really added to the
+    Debian package.
+  * Update of GNOME-SMI (fixed a typo in the actual OID)
+  * Finally move 5.4.1 to unstable (Closes: #441948, #264938, #416965)
+  * Fixed snmp.install to not include mib2c-update.
+  * Fixed clean target.
+
+ -- Jochen Friedrich <jochen@scram.de>  Thu, 20 Sep 2007 16:40:28 +0200
+
+net-snmp (5.4.1~dfsg-1) experimental; urgency=low
+
+  * New upstream version
+  * Remove patches included in new upstream.
+  * Fix double inclusion of net-snmp-config man page
+  * Include stuff from 5.3.1-8:
+   o Rearrange snmpd.postrm to not run deluser twice.
+   o Add lintian override for false alarm caused by
+     the Smith review project.
+   o Add patch to snmptrapd to close its file handles (Closes: #391203)
+
+ -- Jochen Friedrich <jochen@scram.de>  Thu, 02 Aug 2007 14:43:20 +0200
+
+net-snmp (5.4~dfsg-2) experimental; urgency=low
+
+  [ Christian Perrier ]
+  * Debconf templates and debian/control reviewed by the debian-l10n-
+    english team as part of the Smith review project. Closes: #426232
+  * Debconf translation updates:
+    - Galician. Closes: #426836
+    - Vietnamese. Closes: #426842
+    - Czech. Closes: #426864
+    - Swedish. Closes: #426882
+    - Basque. Closes: #426933
+    - Portuguese. Closes: #427065
+    - Danish. Closes: #427158
+    - Spanish. Closes: #427377
+    - German. Closes: #427542
+    - Russian. Closes: #427820
+    - Italian. Closes: #428151
+    - Brazilian Portuguese. Closes: #428885, #428886
+    - Tamil. Closes: #428969
+    - French. Closes: #429814
 
   [ Jochen Friedrich ]
-  * New upstream version
-  * Don't fail postrm on non-existant deluser (Closes: #398540)
-  * Add German debconf translation (Closes: #397823)
-    Thanks to Helge Kreutzmann <debian@helgefjell.de>.
-  * Add Italian debconf translation (Closes: #398047)
-    Thanks to Luca Monducci <luca.mo@tiscali.it>.
-  * Add LSB section to startup file.
-  * Add Thomas Anders as co-Maintainer.
+  * Include stuff from 5.3.1-6:
+   o Rename dev Package to libsnmp-dev as suggested by Kurt Roeckx
+     <kurt@roeckx.be> and Steve Langasek <vorlon@debian.org>
+  * Remove old template entry (Closes: #422972)
+  * Set PATH in init script (Closes: #429442)
+
+ -- Jochen Friedrich <jochen@scram.de>  Tue, 03 Jul 2007 14:54:00 +0200
+
+
+net-snmp (5.4~dfsg-1) experimental; urgency=low
+
+  [ Jochen Friedrich ]
+  * New upstream version (Closes: #279670, #412924, #416965)
+  * Remove official patches from 5.3.1 tree
+  * Add official patches
+   o memory leaks in ipAddress and CirdRoute tables (SF #1610155)
+   o tcp connection table leaks fds (SF #1611524)
+  * Patch from upstream svn for snmpd.8 man page
+  * Add python module
+
 
   [ Thomas Anders ]
   * Change makefile patch for 5.4.rc3
   * Change docfile patch for 5.4
-  * Add missing copyrights to copyright file.
-  * Fix spelling errors and wrong path names in documentation.
 
- -- Jochen Friedrich <jochen@scram.de>  Wed, 15 Nov 2006 15:42:54 +0100
+
+ -- Jochen Friedrich <jochen@scram.de>  Fri, 13 Apr 2007 16:16:02 +0200
+
+
+net-snmp (5.3.1-3) unstable; urgency=low
+
+  * Move AgentX socket to RFC location.
+  * Update pktinfo patch from Jan Andres <jandres@gmx.net>
+  * Add official patches.
+   o disabling agentX breaks snmptrapd auth (SF #1527661)
+   o SNMP.pm gettable() patch (SF #1532044)
+   o 8 byte IpAddress value for 64bit non-linux systems (SF #1550635)
+   o memory leaks in ipAddress and CirdRoute tables (SF #1610160)
+  * Synchronize tree to 5.2.3-7.
+   o Don't fail postrm on non-existant deluser (Closes: #398540)
+   o Add German debconf translation (Closes: #397823)
+     Thanks to Helge Kreutzmann <debian@helgefjell.de>.
+   o Add Italian debconf translation (Closes: #398047)
+     Thanks to Luca Monducci <luca.mo@tiscali.it>.
+   o Add patch to hardcode mount table location (Closes: #370132)
+   o Add Romanian translation (Closes: #403949)
+     Thanks to stan ioan-eugen <stan.ieugen@gmail.com>.
+   o Update patch from Petr Salinger <Petr.Salinger@seznam.cz> for
+     kFreeBSD and Hurd support. (Closes: #402116)
+   o Fix restart of snmpd (Closes: #402568, #401306)
+   o Add Spanish translation (Closes: #402685)
+     Thanks to Javier Fernández-Sanguino Peña <jfs@computer.org>
+   o Add Brazilian Portuguese translation (Closes: #403549)
+     Thanks to André Luís Lopes" <andrelop@debian.org>
+   o Don't fail postrm on non-existant deluser (Closes: #398540)
+   o Add LSB section to startup file.
+   o Add Thomas Anders as co-Maintainer.
+   o Add missing copyrights to copyright file.
+   o Fix spelling errors and wrong path names in documentation.
+
+ -- Jochen Friedrich <jochen@scram.de>  Wed, 11 Apr 2007 13:04:00 +0200
 
 net-snmp (5.3.1-2) experimental; urgency=low
 
