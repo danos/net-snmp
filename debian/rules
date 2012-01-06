@@ -37,7 +37,7 @@ override_dh_auto_configure:
 	ln -f -s /usr/share/misc/config.guess .
 	ln -f -s /usr/share/misc/config.sub .
 	libtoolize --install --copy
-	aclocal
+	aclocal -I m4
 	autoheader
 	autoconf
 	dh_auto_configure -- --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man \
