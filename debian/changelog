@@ -1,3 +1,18 @@
+net-snmp (5.4.3~dfsg-2.5) unstable; urgency=medium
+
+  * Non-maintainer upload by the Security Team.
+  * Fix CVE-2012-2141 by using Ubuntu's patch (Closes: #672492).
+  * Do not ship *.la files (Closes: #633166).
+  * Enable hardened build flags and fix missing format strings 
+    (Closes: #657519).
+  * Source debconf before doing work in postinst (Closes: #626312).
+  * Fix check for existing snmp group in postinst (Closes: #609430).
+  * Use *-any architecture qualifiers (Closes: #634735).
+  * Add Indonesian debconf translation (Closes: #654166).
+  * Add Polish debconf translation (Closes: #661252).
+
+ -- Luk Claes <luk@debian.org>  Sun, 27 May 2012 17:22:01 +0200
+
 net-snmp (5.4.3~dfsg-2.4) unstable; urgency=low
 
   * Non-maintainer upload.

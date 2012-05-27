@@ -14,3 +14,5 @@
 62_add_lib_cflags.patch
 63_fix_shell.patch
 64_missing_lib.patch
+65_CVE-2012-2141.patch
+66_formatstrings.patch
