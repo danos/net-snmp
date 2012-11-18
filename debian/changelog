@@ -1,3 +1,11 @@
+net-snmp (5.4.3~dfsg-2.6) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * debian/libsnmp-perl.postinst: Fix directory to symlink upgrade in
+    postinst (closes: #692949)
+
+ -- David Prévot <taffit@debian.org>  Sun, 18 Nov 2012 09:24:30 -0400
+
 net-snmp (5.4.3~dfsg-2.5) unstable; urgency=medium
 
   * Non-maintainer upload by the Security Team.
