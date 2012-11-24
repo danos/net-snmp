@@ -1,3 +1,11 @@
+net-snmp (5.4.3~dfsg-2.7) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * debian/patches/27_kfreebsd_bug625985.patch: New patch, fix build error on
+    kfreebsd-*, by Steven Chamberlain (closes: #625985).
+
+ -- Michael Banck <mbanck@debian.org>  Sat, 24 Nov 2012 13:30:51 +0100
+
 net-snmp (5.4.3~dfsg-2.6) unstable; urgency=low
 
   * Non-maintainer upload.
