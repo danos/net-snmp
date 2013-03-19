@@ -21,11 +21,16 @@ test -x /usr/sbin/snmpd || exit 0
 test -x /usr/sbin/snmptrapd || exit 0
 
 # Defaults
-export MIBDIRS=/usr/share/mibs/site:/usr/share/snmp/mibs:/usr/share/mibs/iana:/usr/share/mibs/ietf:/usr/share/mibs/netsnmp
-SNMPDRUN=yes
-SNMPDOPTS='-Lsd -Lf /dev/null -p /var/run/snmpd.pid'
+OLD_MIBS_DIR="/usr/share/mibs/site:/usr/share/snmp/mibs:/usr/share/mibs/iana:/usr/share/mibs/ietf:/usr/share/mibs/netsnmp"
+MIBS_DIR="/usr/share/snmp/mibs:/usr/share/snmp/mibs/iana:/usr/share/snmp/mibs/ietf"
+export MIBDIRS="$MIBS_DIR:$OLD_MIBS_DIR"
+
+SNMP_PID="/run/snmpd.pid"
+TRAPD_PID="/run/snmptrapd.pid"
+SNMPDRUN="yes"
+SNMPDOPTS="-Lsd -Lf /dev/null -p $SNMP_PID"
 TRAPDRUN=no
-TRAPDOPTS='-Lsd -p /var/run/snmptrapd.pid'
+TRAPDOPTS="-Lsd -p $TRAPD_PID"
 
 # Reads config file (will override defaults above)
 [ -r /etc/default/snmpd ] && . /etc/default/snmpd
@@ -55,16 +60,16 @@ case "$1" in
     ;;
   stop)
     echo -n "Stopping network management services:"
-    start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmpd
+    start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmpd && [ ! -f $SNMP_PID ] || rm $SNMP_PID
     echo -n " snmpd"
-    start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmptrapd
+    start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmptrapd && [ ! -f $TRAPD_PID ] || rm $TRAPD_PID
     echo -n " snmptrapd"
     echo "."
     ;;
   restart)
     echo -n "Restarting network management services:"
-    start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmpd
-    start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmptrapd
+    start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmpd  && [ ! -f $SNMP_PID ] || rm $SNMP_PID
+    start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmptrapd  && [ ! -f $TRAPD_PID ] || rm $TRAPD_PID
     # Allow the daemons time to exit completely.
     sleep 2
     if [ "$SNMPDRUN" = "yes" -a -f /etc/snmp/snmpd.conf ]; then

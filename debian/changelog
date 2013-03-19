@@ -1,3 +1,134 @@
+net-snmp (5.7.2~dfsg-1~0.1) experimental; urgency=low
+
+  * Non-maintainer upload.
+  * New upstream version 5.7.2 (Closes: #557348, #631063, #684388, #599929,
+    #673197, #581185, #558356, #568550, #514842, #445608, #557186, #411858,
+    #428824, #611837, #495060, #527231, #583391, #572414, #668545, #344979,
+    #397573)
+  * debian/control
+    - set "Standards-Version: 3.9.4"
+    - set "Build-Depends: debhelper (>= 9)" to enable hardening
+    - set "Build-Depends: automake", instead of automake1.9
+    - drop "Build-Depends: python-central", use dh_python2 by default, instead
+    - remove duplicational "Priority:" and "Section:" fields
+    - make it "Multi-Arch" enable
+    - add description for non-free snmp-mibs-downloader for users' convinience
+      (Closes: #561124)
+    - add "Build-Depends: libmysqld-dev" to support MySQL
+    - add "Build-Depends: dh-autoreconf"
+    - use python-all (2.6.6-3~) instead of python-all-dev (>= 2.5.4-1~), python
+      (>=2.3.5-7) for Build-Depends
+    - add "Build-Depends: python2.7-dev"
+    - s/libsnmp-python/python-netsnmp/ as Python Policy compliant
+      (Closes: #661899)
+    - Add libsnmp-base to snmp and snmpd's Depends and remove it from
+      libsnmp30, also remove "Depends: libsnmp-perl (=${binary:Version})" from
+      libsnmp-dev to adjust dependencies in Multi-Arch compliant.
+    - simplify libsnmp-perl's Depends to avoid piuparts error
+    - remove "Conflicts: libsnmp-dev" from libsnmp-dev
+    - point to git://anonscm.debian.org/pkg-net-snmp/pkg-net-snmp.git for
+      Vcs-* fields
+  * debian/compat
+    - set 9
+  * debian/*.install
+    - split into *.manpages
+  * debian/fixman: drop it.
+  * debian/*.manpages (Closes: #505149) 
+    - remove unnecessary"snmp" from tail of all man pages
+  * debian/libsnmp-base.install
+    - move /usr/share/mibs to /usr/share/snmp/mibs (probably, previous setting
+      was just wrong...)
+    - install all mibs/*.txt
+  * debian/libsnmp-dev.install
+    - change from "usr/lib/*" to "usr/lib/*/*" to deal with Multi-Arch
+  * debian/libsnmp30.install
+    - change from "usr/lib/*.so" to "usr/lib/*/*.so" to deal with Multi-Arch
+  * debian/snmp.dirs: remove it since unnecessary
+  * debian/snmpd.dirs: remove lintian overrides direcotry, add /etc/snmp
+  * debian/libsnmp-dev.dirs: add it
+  * debian/libsnmp-perl.examples: add it since dh_installexamples target in
+    previous debian/rules doesn't work correctly.
+  * debian/patches
+    - remove all *.README files
+    - add fix_typo_in_snmpd.conf.patch (Closes: #603593)
+      Thanks to Slavko <linux@slavino.sk>
+    - add fix_logging_option.patch (Closes: #616437)
+    - add fix_snmpcheck_perl_path.patch to provide snmpcheck (Closes: #44373)
+    - add net-snmp-config_multi-arch.patch to enable Multi-Arch
+    - add fix_regular_expression.patch enable to build under Multi-Arch
+    - add to snmptranslate.1.patch fix lintian "hyphen-used-as-minus-sign"
+      warnings
+    - add fix_spelling_error.patch to fix typo
+    - add after_RFC5378 to include some MIBs as DFSF-free code in RFC Documents.
+    - adjust and refresh 03_makefiles.patch
+    - add fix_man_error.patch
+    - drop 25_duplicate_iftable.patch and 44_nlist_kvm.patch since it cannot be
+      applied to current code.
+    - drop 32_mnttab_path.patch since it was merged to upstream as 
+      configure.d/config_os_misc4
+    - drop 56_manpage.patch since most of patches are merged, and others are
+      unnecessary because upstream files are disappeared.
+    - refresh 61_vacm_missing_dependency_check.patch
+    - drop 63_fix_shell.patch since it was merged to upstream
+    - reapplied 64_missing_lib.patch since upstream source has been changed.
+    - drop 65_CVE-2012-2141.patch since it was merged to upstream
+    - drop 66_formatstrings.patch since almost merged to upstream, some of 
+      code are changed in upstream and become unnecessary.
+    - move 08_defaultconfig.patch to debian/snmptrapd.conf
+  * debian/rules
+    - enable hardening
+      (TODO: building perl module would be failed without -pie)
+    - specify LDFLAGS to enable hardening
+    - add "--with autotools-dev,autoreconf"
+    - export DEB_BUILD_MAINT_OPTIONS to enable hardening
+    - drop "dh --with python-central" (Closes: #616913) 
+    - drop "include /usr/share/python/python.mk"
+    - remove "$(PYVERS:%=debian/python-install-stamp-%)"
+    - move exist python targets under override_dh_install
+    - remove unnecessary .PHONY lines
+    - enable tests by removing no instructions with dh_auto_test line
+    - set DEB_HOST_MULTIARCH to enable Multi-Arch
+    - enable install snmpcheck
+    - don't specify to copy files but install them by using .install file
+      (mostly)
+    - enable mysql support
+    - enable AES support (Closes: #447705)
+    - don't make symlink for /usr/share/doc/libsnmp-perl since other are okay
+      but it has examples files.
+    - snmpd doc files link to libsnmp (Closes: #453124)
+    - libsnmp-perl doc files link to libsnmp
+    - adjust dh_strip for dbg package.
+    - adjust dh_clean target
+    - remove override_dh_auto_build since LD_RUN_PATH is clearly specified
+      during building perl modules
+    - add mibII/mta_sendmail to build modules (Closes: #641608)
+    - install copyright file manually for libsnmp30
+    - "get-orig-source:" target: really remove IANA files.
+    - improve specifying MIBs directory with new one.
+    - add "disman/event-mib" to MIB_MODULES, somehow changes in 5.2.2-5
+      disappeared (Closes: #562787)
+  * debian/clean
+    - most listed files are cared by autotools-dev, so removed.
+  * debian/snmp.conf: fix typo (Closes: #623499, #647468)
+  * debian/snmpd.init
+    - force remove pid files (Closes: #528104)
+    - deal with MIBs directory changes
+  * add libsnmp30.lintian-overrides since it seems to be false-positive.
+  * debian/snmpd.dirs: fix "using of /var/agentx conflicts with FHS"
+    RFC says "(It may create other, implementation-specific endpoints.)", so
+    FHS-compliant endpoint is more suitable for Debian system.
+    (Closes: #672063)
+  * debian/snmpd.lintian-overrides
+    - remove above overrides since it's unnecessary anomore.
+  * move snmp.conf from libsnmp30 to snmp.
+  * debian/snmpd.default
+    - Disable loading mteTrigger and mteTriggerConf modules as they don't
+      work without non-free MIBs.
+  * libsnmp-perl.postinst: remove it since it's not necesssary because
+    symlink is handled by debian/rules
+
+ -- Hideki Yamane <henrich@debian.org>  Tue, 19 Mar 2013 16:43:02 +0900
+
 net-snmp (5.4.3~dfsg-2.7) unstable; urgency=low
 
   * Non-maintainer upload.

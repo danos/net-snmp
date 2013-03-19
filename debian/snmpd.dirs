@@ -1,2 +1,2 @@
-usr/share/lintian/overrides
-var/agentx
+etc/snmp
+var/run/agentx
