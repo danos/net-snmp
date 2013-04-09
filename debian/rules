@@ -35,7 +35,7 @@ MIB_MODULES += host
 endif
 
 %:
-	dh $@ --with autotools-dev,autoreconf
+	dh $@ --with autotools-dev,autoreconf,python2
 
 override_dh_auto_configure:
 	dh_auto_configure -- --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man \
@@ -83,7 +83,6 @@ override_dh_installdocs:
 		       -plibsnmp-dev \
 		       -plibsnmp$(LIB_VERSION)-dbg \
 		       -ppython-netsnmp \
-		       -plibsnmp-perl \
 		       -psnmpd \
 		       -psnmp
 	dh_installdocs  -plibsnmp-perl -ptkmib -plibsnmp-base

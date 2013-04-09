@@ -1,3 +1,14 @@
+net-snmp (5.7.2~dfsg-1~0.2) experimental; urgency=low
+
+  * Non-maintainer upload.
+  * debian/rules
+    - don't specify installdocs -plibsnmp-perl twice.
+    - add dh_python2 to avoid missing dependency (Closes: #704864)
+  * debian/control
+    - set XS-Python-Version: 2.7 to avoid that dh_python2 would fail
+
+ -- Hideki Yamane <henrich@debian.org>  Tue, 09 Apr 2013 10:42:56 +0900
+
 net-snmp (5.7.2~dfsg-1~0.1) experimental; urgency=low
 
   * Non-maintainer upload.
@@ -127,7 +138,7 @@ net-snmp (5.7.2~dfsg-1~0.1) experimental; urgency=low
   * libsnmp-perl.postinst: remove it since it's not necesssary because
     symlink is handled by debian/rules
 
- -- Hideki Yamane <henrich@debian.org>  Tue, 19 Mar 2013 16:43:02 +0900
+ -- Hideki Yamane <henrich@debian.org>  Sun, 27 Jan 2013 11:57:29 +0900
 
 net-snmp (5.4.3~dfsg-2.7) unstable; urgency=low
 
