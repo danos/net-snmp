@@ -1,3 +1,10 @@
+net-snmp (5.7.2~dfsg-1) UNRELEASED; urgency=low
+
+  * debian/control
+    - add myself to Uploaders. Thanks, Jochen.
+
+ -- Hideki Yamane <henrich@debian.org>  Thu, 11 Apr 2013 10:22:30 +0900
+
 net-snmp (5.7.2~dfsg-1~0.2) experimental; urgency=low
 
   * Non-maintainer upload.
