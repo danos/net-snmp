@@ -46,6 +46,9 @@ fi
 case "$1" in
   start)
     echo -n "Starting network management services:"
+    if [ ! -d /var/run/agentx ]; then
+	    mkdir -p /var/run/agentx
+    fi
     if [ "$SNMPDRUN" = "yes" -a -f /etc/snmp/snmpd.conf ]; then
 	start-stop-daemon --quiet --start --oknodo --exec /usr/sbin/snmpd \
 	    -- $SNMPDOPTS
