@@ -1,4 +1,4 @@
-net-snmp (5.7.2~dfsg-1) UNRELEASED; urgency=low
+net-snmp (5.7.2~dfsg-1) experimental; urgency=low
 
   * debian/control
     - add myself to Uploaders. Thanks, Jochen.
@@ -8,7 +8,7 @@ net-snmp (5.7.2~dfsg-1) UNRELEASED; urgency=low
   * debian/patches
     - add fix_manpage-has-errors_break_line.patch
 
- -- Hideki Yamane <henrich@debian.org>  Thu, 11 Apr 2013 10:22:30 +0900
+ -- Hideki Yamane <henrich@debian.org>  Fri, 26 Apr 2013 07:47:09 +0900
 
 net-snmp (5.7.2~dfsg-1~0.2) experimental; urgency=low
 
