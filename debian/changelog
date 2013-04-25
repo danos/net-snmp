@@ -5,6 +5,8 @@ net-snmp (5.7.2~dfsg-1) UNRELEASED; urgency=low
   * debian/snmpd.{dirs,init,postinst}
     - ensure /var/run/agentx exists since maybe /var/run would be tmpfs, so
       would disappear with reboot. Thanks to lintian.
+  * debian/patches
+    - add fix_manpage-has-errors_break_line.patch
 
  -- Hideki Yamane <henrich@debian.org>  Thu, 11 Apr 2013 10:22:30 +0900
 
