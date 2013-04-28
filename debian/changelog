@@ -1,3 +1,12 @@
+net-snmp (5.7.2~dfsg-2) experimental; urgency=low
+
+  * debian/snmpd.{postinst,postrm}
+    - avoid failure with /var/run/agentx 
+  * debian/control
+    - add "Breaks: libsnmp15" to snmp since snmp.conf moves from it.
+
+ -- Hideki Yamane <henrich@debian.org>  Fri, 26 Apr 2013 16:02:01 +0900
+
 net-snmp (5.7.2~dfsg-1) experimental; urgency=low
 
   * debian/control
