@@ -1,3 +1,11 @@
+net-snmp (5.7.2~dfsg-3) unstable; urgency=low
+
+  * Upload to unstable
+  * debian/control 
+    - specify version for "Breaks: libsnmp15"
+
+ -- Hideki Yamane <henrich@debian.org>  Thu, 09 May 2013 20:38:28 +0900
+
 net-snmp (5.7.2~dfsg-2) experimental; urgency=low
 
   * debian/snmpd.{postinst,postrm}

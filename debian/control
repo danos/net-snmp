@@ -34,7 +34,7 @@ Package: snmp
 Architecture: any
 Recommends: perl-modules
 Depends: ${shlibs:Depends}, ${misc:Depends}, libsnmp-base
-Breaks: libsnmp15
+Breaks: libsnmp15 (<< 5.7.2~dfsg-0.1)
 Description: SNMP (Simple Network Management Protocol) applications
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
