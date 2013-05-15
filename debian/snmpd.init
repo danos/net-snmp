@@ -38,14 +38,13 @@ TRAPDOPTS="-Lsd -p $TRAPD_PID"
 # Cd to / before starting any daemons.
 cd /
 
-# Create compatibility link to old AgentX socket location
-if [ "$SNMPDCOMPAT" = "yes" ] && [ "$1" != status ]; then
-  ln -sf /var/agentx/master /var/run/agentx
-fi
-
 case "$1" in
   start)
     echo -n "Starting network management services:"
+    # remove old symlink with previous version
+    if [ -L /var/run/agentx ]; then
+	    rm -f /var/run/agentx
+    fi
     if [ ! -d /var/run/agentx ]; then
 	    mkdir -p /var/run/agentx
     fi

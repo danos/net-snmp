@@ -13,14 +13,6 @@ if [ "x$1" = xconfigure ]; then
 	chown -R snmp:snmp /var/lib/snmp
 fi
 
-if [ -f /var/run/agentx ]; then
-	rm -f /var/run/agentx
-fi
-
-if [ ! -d /var/run/agentx ]; then
-	mkdir -p /var/run/agentx
-fi
-
 #DEBHELPER#
 
 exit 0

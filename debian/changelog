@@ -1,3 +1,12 @@
+net-snmp (5.7.2~dfsg-4) UNRELEASED; urgency=low
+
+  * debian/snmpd.{init,default,postinst}
+    - silly bug related to handle /var/run/agentx directory 
+      (Closes: #708335, #708328) Thanks to Hilmar Preuße <hille42@web.de> and
+      Vincent Bernat <bernat@debian.org> for reporting
+
+ -- Hideki Yamane <henrich@debian.org>  Wed, 15 May 2013 21:40:10 +0900
+
 net-snmp (5.7.2~dfsg-3) unstable; urgency=low
 
   * Upload to unstable
