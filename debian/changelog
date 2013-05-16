@@ -1,3 +1,11 @@
+net-snmp (5.7.2~dfsg-5) UNRELEASED; urgency=low
+
+  * debian/control
+    - fix typo and improve description, thanks to Martin Eberhard Schauer
+      <Martin.E.Schauer@gmx.de> for the patch (Closes: #708519)
+
+ -- Hideki Yamane <henrich@debian.org>  Thu, 16 May 2013 19:22:29 +0900
+
 net-snmp (5.7.2~dfsg-4) unstable; urgency=low
 
   * debian/snmpd.{init,default,postinst}

@@ -57,11 +57,12 @@ Description: SNMP (Simple Network Management Protocol) MIBs and documentation
  .
  This package includes documentation and MIBs (Management Information
  Bases) for the SNMP libraries, agents and applications. MIBs contain
- a formal description of the data that can be managed using SNMP.
+ a formal description of the data that can be managed using SNMP
  and applications.
  .
- NOTE: If you want the OIDs to resolve to their text description, you need to
- activate the non-free repository and install "snmp-mibs-downloader" package.
+ NOTE: If you want the OIDs (Object Identifiers) to resolve to their text
+ description, you need to activate the non-free repository and install the
+ "snmp-mibs-downloader" package.
 
 Package: libsnmp30
 Section: libs
