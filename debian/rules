@@ -27,7 +27,7 @@ IPV6 = --disable-ipv6
 DEB_DH_GENCONTROL_ARGS=-- -Vos-specific-dev="libkvm-dev"
 endif
 endif
-ifeq (hurd,$(DEB_BUILD_HOST_OS))
+ifeq (hurd,$(DEB_BUILD_ARCH_OS))
 IPV6 = --enable-ipv6
 EXCL_MIB_MODULES += mibII
 else
