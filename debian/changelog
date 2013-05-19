@@ -1,4 +1,4 @@
-net-snmp (5.7.2~dfsg-6) UNRELEASED; urgency=low
+net-snmp (5.7.2~dfsg-6) unstable; urgency=low
 
   * debian/rules
     - Fix Hurd build issue, thanks Pino Toscano <pino@debian.org> for
@@ -12,7 +12,7 @@ net-snmp (5.7.2~dfsg-6) UNRELEASED; urgency=low
     - add "Conflicts: libsnmp15" to libsnmp-base since moving net-snmp-config
       in previous version cause trouble (Closes: #708983)
 
- -- Hideki Yamane <henrich@debian.org>  Mon, 20 May 2013 06:50:27 +0900
+ -- Hideki Yamane <henrich@debian.org>  Mon, 20 May 2013 08:49:14 +0900
 
 net-snmp (5.7.2~dfsg-5) unstable; urgency=low
 
