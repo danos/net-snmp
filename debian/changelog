@@ -5,6 +5,7 @@ net-snmp (5.7.2~dfsg-5) unstable; urgency=low
       <Martin.E.Schauer@gmx.de> for the patch (Closes: #708519)
     - libsnmp-base: add "Conflicts: libsnmp30 (<< 5.7.2~dfsg-5)" since
       net-snmp-config file moves from libsnmp30 to libsnmp-base
+      (Closes: #708298)
     - update descriptions
   * debian/{libsnmp-base,libsnmp30}.install: update
 
