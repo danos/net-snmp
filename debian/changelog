@@ -5,6 +5,9 @@ net-snmp (5.7.2~dfsg-6) UNRELEASED; urgency=low
       the patch (Closes: #708951)
   * debian/snmpd.init
     - patch from Ubuntu, LSBified
+  * debian/snmp.pre{inst,rm}
+    - patch from Ubuntu, Kill any/all processes owned by snmp user before
+      install/uninstall.
 
  -- Hideki Yamane <henrich@debian.org>  Mon, 20 May 2013 06:50:27 +0900
 
