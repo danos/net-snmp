@@ -8,6 +8,9 @@ net-snmp (5.7.2~dfsg-6) UNRELEASED; urgency=low
   * debian/snmp.pre{inst,rm}
     - patch from Ubuntu, Kill any/all processes owned by snmp user before
       install/uninstall.
+  * debian/control
+    - add "Conflicts: libsnmp15" to libsnmp-base since moving net-snmp-config
+      in previous version cause trouble (Closes: #708983)
 
  -- Hideki Yamane <henrich@debian.org>  Mon, 20 May 2013 06:50:27 +0900
 
