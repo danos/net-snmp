@@ -40,7 +40,7 @@ cd /
 
 case "$1" in
   start)
-    echo -n "Starting network management services:"
+    log_daemon_msg "Starting network management services:"
     # remove old symlink with previous version
     if [ -L /var/run/agentx ]; then
 	    rm -f /var/run/agentx
@@ -51,49 +51,45 @@ case "$1" in
     if [ "$SNMPDRUN" = "yes" -a -f /etc/snmp/snmpd.conf ]; then
 	start-stop-daemon --quiet --start --oknodo --exec /usr/sbin/snmpd \
 	    -- $SNMPDOPTS
-	echo -n " snmpd"
+	log_progress_msg " snmpd"
     fi
     if [ "$TRAPDRUN" = "yes" -a -f /etc/snmp/snmptrapd.conf ]; then
 	start-stop-daemon --quiet --start --oknodo --exec /usr/sbin/snmptrapd \
 	    -- $TRAPDOPTS
-	echo -n " snmptrapd"
+	log_progress_msg " snmptrapd"
     fi
-    echo "."
     ;;
   stop)
-    echo -n "Stopping network management services:"
+    log_daemon_msg "Stopping network management services:"
     start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmpd && [ ! -f $SNMP_PID ] || rm $SNMP_PID
-    echo -n " snmpd"
+    log_progress_msg " snmpd"
     start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmptrapd && [ ! -f $TRAPD_PID ] || rm $TRAPD_PID
-    echo -n " snmptrapd"
-    echo "."
+    log_progress_msg " snmptrapd"
     ;;
   restart)
-    echo -n "Restarting network management services:"
+    log_daemon_msg "Restarting network management services:"
     start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmpd  && [ ! -f $SNMP_PID ] || rm $SNMP_PID
     start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmptrapd  && [ ! -f $TRAPD_PID ] || rm $TRAPD_PID
     # Allow the daemons time to exit completely.
     sleep 2
     if [ "$SNMPDRUN" = "yes" -a -f /etc/snmp/snmpd.conf ]; then
 	start-stop-daemon --quiet --start --exec /usr/sbin/snmpd -- $SNMPDOPTS
-	echo -n " snmpd"
+	log_progress_msg " snmpd"
     fi
     if [ "$TRAPDRUN" = "yes" -a -f /etc/snmp/snmptrapd.conf ]; then
 	# Allow snmpd time to start up.
 	sleep 1
 	start-stop-daemon --quiet --start --exec /usr/sbin/snmptrapd -- $TRAPDOPTS
-	echo -n " snmptrapd"
+	log_progress_msg " snmptrapd"
     fi
-    echo "."
     ;;
   reload|force-reload)
-    echo -n "Reloading network management services:"
+    log_daemon_msg "Reloading network management services:"
     if [ "$SNMPDRUN" = "yes" -a -f /etc/snmp/snmpd.conf ]; then
         start-stop-daemon --quiet --stop --signal 1 \
 	    --pidfile /var/run/snmpd.pid --exec /usr/sbin/snmpd
-	echo -n " snmpd"
+	log_progress_msg " snmpd"
     fi
-    echo "."
     ;;
   status)
     status=0

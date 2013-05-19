@@ -3,6 +3,8 @@ net-snmp (5.7.2~dfsg-6) UNRELEASED; urgency=low
   * debian/rules
     - Fix Hurd build issue, thanks Pino Toscano <pino@debian.org> for
       the patch (Closes: #708951)
+  * debian/snmpd.init
+    - patch from Ubuntu, LSBified
 
  -- Hideki Yamane <henrich@debian.org>  Mon, 20 May 2013 06:50:27 +0900
 
