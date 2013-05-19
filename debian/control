@@ -47,10 +47,10 @@ Package: libsnmp-base
 Section: libs
 Architecture: all
 Replaces: libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev (<< 5.4~dfsg)
-Conflicts: libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev (<< 5.4~dfsg)
+Conflicts: libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev (<< 5.4~dfsg), libsnmp30 (<< 5.7.2~dfsg-5)
 Depends: ${misc:Depends}
 Suggests: snmp-mibs-downloader
-Description: SNMP MIBs and documentation
+Description: SNMP configuration script, MIBs and documentation
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
  and clients.
@@ -71,7 +71,7 @@ Replaces: libsnmp-base (<< 5.4.2.1~dfsg-4), snmp (<< 5.4.3~dfsg-1), libsnmp15
 Breaks: libsnmp15
 Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, libsnmp-base
 Description: SNMP (Simple Network Management Protocol) library
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
