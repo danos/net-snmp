@@ -1,3 +1,13 @@
+net-snmp (5.7.2~dfsg-7) unstable; urgency=low
+
+  * debian/control
+    - libsnmp-base: update to more policy polite (Breaks/Replaces: libsnmp15
+      (<<5.7.2~dfsg-5)), thanks to James McCoy
+  * debian/snmp.preinst
+    - fix incomplete script.
+
+ -- Hideki Yamane <henrich@debian.org>  Mon, 20 May 2013 14:19:36 +0900
+
 net-snmp (5.7.2~dfsg-6) unstable; urgency=low
 
   * debian/rules

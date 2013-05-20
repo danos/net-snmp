@@ -46,8 +46,9 @@ Description: SNMP (Simple Network Management Protocol) applications
 Package: libsnmp-base
 Section: libs
 Architecture: all
-Replaces: libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev (<< 5.4~dfsg)
-Conflicts: libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev (<< 5.4~dfsg), libsnmp30 (<< 5.7.2~dfsg-5), libsnmp15
+Replaces: libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev (<< 5.4~dfsg), libsnmp15 (<< 5.7.2~dfsg-5)
+Conflicts: libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev (<< 5.4~dfsg), libsnmp30 (<< 5.7.2~dfsg-5)
+Breaks: libsnmp15 (<< 5.7.2~dfsg-5)
 Depends: ${misc:Depends}
 Suggests: snmp-mibs-downloader
 Description: SNMP configuration script, MIBs and documentation
