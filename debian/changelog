@@ -2,6 +2,8 @@ net-snmp (5.7.2~dfsg-8) UNRELEASED; urgency=low
 
   * add libsnmp-perl.preinst to deal with empty directory by libsnmp15
     package removal (Closes: #709761) 
+  * {snmp,snmpd}.postinst: deal with "copyright file missing after upgrade
+    (policy 12.5)" (Closes: #709087)
 
  -- Hideki Yamane <henrich@debian.org>  Thu, 06 Jun 2013 08:13:10 +0900
 
