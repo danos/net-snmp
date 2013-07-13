@@ -1,9 +1,11 @@
-net-snmp (5.7.2~dfsg-9) UNRELEASED; urgency=medium
+net-snmp (5.7.2~dfsg-8.1) unstable; urgency=low
 
-  * add debian/patches/add_rocommunity6.patch
-    - fix snmpwalk using ipv6 (Closes: #717179)
+  * Non-maintainer upload.
+  * Move net-snmp-config to libsnmp-dev package (Closes: #716805)
+  * Mark libsnmp-base as Multi-Arch: foreign and drop Multi-Arch: same for
+    libsnmp-dev package (Closes: #708302)
 
- -- Hideki Yamane <henrich@debian.org>  Sun, 08 Dec 2013 10:51:58 +0900
+ -- Laurent Bigonville <bigon@debian.org>  Sat, 13 Jul 2013 17:13:09 +0200
 
 net-snmp (5.7.2~dfsg-8) unstable; urgency=low
 

@@ -10,7 +10,6 @@
 *.old
 *.orig
 *.out
-*.pc
 *.pdb
 *.rej
 .libs/
