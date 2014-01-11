@@ -1,7 +1,8 @@
 net-snmp (5.7.2~dfsg-9) UNRELEASED; urgency=medium
 
-  * add debian/patches/add_rocommunity6.patch
-    - fix snmpwalk using ipv6 (Closes: #717179)
+  * debian/patches
+    - add add_rocommunity6.patch to fix snmpwalk using ipv6 (Closes: #717179)
+    - add fix_manpage-has-errors-from-man.patch
   * debian/control
     - set Standards-Version: 3.9.5
 

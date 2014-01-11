@@ -20,3 +20,4 @@ fix_man_error.patch
 after_RFC5378
 fix_manpage-has-errors_break_line.patch
 add_rocommunity6.patch
+fix_manpage-has-errors-from-man.patch
