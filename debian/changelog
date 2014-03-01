@@ -1,10 +1,13 @@
 net-snmp (5.7.2~dfsg-9) UNRELEASED; urgency=medium
 
+  * Ack NMU (Closes: #717419)
   * debian/patches
     - add add_rocommunity6.patch to fix snmpwalk using ipv6 (Closes: #717179)
     - add fix_manpage-has-errors-from-man.patch
   * debian/control
     - set Standards-Version: 3.9.5
+  * debian/libsnmp-dev.install
+    - add missing net-snmp-create-v3-user (Closes: #726158, #718988)
 
  -- Hideki Yamane <henrich@debian.org>  Sun, 08 Dec 2013 10:51:58 +0900
 
