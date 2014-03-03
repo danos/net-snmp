@@ -8,6 +8,8 @@ net-snmp (5.7.2~dfsg-9) UNRELEASED; urgency=medium
     - set Standards-Version: 3.9.5
   * debian/libsnmp-dev.install
     - add missing net-snmp-create-v3-user (Closes: #726158, #718988)
+  * debian/upstream/signing-key.asc
+    - check upstream PGP key
 
  -- Hideki Yamane <henrich@debian.org>  Sun, 08 Dec 2013 10:51:58 +0900
 
