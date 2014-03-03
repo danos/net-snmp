@@ -4,6 +4,7 @@ net-snmp (5.7.2~dfsg-9) UNRELEASED; urgency=medium
   * debian/patches
     - add add_rocommunity6.patch to fix snmpwalk using ipv6 (Closes: #717179)
     - add fix_manpage-has-errors-from-man.patch
+    - add agentx-crash.patch, taken from Fedora package.
   * debian/control
     - set Standards-Version: 3.9.5
   * debian/libsnmp-dev.install
