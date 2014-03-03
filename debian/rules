@@ -18,7 +18,7 @@ OLD_MIBS_DIR="/usr/share/mibs/site:/usr/share/snmp/mibs:/usr/share/mibs/iana:/us
 MIBS_DIR="/usr/share/snmp/mibs:/usr/share/snmp/mibs/iana:/usr/share/snmp/mibs/ietf"
 
 ifeq (linux,$(DEB_BUILD_ARCH_OS))
-MIB_MODULES += ucd-snmp/diskio ucd-snmp/lmsensorsMib
+MIB_MODULES += ucd-snmp/diskio ucd-snmp/lmsensorsMib etherlike-mib/dot3StatsTable
 IPV6 = --enable-ipv6
 DEB_DH_GENCONTROL_ARGS=-- -Vos-specific-dev="libsensors4-dev"
 else

@@ -10,6 +10,8 @@ net-snmp (5.7.2~dfsg-9) UNRELEASED; urgency=medium
     - add missing net-snmp-create-v3-user (Closes: #726158, #718988)
   * debian/upstream/signing-key.asc
     - check upstream PGP key
+  * debian/rules
+    - add etherlike-mib/dot3StatsTable (Closes: #729732, LP#1251847)
 
  -- Hideki Yamane <henrich@debian.org>  Sun, 08 Dec 2013 10:51:58 +0900
 
