@@ -13,6 +13,8 @@ net-snmp (5.7.2~dfsg-9) UNRELEASED; urgency=medium
     - check upstream PGP key
   * debian/rules
     - add etherlike-mib/dot3StatsTable (Closes: #729732, LP#1251847)
+  * debian/snmpd.postinst
+    - fix weird user creation (Closes: #482041, #589040, #606784, #610630)
 
  -- Hideki Yamane <henrich@debian.org>  Sun, 08 Dec 2013 10:51:58 +0900
 
