@@ -6,8 +6,8 @@ Debian.
    (Bug#479633, etc)
 
  - The default configuration for snmpd is rather paranoid for security
-   reasons.  Edit /etc/snmp/snmpd.conf or run snmpconf to allow greater
-   access.
+   reasons.  Edit /etc/snmp/snmpd.conf or run snmpconf (in snmp package)
+   to allow greater access.
 
  - The snmpconf program provides a simple, menu driven way of configuring
    the snmp applications and daemons.
