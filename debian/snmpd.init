@@ -40,7 +40,7 @@ cd /
 
 case "$1" in
   start)
-    log_daemon_msg "Starting network management services:"
+    log_daemon_msg "Starting SNMP services:"
     # remove old symlink with previous version
     if [ -L /var/run/agentx ]; then
 	    rm -f /var/run/agentx
@@ -60,14 +60,14 @@ case "$1" in
     fi
     ;;
   stop)
-    log_daemon_msg "Stopping network management services:"
+    log_daemon_msg "Stopping SNMP services:"
     start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmpd && [ ! -f $SNMP_PID ] || rm $SNMP_PID
     log_progress_msg " snmpd"
     start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmptrapd && [ ! -f $TRAPD_PID ] || rm $TRAPD_PID
     log_progress_msg " snmptrapd"
     ;;
   restart)
-    log_daemon_msg "Restarting network management services:"
+    log_daemon_msg "Restarting SNMP services:"
     start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmpd  && [ ! -f $SNMP_PID ] || rm $SNMP_PID
     start-stop-daemon --quiet --stop --oknodo --exec /usr/sbin/snmptrapd  && [ ! -f $TRAPD_PID ] || rm $TRAPD_PID
     # Allow the daemons time to exit completely.
@@ -84,7 +84,7 @@ case "$1" in
     fi
     ;;
   reload|force-reload)
-    log_daemon_msg "Reloading network management services:"
+    log_daemon_msg "Reloading SNMP services:"
     if [ "$SNMPDRUN" = "yes" -a -f /etc/snmp/snmpd.conf ]; then
         start-stop-daemon --quiet --stop --signal 1 \
 	    --pidfile /var/run/snmpd.pid --exec /usr/sbin/snmpd
