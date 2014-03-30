@@ -6,4 +6,4 @@
 TRAPDRUN=no
 
 # snmptrapd options (use syslog).
-TRAPDOPTS='-Lsd -p /var/run/snmptrapd.pid'
+TRAPDOPTS='-Lsd -p /run/snmptrapd.pid'
