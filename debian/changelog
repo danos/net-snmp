@@ -12,7 +12,7 @@ net-snmp (5.7.2.1~dfsg-1) experimental; urgency=medium
   * debian/control
     - set Standards-Version: 3.9.5
     - add "Build-Depends: libpci-dev" to enable libpci function that was
-      introduce in 5.7 (Closes: #741504)
+      introduced in 5.7 (Closes: #741504)
   * debian/libsnmp-dev.install
     - add missing net-snmp-create-v3-user (Closes: #726158, #718988)
   * debian/upstream/signing-key.asc
