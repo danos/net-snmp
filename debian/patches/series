@@ -22,3 +22,4 @@ fix_manpage-has-errors_break_line.patch
 add_rocommunity6.patch
 fix_manpage-has-errors-from-man.patch
 agentx-crash.patch
+TrapReceiver.patch
