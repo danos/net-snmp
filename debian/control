@@ -30,6 +30,19 @@ Description: SNMP (Simple Network Management Protocol) agents
  The Net-SNMP agent is a daemon which listens for incoming SNMP
  requests from clients and provides responses.
 
+Package: snmptrapd
+Architecture: any
+Recommends: perl-modules
+Depends: ${shlibs:Depends}, ${misc:Depends}, snmpd
+Breaks: snmpd (<< 5.7.2~dfsg-9)
+Description: SNMP (Simple Network Management Protocol)
+ The Simple Network Management Protocol (SNMP) provides a framework
+ for the exchange of management information between agents (servers)
+ and clients.
+ .
+ snmptrapd is an SNMP application that receives and logs SNMP TRAP and
+ INFORM messages.
+
 Package: snmp
 Architecture: any
 Recommends: perl-modules
