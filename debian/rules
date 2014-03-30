@@ -84,6 +84,7 @@ override_dh_installdocs:
 		       -plibsnmp$(LIB_VERSION)-dbg \
 		       -ppython-netsnmp \
 		       -psnmpd \
+		       -psnmptrapd \
 		       -psnmp
 	dh_installdocs  -plibsnmp-perl -ptkmib -plibsnmp-base
 	# dh_installdocs has a bug when --link-doc is called it don't install copyright file to referenced package
