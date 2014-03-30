@@ -13,6 +13,7 @@
 #
 set -e
 
+. /lib/lsb/init-functions
 
 export PATH=/sbin:/usr/sbin:/bin:/usr/bin
 

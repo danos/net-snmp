@@ -23,6 +23,7 @@ net-snmp (5.7.2.1~dfsg-1) experimental; urgency=medium
     - relax start-stop-daemons avoid restart daemon before it terminates.
       Thanks to Saj Goonatilleke <saj.goonatilleke@anchor.net.au> for the
       patch (Closes: #640456)
+    - fix "init.d-script-does-not-source-init-functions" lintian warning
   * debian/snmpd.postinst
     - fix weird user creation (Closes: #482041, #589040, #606784, #610630)
   * debian/snmpd.postrm
