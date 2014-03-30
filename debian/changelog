@@ -21,6 +21,8 @@ net-snmp (5.7.2~dfsg-9) UNRELEASED; urgency=medium
       patch (Closes: #640456)
   * debian/snmpd.postinst
     - fix weird user creation (Closes: #482041, #589040, #606784, #610630)
+  * debian/snmp.install
+    - move traptoemail to snmptrapd.install releated to above changes
   * debian/README.Debian
     - note snmpconf is in snmp package (Closes: #577649)
 

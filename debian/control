@@ -40,8 +40,8 @@ Description: SNMP (Simple Network Management Protocol)
  for the exchange of management information between agents (servers)
  and clients.
  .
- snmptrapd is an SNMP application that receives and logs SNMP TRAP and
- INFORM messages.
+ snmptrapd is an SNMP application (daemon) that receives and logs SNMP TRAP
+ and INFORM messages.
 
 Package: snmp
 Architecture: any
