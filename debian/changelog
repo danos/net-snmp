@@ -1,5 +1,7 @@
-net-snmp (5.7.2~dfsg-9) UNRELEASED; urgency=medium
+net-snmp (5.7.2.1~dfsg-1) experimental; urgency=medium
 
+  * New upstream release
+    - fix DoS on ICMP-MIB as CVE-2014-2284 (Closes: #742817)
   * Ack NMU (Closes: #717419)
   * debian/patches
     - add add_rocommunity6.patch to fix snmpwalk using ipv6 (Closes: #717179)
@@ -31,7 +33,7 @@ net-snmp (5.7.2~dfsg-9) UNRELEASED; urgency=medium
   * debian/README.Debian
     - note snmpconf is in snmp package (Closes: #577649)
 
- -- Hideki Yamane <henrich@debian.org>  Sun, 08 Dec 2013 10:51:58 +0900
+ -- Hideki Yamane <henrich@debian.org>  Sun, 30 Mar 2014 19:58:39 +0900
 
 net-snmp (5.7.2~dfsg-8.1) unstable; urgency=low
 
