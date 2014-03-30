@@ -6,7 +6,8 @@ net-snmp (5.7.2.1~dfsg-1) experimental; urgency=medium
   * debian/patches
     - add add_rocommunity6.patch to fix snmpwalk using ipv6 (Closes: #717179)
     - add fix_manpage-has-errors-from-man.patch
-    - add agentx-crash.patch, taken from Fedora package.
+    - add agentx-crash.patch, taken from Fedora package. It fixes CVE-2012-6151
+      (Closes: #731625)
     - add TrapReceiver.patch to fix CVE-2014-2285
   * debian/control
     - set Standards-Version: 3.9.5
