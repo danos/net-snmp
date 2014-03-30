@@ -35,7 +35,7 @@ Architecture: any
 Recommends: perl-modules
 Depends: ${shlibs:Depends}, ${misc:Depends}, snmpd
 Breaks: snmpd (<< 5.7.2~dfsg-9)
-Description: SNMP (Simple Network Management Protocol)
+Description: Net-SNMP notification receiver
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
  and clients.
