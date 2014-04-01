@@ -10,9 +10,9 @@ case "$1" in
 	. /usr/share/debconf/confmodule
 	db_version 2.0
 
-	if [ ! getent passwd snmp >/dev/null ]; then
+	if [ ! `getent passwd snmp >/dev/null` ]; then
 
-	  if [ ! getent group snmp >/dev/null ]; then
+	  if [ ! `getent group snmp >/dev/null` ]; then
 	     # no snmp user & group
 	     adduser --quiet --system --group --home $SNMPDIR \
 	             --shell /usr/sbin/nologin snmp
@@ -22,7 +22,7 @@ case "$1" in
 	             --shell /usr/sbin/nologin snmp
 	  fi
 
-	elif [ ! getent group snmp >/dev/null ]; then
+	elif [ ! `getent group snmp >/dev/null` ]; then
 
 	  # snmp user exists but no snmp group
 	  addgroup --quiet --system snmp
