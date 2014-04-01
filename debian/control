@@ -22,6 +22,7 @@ Homepage: http://net-snmp.sourceforge.net/
 Package: snmpd
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, debconf, lsb-base (>= 3.2-13), libsnmp-base
+Suggests: snmptrapd
 Description: SNMP (Simple Network Management Protocol) agents
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
@@ -34,7 +35,9 @@ Package: snmptrapd
 Architecture: any
 Recommends: perl-modules
 Depends: ${shlibs:Depends}, ${misc:Depends}, snmpd
-Breaks: snmpd (<< 5.7.2~dfsg-9)
+Conflicts: snmpd (<< 5.7.2.1~dfsg-1), snmp (<< 5.7.2.1~dfsg-1)
+Breaks: snmpd (<< 5.7.2.1~dfsg-1)
+Replaces: snmp (<< 5.7.2.1~dfsg-1)
 Description: Net-SNMP notification receiver
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
