@@ -17,7 +17,6 @@ set -e
 . /lib/lsb/init-functions
 
 export PATH=/sbin:/usr/sbin:/bin:/usr/bin
-test -x /usr/sbin/snmpd || exit 0
 test -x /usr/sbin/snmptrapd || exit 0
 
 # Defaults
@@ -63,7 +62,7 @@ case "$1" in
     log_daemon_msg "Reloading SNMP trap services:"
     if [ "$TRAPDRUN" = "yes" -a -f /etc/snmp/snmptrapd.conf ]; then
         start-stop-daemon --quiet --stop --signal 1 \
-           --pidfile "$TRAPD_PID" --exec /usr/sbin/snmpd
+           --pidfile "$TRAPD_PID" --exec /usr/sbin/snmptrapd
         log_progress_msg " snmptrapd"
     fi
     ;;
