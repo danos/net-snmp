@@ -22,6 +22,9 @@ net-snmp (5.7.2.1~dfsg-1) experimental; urgency=medium
     - set Standards-Version: 3.9.5
     - add "Build-Depends: libpci-dev" to enable libpci function that was
       introduced in 5.7 (Closes: #741504)
+    - split snmptrapd from snmpd to allow to install only snmpd on systems that
+      will never issue traps (Closes: #314902)
+      + Also it separates mysql dependency (Closes: #715486)
   * debian/libsnmp-dev.install
     - add missing net-snmp-create-v3-user (Closes: #726158, #718988)
   * debian/upstream/signing-key.asc
@@ -33,6 +36,8 @@ net-snmp (5.7.2.1~dfsg-1) experimental; urgency=medium
       Thanks to Saj Goonatilleke <saj.goonatilleke@anchor.net.au> for the
       patch (Closes: #640456)
     - fix "init.d-script-does-not-source-init-functions" lintian warning
+  * debian/snmptrapd.init
+    - split it from snmpd.init (Closes: #724288)
   * debian/snmpd.postinst
     - fix weird user creation (Closes: #482041, #589040, #606784, #610630)
   * debian/snmpd.postrm
@@ -41,7 +46,7 @@ net-snmp (5.7.2.1~dfsg-1) experimental; urgency=medium
   * debian/snmp.install
     - move traptoemail to snmptrapd.install releated to above changes
   * debian/{snmpd,snmptrapd}.default
-    - fix pid diretory
+    - fix pid diretory (Closes: #611668)
   * debian/README.Debian
     - note snmpconf is in snmp package (Closes: #577649)
 
