@@ -45,16 +45,16 @@ case "$1" in
     ;;
   stop)
     log_daemon_msg "Stopping SNMP trap services:"
-    start-stop-daemon --quiet --stop --oknodo --exec --retry 3 /usr/sbin/snmptrapd \
+    start-stop-daemon --quiet --stop --oknodo --retry 3 --exec /usr/sbin/snmptrapd \
            && [ ! -f $TRAPD_PID ] || rm $TRAPD_PID
     log_progress_msg " snmptrapd"
     ;;
   restart)
     log_daemon_msg "Restarting SNMP trap services:"
-    start-stop-daemon --quiet --stop --oknodo --exec --retry 3 /usr/sbin/snmptrapd \
+    start-stop-daemon --quiet --stop --oknodo --retry 3 --exec /usr/sbin/snmptrapd \
            && [ ! -f $TRAPD_PID ] || rm $TRAPD_PID
     if [ "$TRAPDRUN" = "yes" -a -f /etc/snmp/snmptrapd.conf ]; then
-        start-stop-daemon --quiet --start --exec --retry 3 /usr/sbin/snmptrapd -- $TRAPDOPTS
+        start-stop-daemon --quiet --start --retry 3 --exec /usr/sbin/snmptrapd -- $TRAPDOPTS
 	log_progress_msg " snmptrapd"
     fi
     ;;

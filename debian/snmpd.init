@@ -52,12 +52,12 @@ case "$1" in
     ;;
   stop)
     log_daemon_msg "Stopping SNMP services:"
-    start-stop-daemon --quiet --stop --oknodo --exec --retry 3 /usr/sbin/snmpd && [ ! -f $SNMP_PID ] || rm $SNMP_PID
+    start-stop-daemon --quiet --stop --oknodo --retry 3 --exec /usr/sbin/snmpd && [ ! -f $SNMP_PID ] || rm $SNMP_PID
     log_progress_msg " snmpd"
     ;;
   restart)
     log_daemon_msg "Restarting SNMP services:"
-    start-stop-daemon --quiet --stop --oknodo --exec --retry 3 /usr/sbin/snmpd  && [ ! -f $SNMP_PID ] || rm $SNMP_PID
+    start-stop-daemon --quiet --stop --oknodo --retry 3 --exec /usr/sbin/snmpd  && [ ! -f $SNMP_PID ] || rm $SNMP_PID
     if [ "$SNMPDRUN" = "yes" -a -f /etc/snmp/snmpd.conf ]; then
 	start-stop-daemon --quiet --start --exec /usr/sbin/snmpd -- $SNMPDOPTS
 	log_progress_msg " snmpd"

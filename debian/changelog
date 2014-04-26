@@ -1,3 +1,11 @@
+net-snmp (5.7.2.1~dfsg-4) unstable; urgency=medium
+
+  * debian/*.init
+    - fix incorrect sequence of options passed to start-stop-daemon
+      Thanks to Mehul Sanghvi <mehul.sanghvi@gmail.com> (Closes: #745828)
+
+ -- Hideki Yamane <henrich@debian.org>  Sat, 26 Apr 2014 14:19:55 +0900
+
 net-snmp (5.7.2.1~dfsg-3) unstable; urgency=medium
 
   * Upload to unstable
