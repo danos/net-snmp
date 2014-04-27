@@ -23,3 +23,4 @@ add_rocommunity6.patch
 fix_manpage-has-errors-from-man.patch
 agentx-crash.patch
 TrapReceiver.patch
+ifmib.patch

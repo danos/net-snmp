@@ -1,3 +1,12 @@
+net-snmp (5.7.2.1~dfsg-5) unstable; urgency=high
+
+  * debian/patches
+    - add ifmib.patch taken from upstream to work on systems without a PCI bus
+      Thanks to Chris Boot <debian@bootc.net> and Sergey Dorofeev
+      <sergey@fidoman.ru> for the report (Closes: #745919, #745956)
+
+ -- Hideki Yamane <henrich@debian.org>  Sun, 27 Apr 2014 17:05:08 +0900
+
 net-snmp (5.7.2.1~dfsg-4) unstable; urgency=medium
 
   * debian/*.init
