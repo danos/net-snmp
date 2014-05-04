@@ -1,3 +1,11 @@
+net-snmp (5.7.2.1~dfsg-6) unstable; urgency=medium
+
+  * debian/{snmpd.conf,patches/add_rocommunity6.patch}
+    - fix typo, thanks to Uwe Storbeck <uwe@ibr.ch> for the report
+      (Closes: #746399)
+
+ -- Hideki Yamane <henrich@debian.org>  Sun, 04 May 2014 10:55:05 +0900
+
 net-snmp (5.7.2.1~dfsg-5) unstable; urgency=high
 
   * debian/patches
