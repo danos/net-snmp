@@ -7,17 +7,18 @@ BEGIN {
     eval "use Cwd qw(abs_path)";
     $ENV{'SNMPCONFPATH'} = 'nopath';
     $ENV{'MIBDIRS'} = '+' . abs_path("../../mibs");
-
-    $skipped_tests = ($^O =~ /win32/i) ? 20 : 0;
 }
 
 use Test;
-BEGIN {plan tests => 20 - $skipped_tests}
+BEGIN {plan tests => 20}
 use SNMP;
 use vars qw($agent_port $comm $agent_host);
 
 if ($^O =~ /win32/i) {
-  warn "Win32/Win64 detected - skipping async calls\n";
+  warn "Win32 detected - skipping and failing async calls\n";
+  for (my $i=1;$i <= 20; $i++) {
+    ok(0);
+  }
   exit;
 }
 
@@ -50,10 +51,6 @@ $result = $sess->get([["sysDescr","0"]], [\&cb1, $sess]);
 ok($result);
 
 SNMP::MainLoop();
-
-snmptest_cleanup();
-
-exit 0;
 
 sub cb1{
     my $sess = shift;
@@ -160,7 +157,9 @@ sub cb7{
 
     ok(@{$vlist} == 23);
 
-    SNMP::finish();
+    snmptest_cleanup();
+
+    exit(0);
 } # end of cb7
 
 sub cbDummy {

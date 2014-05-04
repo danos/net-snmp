@@ -1,12 +1,7 @@
-#if defined(_WIN32) && !defined(_WIN32_WINNT)
-#define _WIN32_WINNT 0x501
-#endif
-
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
 
-#include <net-snmp/net-snmp-config.h>
 #include <net-snmp/library/default_store.h>
 
 
@@ -1261,7 +1256,7 @@ constant(sv)
 #endif
 	STRLEN		len;
         int		type;
-	IV		iv = 0;
+	IV		iv;
 	/* NV		nv;	Uncomment this if you need to return NVs */
 	/* const char	*pv;	Uncomment this if you need to return PVs */
     INPUT:

@@ -43,7 +43,11 @@ SOFTWARE.
 #endif
 #include <sys/types.h>
 #if TIME_WITH_SYS_TIME
-# include <sys/time.h>
+# ifdef WIN32
+#  include <sys/timeb.h>
+# else
+#  include <sys/time.h>
+# endif
 # include <time.h>
 #else
 # if HAVE_SYS_TIME_H
@@ -62,11 +66,12 @@ SOFTWARE.
 #include <arpa/inet.h>
 #endif
 
-#if HAVE_UNISTD_H
-#include <unistd.h>
-#endif
 #if HAVE_DMALLOC_H
 #include <dmalloc.h>
+#endif
+
+#if HAVE_WINSOCK_H
+#include <winsock.h>
 #endif
 
 #ifdef vms

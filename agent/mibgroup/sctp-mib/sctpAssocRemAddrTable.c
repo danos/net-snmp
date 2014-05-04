@@ -6,6 +6,7 @@
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
+#include <net-snmp/agent/net-snmp-agent-includes.h>
 #include <net-snmp/agent/table_container.h>
 #include "sctpAssocRemAddrTable.h"
 
@@ -13,7 +14,6 @@
  * content of the sctpAssocRemAddrTable 
  */
 static netsnmp_container *sctpAssocRemAddrTable_container;
-static netsnmp_table_registration_info *table_info;
 
 /** Initializes the sctpAssocRemAddrTable module */
 void
@@ -28,7 +28,7 @@ init_sctpAssocRemAddrTable(void)
 void
 shutdown_sctpAssocRemAddrTable(void)
 {
-    shutdown_table_sctpAssocRemAddrTable();
+    sctpAssocRemAddrTable_container_clear(sctpAssocRemAddrTable_container);
 }
 
 /** Initialize the sctpAssocRemAddrTable table by defining its contents and how it's structured */
@@ -42,6 +42,7 @@ initialize_table_sctpAssocRemAddrTable(void)
     netsnmp_handler_registration *reg = NULL;
     netsnmp_mib_handler *handler = NULL;
     netsnmp_container *container = NULL;
+    netsnmp_table_registration_info *table_info = NULL;
 
     reg =
         netsnmp_create_handler_registration("sctpAssocRemAddrTable",
@@ -101,7 +102,6 @@ initialize_table_sctpAssocRemAddrTable(void)
     if (SNMPERR_SUCCESS != netsnmp_register_table(reg, table_info)) {
         snmp_log(LOG_ERR,
                  "error registering table handler for sctpAssocRemAddrTable\n");
-        reg = NULL; /* it was freed inside netsnmp_register_table */
         goto bail;
     }
 
@@ -120,24 +120,12 @@ initialize_table_sctpAssocRemAddrTable(void)
     if (handler)
         netsnmp_handler_free(handler);
 
-    if (table_info)
-        netsnmp_table_registration_info_free(table_info);
 
     if (container)
         CONTAINER_FREE(container);
 
     if (reg)
         netsnmp_handler_registration_free(reg);
-}
-
-void
-shutdown_table_sctpAssocRemAddrTable(void)
-{
-    if (table_info) {
-        netsnmp_table_registration_info_free(table_info);
-	table_info = NULL;
-    }
-    sctpAssocRemAddrTable_container_clear(sctpAssocRemAddrTable_container);
 }
 
 
@@ -319,7 +307,8 @@ sctpAssocRemAddrTable_entry_copy(sctpAssocRemAddrTable_entry * from,
 void
 sctpAssocRemAddrTable_entry_free(sctpAssocRemAddrTable_entry * entry)
 {
-    SNMP_FREE(entry);
+    if (entry != NULL)
+        SNMP_FREE(entry);
 }
 
 netsnmp_container *

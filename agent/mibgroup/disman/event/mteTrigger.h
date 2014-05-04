@@ -122,8 +122,8 @@ struct mteTrigger {
     /*
      * Column values for Existence tests (mteTriggerExistenceTable)
      */
-    u_char          mteTExTest;
-    u_char          mteTExStartup;
+    char            mteTExTest;
+    char            mteTExStartup;
     char            mteTExObjOwner[MTE_STR1_LEN+1];
     char            mteTExObjects[ MTE_STR1_LEN+1];
     char            mteTExEvOwner[ MTE_STR1_LEN+1];
@@ -189,7 +189,7 @@ extern void      init_trigger_table_data(void);
 
 void          init_mteTrigger(void);
 void               mteTrigger_removeEntry(netsnmp_tdata_row *row);
-netsnmp_tdata_row *mteTrigger_createEntry(const char *mteOwner,
+netsnmp_tdata_row *mteTrigger_createEntry(char *mteOwner,
                                           char *mteTriggerName, int fixed);
 void               mteTrigger_enable(    struct mteTrigger *entry );
 void               mteTrigger_disable(   struct mteTrigger *entry );

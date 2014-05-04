@@ -6,12 +6,9 @@
 #define _MIBGROUP_UDP_H
 
 
-config_require(mibII/udpTable)
-
-config_arch_require(solaris2,        kernel_sunos5)
-config_arch_require(linux,     mibII/kernel_linux)
-config_arch_require(netbsd,    mibII/kernel_netbsd)
-config_arch_require(netbsdelf, mibII/kernel_netbsd)
+config_require(mibII/udpTable util_funcs)
+config_arch_require(solaris2, kernel_sunos5)
+config_arch_require(linux, mibII/kernel_linux)
 
 extern void     init_udp(void);
 extern Netsnmp_Node_Handler udp_handler;

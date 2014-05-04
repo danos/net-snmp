@@ -1,6 +1,5 @@
 /*
- * snmpstatus.c - retrieves a fixed set of management information from
- * a network entity.
+ * snmpstatus.c - send snmp GET requests to a network entity.
  *
  */
 /***********************************************************************
@@ -44,7 +43,11 @@ SOFTWARE.
 #include <stdio.h>
 #include <ctype.h>
 #if TIME_WITH_SYS_TIME
-# include <sys/time.h>
+# ifdef WIN32
+#  include <sys/timeb.h>
+# else
+#  include <sys/time.h>
+# endif
 # include <time.h>
 #else
 # if HAVE_SYS_TIME_H
@@ -55,6 +58,9 @@ SOFTWARE.
 #endif
 #if HAVE_SYS_SELECT_H
 #include <sys/select.h>
+#endif
+#if HAVE_WINSOCK_H
+#include <winsock.h>
 #endif
 #if HAVE_NETDB_H
 #include <netdb.h>
@@ -153,11 +159,9 @@ main(int argc, char *argv[])
      * get the common command line arguments 
      */
     switch (snmp_parse_args(argc, argv, &session, "C:", &optProc)) {
-    case NETSNMP_PARSE_ARGS_ERROR:
-        exit(1);
-    case NETSNMP_PARSE_ARGS_SUCCESS_EXIT:
+    case -2:
         exit(0);
-    case NETSNMP_PARSE_ARGS_ERROR_USAGE:
+    case -1:
         usage();
         exit(1);
     default:

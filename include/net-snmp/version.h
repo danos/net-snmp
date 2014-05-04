@@ -9,7 +9,6 @@ extern          "C" {
     extern const char *NetSnmpVersionInfo;
 #endif
 
-    NETSNMP_IMPORT
     const char     *netsnmp_get_version(void);
 
 #ifdef __cplusplus

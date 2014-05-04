@@ -25,7 +25,6 @@ while (<I>) {
 	chomp($name);
 	if (!exists($pages{$name})) {
 	    print STDERR "$name is in $infile, but not in the rest of the args.\n";
-	    print STDERR "Make sure it's not listed twice in $infile!\n";
 	}
 	open(H,"$name.html");
 	while (<H>) {

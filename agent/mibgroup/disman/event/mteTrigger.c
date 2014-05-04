@@ -4,15 +4,10 @@
  */
 
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
 #include "disman/event/mteTrigger.h"
 #include "disman/event/mteEvent.h"
-
-netsnmp_feature_child_of(disman_debugging, libnetsnmpmibs)
-netsnmp_feature_child_of(mtetrigger, libnetsnmpmibs)
-netsnmp_feature_child_of(mtetrigger_removeentry, mtetrigger)
 
 netsnmp_tdata *trigger_table_data;
 
@@ -36,7 +31,7 @@ init_trigger_table_data(void)
             snmp_log(LOG_ERR, "failed to create mteTriggerTable");
             return;
         }
-        DEBUGMSGTL(("disman:event:init", "create trigger container (%p)\n",
+        DEBUGMSGTL(("disman:event:init", "create trigger container (%x)\n",
                                           trigger_table_data));
     }
     mteTriggerFailures = 0;
@@ -58,7 +53,6 @@ init_mteTrigger(void)
      *
      * =================================================== */
 
-#ifndef NETSNMP_FEATURE_REMOVE_DISMAN_DEBUGGING
 void
 _mteTrigger_dump(void)
 {
@@ -75,18 +69,18 @@ _mteTrigger_dump(void)
         DEBUGMSG(("disman:event:dump", "(%s, %s)",
                                          row->indexes->val.string,
                                          row->indexes->next_variable->val.string));
-        DEBUGMSG(("disman:event:dump", ": %p, %p\n", row, entry));
+        DEBUGMSG(("disman:event:dump", ": %x, %x\n", row, entry));
         i++;
     }
     DEBUGMSGTL(("disman:event:dump", "TriggerTable %d entries\n", i));
 }
-#endif /* NETSNMP_FEATURE_REMOVE_DISMAN_DEBUGGING */
+
 
 /*
  * Create a new row in the trigger table 
  */
 netsnmp_tdata_row *
-mteTrigger_createEntry(const char *mteOwner, char *mteTName, int fixed)
+mteTrigger_createEntry(char *mteOwner, char *mteTName, int fixed)
 {
     struct mteTrigger *entry;
     netsnmp_tdata_row *row;
@@ -148,7 +142,6 @@ mteTrigger_createEntry(const char *mteOwner, char *mteTName, int fixed)
     return row;
 }
 
-#ifndef NETSNMP_FEATURE_REMOVE_MTETRIGGER_REMOVEENTRY
 /*
  * Remove a row from the trigger table 
  */
@@ -166,7 +159,6 @@ mteTrigger_removeEntry(netsnmp_tdata_row *row)
         SNMP_FREE(entry);
     }
 }
-#endif /* NETSNMP_FEATURE_REMOVE_MTETRIGGER_REMOVEENTRY */
 
     /* ===================================================
      *
@@ -255,7 +247,6 @@ mteTrigger_run( unsigned int reg, void *clientarg)
         DEBUGMSGTL(( "disman:event:trigger:monitor", "Trigger query (%s) failed: %d\n",
                            (( entry->flags & MTE_TRIGGER_FLAG_VWILD ) ? "walk" : "get"), n));
         _mteTrigger_failure( "failed to run mteTrigger query" );
-        snmp_free_varbind(var);
         return;
     }
 
@@ -300,7 +291,6 @@ mteTrigger_run( unsigned int reg, void *clientarg)
                 if (!vtmp) {
                     _mteTrigger_failure(
                           "failed to create mteTrigger temp varbind");
-                    snmp_free_varbind(var);
                     return;
                 }
                 vtmp->type = ASN_NULL;
@@ -338,7 +328,6 @@ mteTrigger_run( unsigned int reg, void *clientarg)
                     if (!vtmp) {
                         _mteTrigger_failure(
                                  "failed to create mteTrigger temp varbind");
-                        snmp_free_varbind(var);
                         return;
                     }
                     vtmp->type = ASN_NULL;
@@ -380,7 +369,6 @@ mteTrigger_run( unsigned int reg, void *clientarg)
                 if (!vtmp) {
                     _mteTrigger_failure(
                              "failed to create mteTrigger temp varbind");
-                    snmp_free_varbind(var);
                     return;
                 }
                 vtmp->type = ASN_NULL;
@@ -716,7 +704,6 @@ mteTrigger_run( unsigned int reg, void *clientarg)
                         if (!vtmp) {
                             _mteTrigger_failure(
                                   "failed to create mteTrigger discontinuity varbind");
-                            snmp_free_varbind(dvar);
                             return;
                         }
                         snmp_set_var_objid(vtmp, entry->mteDeltaDiscontID,
@@ -816,7 +803,7 @@ mteTrigger_run( unsigned int reg, void *clientarg)
     DEBUGMSGTL(( "disman:event:delta", "delta sample: "));
     DEBUGMSGOID(("disman:event:delta", vp1->name,
                                        vp1->name_length ));
-    DEBUGMSG((   "disman:event:delta", " (%ld - %ld) = %ld\n",
+    DEBUGMSG((   "disman:event:delta", " (%d - %d) = %d\n",
                 *vp1->val.integer,  *vp2->val.integer, value));
                 vp2 = vp2->next_variable;
             } else {
@@ -846,7 +833,7 @@ mteTrigger_run( unsigned int reg, void *clientarg)
                 cmp = ( value >= entry->mteTBoolValue );
                 break;
             }
-    DEBUGMSGTL(( "disman:event:delta", "Bool comparison: (%ld %s %ld) %d\n",
+    DEBUGMSGTL(( "disman:event:delta", "Bool comparison: (%d %s %d) %d\n",
                           value, _ops[entry->mteTBoolComparison],
                           entry->mteTBoolValue, cmp));
 

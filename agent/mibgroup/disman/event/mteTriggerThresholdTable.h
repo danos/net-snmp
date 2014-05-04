@@ -9,7 +9,6 @@
  * function declarations 
  */
 void            init_mteTriggerThresholdTable(void);
-void            shutdown_mteTriggerThresholdTable(void);
 Netsnmp_Node_Handler mteTriggerThresholdTable_handler;
 
 /*

@@ -5,6 +5,9 @@
 #include <net-snmp/net-snmp-config.h>
 
 #include <sys/types.h>
+#if HAVE_WINSOCK_H
+#include <winsock.h>
+#endif
 #if HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
@@ -17,13 +20,6 @@
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
 #include "header_complex.h"
-
-#include <net-snmp/net-snmp-features.h>
-
-netsnmp_feature_child_of(header_complex_all, libnetsnmpmibs)
-
-netsnmp_feature_child_of(header_complex_free_all, header_complex_all)
-netsnmp_feature_child_of(header_complex_find_entry, header_complex_all)
 
 int
 header_complex_generate_varoid(netsnmp_variable_list * var)
@@ -98,7 +94,7 @@ header_complex_generate_varoid(netsnmp_variable_list * var)
     if (var->name_length > MAX_OID_LEN) {
         DEBUGMSGTL(("header_complex_generate_varoid",
                     "Something terribly wrong, namelen = %d\n",
-                    (int)var->name_length));
+                    var->name_length));
         return SNMPERR_GENERR;
     }
 
@@ -134,7 +130,7 @@ header_complex_parse_oid(oid * oidIndex, size_t oidLen,
             var->val_len = sizeof(long);
             oidLen--;
             DEBUGMSGTL(("header_complex_parse_oid",
-                        "Parsed int(%d): %ld\n", var->type,
+                        "Parsed int(%d): %d\n", var->type,
                         *var->val.integer));
             break;
 
@@ -344,9 +340,8 @@ header_complex(struct header_complex_index *datalist,
 }
 
 struct header_complex_index *
-header_complex_maybe_add_data(struct header_complex_index **thedata,
-                              netsnmp_variable_list * var, void *data,
-                              int dont_allow_duplicates)
+header_complex_add_data(struct header_complex_index **thedata,
+                        netsnmp_variable_list * var, void *data)
 {
     oid             newoid[MAX_OID_LEN];
     size_t          newoid_len;
@@ -357,8 +352,7 @@ header_complex_maybe_add_data(struct header_complex_index **thedata,
 
     header_complex_generate_oid(newoid, &newoid_len, NULL, 0, var);
     ret =
-        header_complex_maybe_add_data_by_oid(thedata, newoid, newoid_len, data,
-                                             dont_allow_duplicates);
+        header_complex_add_data_by_oid(thedata, newoid, newoid_len, data);
     /*
      * free the variable list, but not the enclosed data!  it's not ours! 
      */
@@ -367,21 +361,34 @@ header_complex_maybe_add_data(struct header_complex_index **thedata,
 }
 
 struct header_complex_index *
-header_complex_add_data(struct header_complex_index **thedata,
-                        netsnmp_variable_list * var, void *data)
+header_complex_add_data_by_oid(struct header_complex_index **thedata,
+                               oid * newoid, size_t newoid_len, void *data)
 {
-    return
-        header_complex_maybe_add_data(thedata, var, data, 0);
-}
+    struct header_complex_index *hciptrn, *hciptrp, *ourself;
+    int rc;
 
+    if (thedata == NULL || newoid == NULL || data == NULL)
+        return NULL;
 
-struct header_complex_index *
-_header_complex_add_between(struct header_complex_index **thedata,
-                            struct header_complex_index *hciptrp,
-                            struct header_complex_index *hciptrn,
-                            oid * newoid, size_t newoid_len, void *data)
-{
-    struct header_complex_index *ourself;
+    for (hciptrn = *thedata, hciptrp = NULL;
+         hciptrn != NULL; hciptrp = hciptrn, hciptrn = hciptrn->next) {
+        /*
+         * XXX: check for == and error (overlapping table entries) 
+         * 8/2005 rks Ok, I added duplicate entry check, but only log
+         *            warning and continue, because it seems that nobody
+         *            that calls this fucntion does error checking!.
+         */
+        rc = snmp_oid_compare(hciptrn->name, hciptrn->namelen,
+                              newoid, newoid_len);
+        if (rc > 0)
+            break;
+        else if (0 == rc) {
+            snmp_log(LOG_WARNING, "header_complex_add_data_by_oid with "
+                     "duplicate index.\n");
+            /** uncomment null return when callers do error checking */
+            /** return NULL; */
+        }
+    }
 
     /*
      * nptr should now point to the spot that we need to add ourselves
@@ -393,8 +400,6 @@ _header_complex_add_between(struct header_complex_index **thedata,
      */
     ourself = (struct header_complex_index *)
         SNMP_MALLOC_STRUCT(header_complex_index);
-    if (ourself == NULL)
-        return NULL;
 
     /*
      * change our pointers 
@@ -423,50 +428,6 @@ _header_complex_add_between(struct header_complex_index **thedata,
     DEBUGMSGTL(("header_complex_add_data", "adding something...\n"));
 
     return hciptrp;
-}
-
-
-struct header_complex_index *
-header_complex_maybe_add_data_by_oid(struct header_complex_index **thedata,
-                                     oid * newoid, size_t newoid_len, void *data,
-                                     int dont_allow_duplicates)
-{
-    struct header_complex_index *hciptrn, *hciptrp;
-    int rc;
-
-    if (thedata == NULL || newoid == NULL || data == NULL)
-        return NULL;
-
-    for (hciptrn = *thedata, hciptrp = NULL;
-         hciptrn != NULL; hciptrp = hciptrn, hciptrn = hciptrn->next) {
-        /*
-         * XXX: check for == and error (overlapping table entries) 
-         * 8/2005 rks Ok, I added duplicate entry check, but only log
-         *            warning and continue, because it seems that nobody
-         *            that calls this fucntion does error checking!.
-         */
-        rc = snmp_oid_compare(hciptrn->name, hciptrn->namelen,
-                              newoid, newoid_len);
-        if (rc > 0)
-            break;
-        else if (0 == rc) {
-            snmp_log(LOG_WARNING, "header_complex_add_data_by_oid with "
-                     "duplicate index.\n");
-            if (dont_allow_duplicates)
-                return NULL;
-        }
-    }
-
-    return _header_complex_add_between(thedata, hciptrp, hciptrn,
-                                       newoid, newoid_len, data);
-}
-
-struct header_complex_index *
-header_complex_add_data_by_oid(struct header_complex_index **thedata,
-                               oid * newoid, size_t newoid_len, void *data)
-{
-    return header_complex_maybe_add_data_by_oid(thedata, newoid, newoid_len,
-                                                data, 0);
 }
 
 /*
@@ -525,7 +486,6 @@ header_complex_free_entry(struct header_complex_index *theentry,
 /*
  * completely wipe out all entries in our data store 
  */
-#ifndef NETSNMP_FEATURE_REMOVE_HEADER_COMPLEX_FREE_ALL
 void
 header_complex_free_all(struct header_complex_index *thestuff,
                         HeaderComplexCleaner * cleaner)
@@ -537,9 +497,7 @@ header_complex_free_all(struct header_complex_index *thestuff,
         header_complex_free_entry(hciptr, cleaner);
     }
 }
-#endif /* NETSNMP_FEATURE_REMOVE_HEADER_COMPLEX_FREE_ALL */
 
-#ifndef NETSNMP_FEATURE_REMOVE_HEADER_COMPLEX_FIND_ENTRY
 struct header_complex_index *
 header_complex_find_entry(struct header_complex_index *thestuff,
                           void *theentry)
@@ -550,7 +508,6 @@ header_complex_find_entry(struct header_complex_index *thestuff,
          hciptr = hciptr->next);
     return hciptr;
 }
-#endif /* NETSNMP_FEATURE_REMOVE_HEADER_COMPLEX_FIND_ENTRY */
 
 #ifdef TESTING
 

@@ -72,15 +72,10 @@ SOFTWARE.
     /*
      * Access control statements for the agent 
      */
-#define NETSNMP_OLDAPI_RONLY	0x1     /* read access only */
-#define NETSNMP_OLDAPI_RWRITE	0x2     /* read and write access (must have 0x2 bit set) */
-#define NETSNMP_OLDAPI_NOACCESS 0x0000  /* no access for anybody */
+#define RONLY	0x1             /* read access only */
+#define RWRITE	0x2             /* read and write access (must have 0x2 bit set) */
 
-#ifndef NETSNMP_NO_LEGACY_DEFINITIONS
-#define RONLY           NETSNMP_OLDAPI_RONLY
-#define RWRITE          NETSNMP_OLDAPI_RWRITE
-#define NOACCESS        NETSNMP_OLDAPI_NOACCESS
-#endif
+#define NOACCESS 0x0000         /* no access for anybody */
 
     /*
      * defined types (from the SMI, RFC 1157) 

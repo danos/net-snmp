@@ -4,16 +4,11 @@
  */
 
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
 #include "disman/event/mteEvent.h"
 #include "disman/event/mteTrigger.h"
 #include "disman/event/mteObjects.h"
-
-netsnmp_feature_child_of(disman_debugging, libnetsnmpmibs)
-netsnmp_feature_child_of(mteevent, libnetsnmpmibs)
-netsnmp_feature_child_of(mteevent_removeentry, mteevent)
 
 netsnmp_tdata *event_table_data;
 
@@ -28,7 +23,7 @@ init_event_table_data(void)
     DEBUGMSGTL(("disman:event:init", "init event container\n"));
     if (!event_table_data) {
         event_table_data = netsnmp_tdata_create_table("mteEventTable", 0);
-        DEBUGMSGTL(("disman:event:init", "create event container (%p)\n",
+        DEBUGMSGTL(("disman:event:init", "create event container (%x)\n",
                                       event_table_data));
     }
 }
@@ -48,12 +43,12 @@ init_mteEvent(void)
 
     /*
      * Insert fixed events for the default trigger notifications
-     * 
+     *
      * NB: internal events (with an owner of "_snmpd") will not in
      * fact refer to the mteObjectsTable for the payload varbinds.
-     * The routine mteObjects_internal_vblist() hardcodes the 
+     * The routine mteObjects_internal_vblist() hardcodes the
      * appropriate varbinds for these internal events.
-     *   This routine will need to be updated whenever a new 
+     *   This routine will need to be updated whenever a new
      * internal event is added.
      */
     if ( _defaults_init)
@@ -124,7 +119,6 @@ _init_link_mteEvent( const char *event, const char *oname, int specific )
      *
      * =================================================== */
 
-#ifndef NETSNMP_FEATURE_REMOVE_DISMAN_DEBUGGING
 void
 _mteEvent_dump(void)
 {
@@ -141,12 +135,12 @@ _mteEvent_dump(void)
         DEBUGMSG(("disman:event:dump", "(%s, %s)",
                                          row->indexes->val.string,
                                          row->indexes->next_variable->val.string));
-        DEBUGMSG(("disman:event:dump", ": %p, %p\n", row, entry));
+        DEBUGMSG(("disman:event:dump", ": %x, %x\n", row, entry));
         i++;
     }
     DEBUGMSGTL(("disman:event:dump", "EventTable %d entries\n", i));
 }
-#endif /* NETSNMP_FEATURE_REMOVE_DISMAN_DEBUGGING */
+
 
 /*
  * Create a new row in the event table 
@@ -202,7 +196,6 @@ mteEvent_createEntry(const char *mteOwner, const char *mteEName, int fixed)
 }
 
 
-#ifndef NETSNMP_FEATURE_REMOVE_MTEEVENT_REMOVEENTRY
 /*
  * Remove a row from the event table 
  */
@@ -215,9 +208,9 @@ mteEvent_removeEntry(netsnmp_tdata_row *row)
         return;                 /* Nothing to remove */
     entry = (struct mteEvent *)
         netsnmp_tdata_remove_and_delete_row(event_table_data, row);
-    SNMP_FREE(entry);
+    if (entry)
+        SNMP_FREE(entry);
 }
-#endif /* NETSNMP_FEATURE_REMOVE_MTEEVENT_REMOVEENTRY */
 
     /* ===================================================
      *
@@ -229,12 +222,10 @@ int
 _mteEvent_fire_notify( struct mteEvent    *event,
                        struct mteTrigger  *trigger,
                        oid *suffix, size_t sfx_len );
-#ifndef NETSNMP_NO_WRITE_SUPPORT
 int
 _mteEvent_fire_set(    struct mteEvent    *event,
                        struct mteTrigger  *trigger,
                        oid *suffix, size_t sfx_len );
-#endif /* NETSNMP_NO_WRITE_SUPPORT */
 
 int
 mteEvent_fire( char *owner, char *event,      /* Event to invoke    */
@@ -270,13 +261,11 @@ mteEvent_fire( char *owner, char *event,      /* Event to invoke    */
         _mteEvent_fire_notify( entry, trigger, suffix, s_len );
         fired = 1;
     }
-#ifndef NETSNMP_NO_WRITE_SUPPORT
     if (entry->mteEventActions & MTE_EVENT_SET) {
         DEBUGMSGTL(("disman:event:fire", "Firing set event\n"));
         _mteEvent_fire_set( entry, trigger, suffix, s_len );
         fired = 1;
     }
-#endif /* NETSNMP_NO_WRITE_SUPPORT */
 
     if (!fired)
         DEBUGMSGTL(("disman:event:fire", "Matched event is empty\n"));
@@ -341,7 +330,7 @@ _insert_internal_objects( netsnmp_variable_list *vblist, char *oname,
     vp->next_variable     = vblist->next_variable;
     vblist->next_variable = var;
 }
-#endif /* __NOT_NEEDED */
+#endif
 
 int
 _mteEvent_fire_notify( struct mteEvent   *entry,     /* The event to fire  */
@@ -349,9 +338,9 @@ _mteEvent_fire_notify( struct mteEvent   *entry,     /* The event to fire  */
                        oid *suffix, size_t sfx_len ) /* Matching instance  */
 {
     netsnmp_variable_list *var, *v2;
-    extern const oid       snmptrap_oid[];
-    extern const size_t    snmptrap_oid_len;
-    netsnmp_session       *s;
+    oid    snmptrap_oid[]   = { 1,3,6,1,6,3,1,1,4,1,0 };
+    size_t snmptrap_oid_len = OID_LENGTH(snmptrap_oid);
+    netsnmp_session *s;
 
          /*
           * The Event-MIB specification says that objects from the
@@ -432,7 +421,7 @@ _mteEvent_fire_notify( struct mteEvent   *entry,     /* The event to fire  */
         } else {
             for (v2 = var; v2 && v2->next_variable; v2=v2->next_variable)
                 ;
-            mteObjects_internal_vblist(v2, entry->mteNotifyObjects, trigger, s);
+            mteObjects_internal_vblist(v2,  entry->mteNotifyObjects, trigger, s);
         }
     }
 
@@ -445,7 +434,6 @@ _mteEvent_fire_notify( struct mteEvent   *entry,     /* The event to fire  */
 }
 
 
-#ifndef NETSNMP_NO_WRITE_SUPPORT
 int
 _mteEvent_fire_set( struct mteEvent   *entry,      /* The event to fire */
                     struct mteTrigger *trigger,    /* Trigger that fired */
@@ -489,4 +477,4 @@ _mteEvent_fire_set( struct mteEvent   *entry,      /* The event to fire */
 
     /* XXX - Need to check result */
 }
-#endif /* NETSNMP_NO_WRITE_SUPPORT */
+

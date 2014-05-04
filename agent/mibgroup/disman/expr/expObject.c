@@ -21,7 +21,7 @@ init_expObject_table_data(void)
     DEBUGMSGTL(("disman:expr:init", "init expObject container\n"));
     if (!expObject_table_data) {
          expObject_table_data = netsnmp_tdata_create_table("expObjectTable", 0);
-         DEBUGMSGTL(("disman:expr:init", "create expObject container (%p)\n",
+         DEBUGMSGTL(("disman:expr:init", "create expObject container (%x)\n",
                                           expObject_table_data));
     }
 }
@@ -38,7 +38,7 @@ init_expObject(void)
  * Create a new row in the object table 
  */
 struct expObject *
-expObject_createEntry(const char *expOwner, const char *expName, long expIndex, int fixed)
+expObject_createEntry(char *expOwner, char *expName, long expIndex, int fixed)
 {
     netsnmp_tdata_row *row;
 
@@ -47,7 +47,7 @@ expObject_createEntry(const char *expOwner, const char *expName, long expIndex, 
 }
 
 netsnmp_tdata_row *
-expObject_createRow( const char *expOwner, const char *expName, long expIndex, int fixed)
+expObject_createRow( char *expOwner, char *expName, long expIndex, int fixed)
 {
     struct expObject  *entry;
     netsnmp_tdata_row *row;
@@ -121,7 +121,7 @@ expObject_removeEntry(netsnmp_tdata_row * row)
 
 
 netsnmp_tdata_row *
-expObject_getFirst( const char *expOwner, const char *expName )
+expObject_getFirst( char *expOwner, char *expName )
 {
     netsnmp_tdata_row *row;
     struct expObject  *entry;
@@ -138,9 +138,9 @@ expObject_getFirst( const char *expOwner, const char *expName )
     memset(&owner_var, 0, sizeof(netsnmp_variable_list));
     memset(&name_var,  0, sizeof(netsnmp_variable_list));
     snmp_set_var_typed_value( &owner_var, ASN_OCTET_STR,
-                       (const u_char*)expOwner, strlen(expOwner));
+                       (u_char*)expOwner, strlen(expOwner));
     snmp_set_var_typed_value( &name_var,  ASN_OCTET_STR,
-                       (const u_char*)expName,  strlen(expName));
+                       (u_char*)expName,  strlen(expName));
     owner_var.next_variable = &name_var;
     row = netsnmp_tdata_row_next_byidx( expObject_table_data, &owner_var );
 
@@ -240,6 +240,7 @@ void
 expObject_getData( struct expExpression  *expr, struct expObject  *obj )
 {
     netsnmp_variable_list *var;
+    int res;
 
     /*
      * Retrieve and store the basic object value(s)
@@ -278,7 +279,7 @@ expObject_getData( struct expExpression  *expr, struct expObject  *obj )
                                        expr->expPrefix_len,
                                        expr->pvars );
         }
-        netsnmp_query_get( var, expr->session );
+        res = netsnmp_query_get( var, expr->session );
     }
     
     if ( obj->expObjectSampleType != EXPSAMPLETYPE_ABSOLUTE ) {
@@ -311,7 +312,7 @@ expObject_getData( struct expExpression  *expr, struct expObject  *obj )
         else
             var = _expObject_buildList( obj->expObjDeltaD,
                                         obj->expObjDeltaD_len, 0, NULL );
-        netsnmp_query_get( var, expr->session );
+        res = netsnmp_query_get( var, expr->session );
         if ( obj->old_dvars )
             snmp_free_varbind( obj->old_dvars );
         obj->old_dvars = obj->dvars;
@@ -337,7 +338,7 @@ expObject_getData( struct expExpression  *expr, struct expObject  *obj )
          *
          *    (The MIB description seems bogus?)
          */
-        netsnmp_query_get( var, expr->session );
+        res = netsnmp_query_get( var, expr->session );
         if ( obj->cvars )
             snmp_free_varbind( obj->cvars );
         obj->cvars = var;

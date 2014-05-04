@@ -13,7 +13,6 @@
 void            init_sctpLookupRemPrimIPAddrTable(void);
 void            shutdown_sctpLookupRemPrimIPAddrTable(void);
 void            initialize_table_sctpLookupRemPrimIPAddrTable(void);
-void            shutdown_table_sctpLookupRemPrimIPAddrTable(void);
 Netsnmp_Node_Handler sctpLookupRemPrimIPAddrTable_handler;
 
 /*

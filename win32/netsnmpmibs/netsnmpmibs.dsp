@@ -85,30 +85,6 @@ LIB32=link.exe -lib
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\agent\mibgroup\mibII\at.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\mibII\icmp.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\mibII\interfaces.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\mibII\ip.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\mibII\ipAddr.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\mibII\route_write.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\agent\mibgroup\mibII\setSerialNo.c
 # End Source File
 # Begin Source File
@@ -125,23 +101,7 @@ SOURCE=..\..\agent\mibgroup\mibII\system_mib.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\agent\mibgroup\mibII\tcp.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\mibII\tcpTable.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\mibII\udp.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\mibII\udpTable.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\mibII\updates.c
+SOURCE=..\..\agent\mibgroup\mibII\vacm_context.c
 # End Source File
 # Begin Source File
 
@@ -149,15 +109,7 @@ SOURCE=..\..\agent\mibgroup\mibII\vacm_conf.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\agent\mibgroup\mibII\vacm_context.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\agent\mibgroup\mibII\vacm_vars.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\mibII\var_route.c
 # End Source File
 # End Group
 # Begin Group "disman"
@@ -165,67 +117,35 @@ SOURCE=..\..\agent\mibgroup\mibII\var_route.c
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\agent\mibgroup\disman\event\mteEvent.c
+SOURCE=..\..\agent\mibgroup\disman\mteEventNotificationTable.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\agent\mibgroup\disman\event\mteEventConf.c
+SOURCE=..\..\agent\mibgroup\disman\mteEventTable.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\agent\mibgroup\disman\event\mteEventNotificationTable.c
+SOURCE=..\..\agent\mibgroup\disman\mteObjectsTable.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\agent\mibgroup\disman\event\mteEventSetTable.c
+SOURCE=..\..\agent\mibgroup\disman\mteTriggerBooleanTable.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\agent\mibgroup\disman\event\mteEventTable.c
+SOURCE=..\..\agent\mibgroup\disman\mteTriggerDeltaTable.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\agent\mibgroup\disman\event\mteObjects.c
+SOURCE=..\..\agent\mibgroup\disman\mteTriggerExistenceTable.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\agent\mibgroup\disman\event\mteObjectsConf.c
+SOURCE=..\..\agent\mibgroup\disman\mteTriggerTable.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\agent\mibgroup\disman\event\mteObjectsTable.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\disman\event\mteScalars.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\disman\event\mteTriggerBooleanTable.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\disman\event\mteTrigger.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\disman\event\mteTriggerConf.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\disman\event\mteTriggerDeltaTable.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\disman\event\mteTriggerExistenceTable.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\disman\event\mteTriggerTable.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\disman\event\mteTriggerThresholdTable.c
+SOURCE=..\..\agent\mibgroup\disman\mteTriggerThresholdTable.c
 # End Source File
 # End Group
 # Begin Group "examples"
@@ -245,6 +165,10 @@ SOURCE=..\..\agent\mibgroup\examples\ucdDemoPublic.c
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE="..\..\agent\mibgroup\ucd-snmp\dlmod.c"
+# End Source File
+# Begin Source File
+
 SOURCE="..\..\agent\mibgroup\ucd-snmp\errormib.c"
 # End Source File
 # Begin Source File
@@ -262,10 +186,6 @@ SOURCE="..\..\agent\mibgroup\ucd-snmp\loadave.c"
 # Begin Source File
 
 SOURCE="..\..\agent\mibgroup\ucd-snmp\pass.c"
-# End Source File
-# Begin Source File
-
-SOURCE="..\..\agent\mibgroup\ucd-snmp\pass_common.c"
 # End Source File
 # Begin Source File
 
@@ -313,23 +233,19 @@ SOURCE=..\..\agent\mibgroup\snmpv3\usmUser.c
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE="..\..\agent\mibgroup\notification-log-mib\notification_log.c"
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\agent\mibgroup\notification\snmpNotifyFilterProfileTable.c
 # End Source File
 # Begin Source File
 
-SOURCE="..\..\agent\mibgroup\snmp-notification-mib\snmpNotifyFilterTable\snmpNotifyFilterTable.c"
+SOURCE=..\..\agent\mibgroup\snmp-notification-mib\snmpNotifyFilterTable\snmpNotifyFilterTable.c
 # End Source File
 # Begin Source File
 
-SOURCE="..\..\agent\mibgroup\snmp-notification-mib\snmpNotifyFilterTable\snmpNotifyFilterTable_data_access.c"
+SOURCE=..\..\agent\mibgroup\snmp-notification-mib\snmpNotifyFilterTable\snmpNotifyFilterTable_data_access.c
 # End Source File
 # Begin Source File
 
-SOURCE="..\..\agent\mibgroup\snmp-notification-mib\snmpNotifyFilterTable\snmpNotifyFilterTable_interface.c"
+SOURCE=..\..\agent\mibgroup\snmp-notification-mib\snmpNotifyFilterTable\snmpNotifyFilterTable_interface.c
 # End Source File
 # Begin Source File
 
@@ -421,23 +337,11 @@ SOURCE=..\..\agent\mibgroup\utilities\execute.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\agent\mibgroup\util_funcs\Exit.c
+SOURCE=..\..\agent\mibgroup\utilities\iquery.c
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\agent\mibgroup\header_complex.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\util_funcs\header_generic.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\util_funcs\header_simple_table.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\utilities\iquery.c
 # End Source File
 # Begin Source File
 
@@ -449,32 +353,12 @@ SOURCE=..\..\agent\mibgroup\utilities\override.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\agent\mibgroup\util_funcs\restart.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\agent\mibgroup\util_funcs.c
 # End Source File
 # End Group
-# Begin Group "winExtDLL"
-
-# PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\winExtDLL.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\agent\mibgroup\winExtDLL.h
-# End Source File
-# End Group
-# Begin Group "smux"
-
-# PROP Default_Filter ""
 # Begin Source File
 
 SOURCE=..\..\agent\mibgroup\smux\smux.c
 # End Source File
-# End Group
 # End Target
 # End Project

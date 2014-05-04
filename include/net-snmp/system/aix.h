@@ -22,6 +22,3 @@
 
 /* define the extra mib modules that are supported */
 #define NETSNMP_INCLUDE_HOST_RESOURCES
-
-/* the legacy symbol NOACCESS clashes with the system headers. Remove it. */
-#define NETSNMP_NO_LEGACY_DEFINITIONS

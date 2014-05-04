@@ -31,7 +31,6 @@ config_require(header_complex)
      void            init_mteTriggerBooleanTable(void);
      FindVarMethod   var_mteTriggerBooleanTable;
 
-#ifndef NETSNMP_NO_WRITE_SUPPORT
      WriteMethod     write_mteTriggerBooleanComparison;
      WriteMethod     write_mteTriggerBooleanValue;
      WriteMethod     write_mteTriggerBooleanStartup;
@@ -39,7 +38,6 @@ config_require(header_complex)
      WriteMethod     write_mteTriggerBooleanObjects;
      WriteMethod     write_mteTriggerBooleanEventOwner;
      WriteMethod     write_mteTriggerBooleanEvent;
-#endif /* !NETSNMP_NO_WRITE_SUPPORT */
 
 
 

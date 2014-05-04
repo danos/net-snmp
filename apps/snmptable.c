@@ -43,7 +43,11 @@ SOFTWARE.
 # include <netinet/in.h>
 #endif
 #if TIME_WITH_SYS_TIME
-# include <sys/time.h>
+# ifdef WIN32
+#  include <sys/timeb.h>
+# else
+#  include <sys/time.h>
+# endif
 # include <time.h>
 #else
 # if HAVE_SYS_TIME_H
@@ -56,6 +60,9 @@ SOFTWARE.
 #include <sys/select.h>
 #endif
 #include <stdio.h>
+#if HAVE_WINSOCK_H
+#include <winsock.h>
+#endif
 #if HAVE_NETDB_H
 #include <netdb.h>
 #endif
@@ -96,7 +103,6 @@ static int      localdebug;
 static int      exitval = 0;
 static int      use_getbulk = 1;
 static int      max_getbulk = 10;
-static int      extra_columns = 0;
 
 void            usage(void);
 void            get_field_names(void);
@@ -201,7 +207,6 @@ optProc(int argc, char *const *argv, int opt)
             default:
                 fprintf(stderr, "Bad option after -C: %c\n", optarg[-1]);
                 usage();
-                exit(1);
             }
         }
         break;
@@ -250,8 +255,7 @@ main(int argc, char *argv[])
     netsnmp_session session, *ss;
     int            total_entries = 0;
 
-    netsnmp_set_line_buffering(stdout);
-
+    setvbuf(stdout, NULL, _IOLBF, 1024);
     netsnmp_ds_set_boolean(NETSNMP_DS_LIBRARY_ID, 
                            NETSNMP_DS_LIB_QUICK_PRINT, 1);
 
@@ -259,11 +263,9 @@ main(int argc, char *argv[])
      * get the common command line arguments 
      */
     switch (snmp_parse_args(argc, argv, &session, "C:", optProc)) {
-    case NETSNMP_PARSE_ARGS_ERROR:
-        exit(1);
-    case NETSNMP_PARSE_ARGS_SUCCESS_EXIT:
+    case -2:
         exit(0);
-    case NETSNMP_PARSE_ARGS_ERROR_USAGE:
+    case -1:
         usage();
         exit(1);
     default:
@@ -350,8 +352,6 @@ main(int argc, char *argv[])
 
     if (total_entries == 0)
         printf("%s: No entries\n", table_name);
-    if (extra_columns)
-	printf("%s: WARNING: More columns on agent than in MIB\n", table_name);
 
     return 0;
 }
@@ -666,7 +666,7 @@ get_table_entries(netsnmp_session * ss)
                     col++;
                     name[rootlen] = column[col].subid;
                     if ((vars->name_length < name_length) ||
-                        (vars->name[rootlen] != column[col].subid) ||
+                        ((int) vars->name[rootlen] != column[col].subid) ||
                         memcmp(name, vars->name,
                                name_length * sizeof(oid)) != 0
                         || vars->type == SNMP_ENDOFMIBVIEW) {
@@ -706,7 +706,7 @@ get_table_entries(netsnmp_session * ss)
                                                           NETSNMP_DS_LIB_OID_OUTPUT_FORMAT)) {
                                 case NETSNMP_OID_OUTPUT_MODULE:
 				case 0:
-                                    name_p = strchr(buf, ':');
+                                    name_p = strrchr(buf, ':');
                                     break;
                                 case NETSNMP_OID_OUTPUT_SUFFIX:
                                     name_p = buf;
@@ -865,15 +865,6 @@ getbulk_table_entries(netsnmp_session * ss)
                         printf("%s => taken\n",
                                buf ? (char *) buf : "[NIL]");
                     }
-                    for (col = 0; col < fields; col++)
-                        if (column[col].subid == vars->name[rootlen])
-                            break;
-		    if (col == fields) {
-			extra_columns = 1;
-			last_var = vars;
-			vars = vars->next_variable;
-			continue;
-		    }
                     if (netsnmp_ds_get_boolean(NETSNMP_DS_LIBRARY_ID, 
                                               NETSNMP_DS_LIB_EXTENDED_INDEX)) {
                         name_p = strchr(buf, '[');
@@ -954,6 +945,9 @@ getbulk_table_entries(netsnmp_session * ss)
                     for (cp = buf; *cp; cp++)
                         if (*cp == '\n')
                             *cp = ' ';
+                    for (col = 0; col < fields; col++)
+                        if (column[col].subid == vars->name[rootlen])
+                            break;
                     dp[col] = buf;
                     i = out_len;
                     buf = NULL;

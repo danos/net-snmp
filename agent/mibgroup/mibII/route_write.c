@@ -60,6 +60,10 @@
 #include <stdlib.h>
 #endif
 
+#if HAVE_WINSOCK_H
+#include <winsock.h>
+#endif
+
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
 
@@ -72,10 +76,10 @@
 
 #if !defined (WIN32) && !defined (cygwin)
 
-#ifndef HAVE_STRUCT_RTENTRY_RT_DST
+#ifndef STRUCT_RTENTRY_HAS_RT_DST
 #define rt_dst rt_nodes->rn_key
 #endif
-#ifndef HAVE_STRUCT_RTENTRY_RT_HASH
+#ifndef STRUCT_RTENTRY_HAS_RT_HASH
 #define rt_hash rt_pad1
 #endif
 
@@ -93,7 +97,7 @@
 int
 addRoute(u_long dstip, u_long gwip, u_long iff, u_short flags)
 {
-#if defined SIOCADDRT && !(defined(irix6) || defined(__OpenBSD__) || defined(darwin))
+#if defined SIOCADDRT && !defined(irix6)
     struct sockaddr_in dst;
     struct sockaddr_in gateway;
     int             s, rc;
@@ -129,49 +133,6 @@ addRoute(u_long dstip, u_long gwip, u_long iff, u_short flags)
         snmp_log_perror("ioctl");
     return rc;
 
-#elif (defined __OpenBSD__ || defined(darwin))
-
-       int     s, rc;
-       struct {
-               struct  rt_msghdr hdr;
-               struct  sockaddr_in dst;
-               struct  sockaddr_in gateway;
-       } rtmsg;
-
-       s = socket(PF_ROUTE, SOCK_RAW, 0);
-       if (s < 0) {
-            snmp_log_perror("socket");
-            return -1;
-       }
-
-       shutdown(s, SHUT_RD);
-
-       /* possible panic otherwise */
-       flags |= (RTF_UP | RTF_GATEWAY);
-
-       bzero(&rtmsg, sizeof(rtmsg));
-
-       rtmsg.hdr.rtm_type = RTM_ADD;
-       rtmsg.hdr.rtm_version = RTM_VERSION;
-       rtmsg.hdr.rtm_addrs = RTA_DST | RTA_GATEWAY;
-       rtmsg.hdr.rtm_flags = RTF_GATEWAY;
-
-       rtmsg.dst.sin_len = sizeof(rtmsg.dst);
-       rtmsg.dst.sin_family = AF_INET;
-       rtmsg.dst.sin_addr.s_addr = htonl(dstip);
-
-       rtmsg.gateway.sin_len = sizeof(rtmsg.gateway);
-       rtmsg.gateway.sin_family = AF_INET;
-       rtmsg.gateway.sin_addr.s_addr = htonl(gwip);
-
-       rc = sizeof(rtmsg);
-       rtmsg.hdr.rtm_msglen = rc;
-
-       if ((rc = write(s, &rtmsg, rc)) < 0) {
-               snmp_log_perror("writing to routing socket");
-               return -1;
-       }
-       return (rc);
 #else                           /* SIOCADDRT */
     return -1;
 #endif
@@ -182,7 +143,7 @@ addRoute(u_long dstip, u_long gwip, u_long iff, u_short flags)
 int
 delRoute(u_long dstip, u_long gwip, u_long iff, u_short flags)
 {
-#if defined SIOCADDRT && !(defined(irix6) || defined(__OpenBSD__) || defined(darwin))
+#if defined SIOCDELRT && !defined(irix6)
 
     struct sockaddr_in dst;
     struct sockaddr_in gateway;
@@ -216,56 +177,14 @@ delRoute(u_long dstip, u_long gwip, u_long iff, u_short flags)
     rc = ioctl(s, SIOCDELRT, (caddr_t) & route);
     close(s);
     return rc;
-#elif (defined __OpenBSD__ || defined(darwin))
- 
-       int     s, rc;
-       struct {
-               struct  rt_msghdr hdr;
-               struct  sockaddr_in dst;
-               struct  sockaddr_in gateway;
-       } rtmsg;
 
-       s = socket(PF_ROUTE, SOCK_RAW, 0);
-       if (s < 0) {
-            snmp_log_perror("socket");
-            return -1;
-       }
-
-       shutdown(s, SHUT_RD);
-
-       /* possible panic otherwise */
-       flags |= (RTF_UP | RTF_GATEWAY);
-
-       bzero(&rtmsg, sizeof(rtmsg));
-
-       rtmsg.hdr.rtm_type = RTM_DELETE;
-       rtmsg.hdr.rtm_version = RTM_VERSION;
-       rtmsg.hdr.rtm_addrs = RTA_DST | RTA_GATEWAY;
-       rtmsg.hdr.rtm_flags = RTF_GATEWAY;
-
-       rtmsg.dst.sin_len = sizeof(rtmsg.dst);
-       rtmsg.dst.sin_family = AF_INET;
-       rtmsg.dst.sin_addr.s_addr = htonl(dstip);
-
-       rtmsg.gateway.sin_len = sizeof(rtmsg.gateway);
-       rtmsg.gateway.sin_family = AF_INET;
-       rtmsg.gateway.sin_addr.s_addr = htonl(gwip);
-
-       rc = sizeof(rtmsg);
-       rtmsg.hdr.rtm_msglen = rc;
-
-       if ((rc = write(s, &rtmsg, rc)) < 0) {
-               snmp_log_perror("writing to routing socket");
-               return -1;
-       }
-       return (rc);
 #else                           /* SIOCDELRT */
     return 0;
 #endif
 }
 
 
-#ifndef HAVE_STRUCT_RTENTRY_RT_DST
+#ifndef STRUCT_RTENTRY_HAS_RT_DST
 #undef rt_dst
 #endif
 
@@ -309,7 +228,7 @@ findCacheRTE(u_long dst)
             return (&rtcache[i]);
         }
     }
-    return NULL;
+    return 0;
 }
 
 struct rtent   *
@@ -325,7 +244,7 @@ newCacheRTE(void)
             return (&rtcache[i]);
         }
     }
-    return NULL;
+    return 0;
 
 }
 
@@ -347,7 +266,7 @@ delCacheRTE(u_long dst)
 struct rtent   *
 cacheKernelRTE(u_long dst)
 {
-    return NULL;                /* for now */
+    return 0;                   /* for now */
     /*
      * ...... 
      */
@@ -434,6 +353,11 @@ write_rte(int action,
 
             memcpy(buf, var_val, (var_val_len > 8) ? 8 : var_val_len);
 
+            if (var_val_type != ASN_IPADDRESS) {
+                snmp_log(LOG_ERR, "not IP address 2");
+                return SNMP_ERR_WRONGTYPE;
+            }
+
             rp->xx_dst = *((u_long *) buf);
 
 
@@ -504,12 +428,16 @@ write_rte(int action,
 
             memcpy(buf, var_val, (var_val_len > 8) ? 8 : var_val_len);
 
+            if (var_val_type != ASN_IPADDRESS) {
+                snmp_log(LOG_ERR, "not right5");
+                return SNMP_ERR_WRONGTYPE;
+            }
+
             rp->xx_nextIR = *((u_long *) buf);
 
         } else if (action == COMMIT) {
             rp->rt_nextIR = rp->xx_nextIR;
         }
-	break;
 
 
     case IPROUTETYPE:
@@ -593,7 +521,7 @@ write_rte(int action,
     return SNMP_ERR_NOERROR;
 }
 
-#elif defined(HAVE_IPHLPAPI_H)  /* WIN32 cygwin */
+#else                           /* WIN32 cygwin */
 #include <iphlpapi.h>
 
 extern PMIB_IPFORWARDROW route_row;
@@ -798,7 +726,7 @@ write_rte(int action,
                     if ((status =
                          CreateIpForwardEntry(route_row)) != NO_ERROR) {
                         snmp_log(LOG_ERR,
-                                 "Inside COMMIT: CreateIpNetEntry failed, status %lu\n",
+                                 "Inside COMMIT: CreateIpNetEntry failed, status %d\n",
                                  status);
                         retval = SNMP_ERR_COMMITFAILED;
                     }

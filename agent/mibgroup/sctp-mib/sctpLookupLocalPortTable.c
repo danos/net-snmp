@@ -6,11 +6,11 @@
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
+#include <net-snmp/agent/net-snmp-agent-includes.h>
 #include <net-snmp/agent/table_container.h>
 #include "sctpLookupLocalPortTable.h"
 
 static netsnmp_container *sctpLookupLocalPortTable_container;
-static netsnmp_table_registration_info *table_info;
 
 /** Initializes the sctpLookupLocalPortTable module */
 void
@@ -25,7 +25,8 @@ init_sctpLookupLocalPortTable(void)
 void
 shutdown_sctpLookupLocalPortTable(void)
 {
-    shutdown_table_sctpLookupLocalPortTable();
+    sctpLookupLocalPortTable_container_clear
+        (sctpLookupLocalPortTable_container);
 }
 
 /** Initialize the sctpLookupLocalPortTable table by defining its contents and how it's structured */
@@ -39,6 +40,7 @@ initialize_table_sctpLookupLocalPortTable(void)
     netsnmp_handler_registration *reg = NULL;
     netsnmp_mib_handler *handler = NULL;
     netsnmp_container *container = NULL;
+    netsnmp_table_registration_info *table_info = NULL;
 
     reg =
         netsnmp_create_handler_registration("sctpLookupLocalPortTable",
@@ -97,7 +99,6 @@ initialize_table_sctpLookupLocalPortTable(void)
     if (SNMPERR_SUCCESS != netsnmp_register_table(reg, table_info)) {
         snmp_log(LOG_ERR,
                  "error registering table handler for sctpLookupLocalPortTable\n");
-        reg = NULL; /* it was freed inside netsnmp_register_table */
         goto bail;
     }
 
@@ -116,8 +117,6 @@ initialize_table_sctpLookupLocalPortTable(void)
     if (handler)
         netsnmp_handler_free(handler);
 
-    if (table_info)
-        netsnmp_table_registration_info_free(table_info);
 
     if (container)
         CONTAINER_FREE(container);
@@ -126,16 +125,6 @@ initialize_table_sctpLookupLocalPortTable(void)
         netsnmp_handler_registration_free(reg);
 }
 
-void
-shutdown_table_sctpLookupLocalPortTable(void)
-{
-    if (table_info) {
-	netsnmp_table_registration_info_free(table_info);
-	table_info = NULL;
-    }
-    sctpLookupLocalPortTable_container_clear
-        (sctpLookupLocalPortTable_container);
-}
 
 /** handles requests for the sctpLookupLocalPortTable table */
 int
@@ -258,7 +247,8 @@ sctpLookupLocalPortTable_entry_copy(sctpLookupLocalPortTable_entry * from,
 void
 sctpLookupLocalPortTable_entry_free(sctpLookupLocalPortTable_entry * entry)
 {
-    SNMP_FREE(entry);
+    if (entry != NULL)
+        SNMP_FREE(entry);
 }
 
 netsnmp_container *

@@ -1,5 +1,4 @@
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 
 #include <sys/types.h>
 #if HAVE_NETINET_IN_H
@@ -17,14 +16,7 @@
 #include <net-snmp/agent/table.h>
 #include <net-snmp/agent/table_data.h>
 #include <net-snmp/agent/table_dataset.h>
-#include "net-snmp/agent/sysORTable.h"
 #include "notification_log.h"
-
-netsnmp_feature_require(register_ulong_instance_context)
-netsnmp_feature_require(register_read_only_counter32_instance_context)
-netsnmp_feature_require(delete_table_data_set)
-netsnmp_feature_require(table_dataset)
-netsnmp_feature_require(date_n_time)
 
 /*
  * column number definitions for table nlmLogTable
@@ -64,8 +56,6 @@ static u_long   max_age = 1440; /* 1440 = 24 hours, which is the mib default */
 
 static netsnmp_table_data_set *nlmLogTable;
 static netsnmp_table_data_set *nlmLogVarTable;
-
-static oid nlm_module_oid[] = { SNMP_OID_MIB2, 92 }; /* NOTIFICATION-LOG-MIB::notificationLogMIB */
 
 static void
 netsnmp_notif_log_remove_oldest(int count)
@@ -136,9 +126,11 @@ check_log_size(unsigned int clientreg, void *clientarg)
     netsnmp_table_row *row;
     netsnmp_table_data_set_storage *data;
     u_long          count = 0;
+    struct timeval  now;
     u_long          uptime;
 
-    uptime = netsnmp_get_agent_uptime();
+    gettimeofday(&now, NULL);
+    uptime = netsnmp_timeval_uptime(&now);
 
     if (!nlmLogTable || !nlmLogTable->table )  {
         DEBUGMSGTL(("notification_log", "missing log table\n"));
@@ -150,11 +142,11 @@ check_log_size(unsigned int clientreg, void *clientarg)
      */
     count = netsnmp_table_set_num_rows(nlmLogTable);
     DEBUGMSGTL(("notification_log",
-                "logged notifications %lu; max %lu\n",
+                "logged notifications %d; max %d\n",
                     count, max_logged));
     if (count > max_logged) {
         count = count - max_logged;
-        DEBUGMSGTL(("notification_log", "removing %lu extra notifications\n",
+        DEBUGMSGTL(("notification_log", "removing %d extra notifications\n",
                     count));
         netsnmp_notif_log_remove_oldest(count);
     }
@@ -172,13 +164,13 @@ check_log_size(unsigned int clientreg, void *clientarg)
         data = (netsnmp_table_data_set_storage *) row->data;
         data = netsnmp_table_data_set_find_column(data, COLUMN_NLMLOGTIME);
 
-        if (uptime < ((u_long)(*(data->data.integer) + max_age * 100 * 60)))
+        if (uptime < ((long)(*(data->data.integer) + max_age * 100 * 60)))
             break;
         ++count;
     }
 
     if (count) {
-        DEBUGMSGTL(("notification_log", "removing %lu expired notifications\n",
+        DEBUGMSGTL(("notification_log", "removing %d expired notifications\n",
                     count));
         netsnmp_notif_log_remove_oldest(count);
     }
@@ -225,6 +217,15 @@ initialize_table_nlmLogVariableTable(const char * context)
                 "adding index nlmLogVariableIndex of type ASN_UNSIGNED to table nlmLogVariableTable\n"));
     netsnmp_table_dataset_add_index(table_set, ASN_UNSIGNED);
 
+    /*
+     * adding column nlmLogVariableIndex of type ASN_UNSIGNED and access
+     * of NoAccess 
+     */
+    DEBUGMSGTL(("initialize_table_nlmLogVariableTable",
+                "adding column nlmLogVariableIndex (#1) of type ASN_UNSIGNED to table nlmLogVariableTable\n"));
+    netsnmp_table_set_add_default_row(table_set,
+                                      COLUMN_NLMLOGVARIABLEINDEX,
+                                      ASN_UNSIGNED, 0, NULL, 0);
     /*
      * adding column nlmLogVariableID of type ASN_OBJECT_ID and access of
      * ReadOnly 
@@ -474,10 +475,8 @@ notification_log_config_handler(netsnmp_mib_handler *handler,
      * configuration variables get set to a value and thus
      * notifications must be possibly deleted from our archives.
      */
-#ifndef NETSNMP_NO_WRITE_SUPPORT
     if (reqinfo->mode == MODE_SET_COMMIT)
         check_log_size(0, NULL);
-#endif /* !NETSNMP_NO_WRITE_SUPPORT */
     return SNMP_ERR_NOERROR;
 }
 
@@ -558,9 +557,6 @@ init_notification_log(void)
                                NETSNMP_DS_APPLICATION_ID,
                                NETSNMP_DS_AGENT_NOTIF_LOG_MAX);
 #endif
-
-    REGISTER_SYSOR_ENTRY(nlm_module_oid, 
-        "The MIB module for logging SNMP Notifications.");
 }
 
 void
@@ -568,16 +564,13 @@ shutdown_notification_log(void)
 {
     max_logged = 0;
     check_log_size(0, NULL);
-    netsnmp_delete_table_data_set(nlmLogTable);
-    nlmLogTable = NULL;
-
-    UNREGISTER_SYSOR_ENTRY(nlm_module_oid);
 }
 
 void
 log_notification(netsnmp_pdu *pdu, netsnmp_transport *transport)
 {
     long            tmpl;
+    struct timeval  now;
     netsnmp_table_row *row;
 
     static u_long   default_num = 0;
@@ -592,7 +585,6 @@ log_notification(netsnmp_pdu *pdu, netsnmp_transport *transport)
     u_long          vbcount = 0;
     u_long          tmpul;
     int             col;
-    netsnmp_pdu    *orig_pdu = pdu;
 
     if (!nlmLogVarTable
         || netsnmp_ds_get_boolean(NETSNMP_DS_APPLICATION_ID,
@@ -617,9 +609,10 @@ log_notification(netsnmp_pdu *pdu, netsnmp_transport *transport)
     /*
      * add the data 
      */
-    tmpl = netsnmp_get_agent_uptime();
+    gettimeofday(&now, NULL);
+    tmpl = netsnmp_timeval_uptime(&now);
     netsnmp_set_row_column(row, COLUMN_NLMLOGTIME, ASN_TIMETICKS,
-                           &tmpl, sizeof(tmpl));
+                           (u_char *) & tmpl, sizeof(tmpl));
     time(&timetnow);
     logdate = date_n_time(&timetnow, &logdate_size);
     netsnmp_set_row_column(row, COLUMN_NLMLOGDATEANDTIME, ASN_OCTET_STR,
@@ -649,23 +642,22 @@ log_notification(netsnmp_pdu *pdu, netsnmp_transport *transport)
     }
     if (transport)
         netsnmp_set_row_column(row, COLUMN_NLMLOGENGINETDOMAIN,
-                               ASN_OBJECT_ID,
-                               transport->domain,
-                               sizeof(oid) * transport->domain_length);
+                                     ASN_OBJECT_ID,
+                                     (const u_char *) transport->domain,
+                                     sizeof(oid) * transport->domain_length);
     netsnmp_set_row_column(row, COLUMN_NLMLOGCONTEXTENGINEID,
                            ASN_OCTET_STR, pdu->contextEngineID,
                            pdu->contextEngineIDLen);
     netsnmp_set_row_column(row, COLUMN_NLMLOGCONTEXTNAME, ASN_OCTET_STR,
                            pdu->contextName, pdu->contextNameLen);
 
-    if (pdu->command == SNMP_MSG_TRAP)
-	pdu = convert_v1pdu_to_v2(orig_pdu);
     for (vptr = pdu->variables; vptr; vptr = vptr->next_variable) {
         if (snmp_oid_compare(snmptrapoid, snmptrapoid_len,
                              vptr->name, vptr->name_length) == 0) {
             netsnmp_set_row_column(row, COLUMN_NLMLOGNOTIFICATIONID,
                                    ASN_OBJECT_ID, vptr->val.string,
                                    vptr->val_len);
+
         } else {
             netsnmp_table_row *myrow;
             myrow = netsnmp_create_table_data_row();
@@ -685,7 +677,7 @@ log_notification(netsnmp_pdu *pdu, netsnmp_transport *transport)
              * OID 
              */
             netsnmp_set_row_column(myrow, COLUMN_NLMLOGVARIABLEID,
-                                   ASN_OBJECT_ID, vptr->name,
+                                   ASN_OBJECT_ID, (u_char *) vptr->name,
                                    vptr->name_length * sizeof(oid));
 
             /*
@@ -747,7 +739,7 @@ log_notification(netsnmp_pdu *pdu, netsnmp_transport *transport)
                 continue;
             }
             netsnmp_set_row_column(myrow, COLUMN_NLMLOGVARIABLEVALUETYPE,
-                                   ASN_INTEGER, & tmpul,
+                                   ASN_INTEGER, (u_char *) & tmpul,
                                    sizeof(tmpul));
             netsnmp_set_row_column(myrow, col, vptr->type,
                                    vptr->val.string, vptr->val_len);
@@ -756,9 +748,6 @@ log_notification(netsnmp_pdu *pdu, netsnmp_transport *transport)
             netsnmp_table_dataset_add_row(nlmLogVarTable, myrow);
         }
     }
-
-    if (pdu != orig_pdu)
-        snmp_free_pdu( pdu );
 
     /*
      * store the row 

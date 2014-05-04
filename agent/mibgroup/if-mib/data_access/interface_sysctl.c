@@ -3,10 +3,9 @@
  *
  *  Based on patch 1362403, submited by Rojer
  *
- * $Id$
+ * $Id: interface_sysctl.c 17481 2009-04-09 08:44:41Z dts12 $
  */
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 #include <net-snmp/net-snmp-includes.h>
 #include "mibII/mibII_common.h"
 #include "if-mib/ifTable/ifTable_constants.h"
@@ -30,8 +29,6 @@
 #include <net/if_types.h>
 #include <net/if_media.h>
 
-netsnmp_feature_child_of(interface_arch_set_admin_status, interface_all)
-
 /*
  * account for minor differences between FreeBSD and OpenBSD.
  * If this gets unruly, split stuff out into the respective
@@ -52,7 +49,7 @@ netsnmp_feature_child_of(interface_arch_set_admin_status, interface_all)
 #   define ARCH_PROMISC_FLAG IFF_PROMISC
 #endif
 
-#define starttime (*(const struct timeval*)netsnmp_get_agent_starttime())
+extern struct timeval starttime;
 
 /* sa_len roundup macro. */
 #define ROUNDUP(a) \
@@ -186,7 +183,6 @@ netsnmp_sysctl_ifmedia_to_speed(int media, u_int *speed,
 #endif
             }
             break;
-#if defined(IFM_TOKEN)
         case IFM_TOKEN:
             switch (IFM_SUBTYPE(media)) {
                 case IFM_TOK_STP4:
@@ -205,10 +201,9 @@ netsnmp_sysctl_ifmedia_to_speed(int media, u_int *speed,
                     *speed = 100000000;
                     *speed_high = 100;
                     break;
-#endif /* IFM_TOK_STP100 */
+#endif
             }
             break;
-#endif /* IFM_TOKEN */
 #ifdef IFM_ATM
         case IFM_ATM:
             switch (IFM_SUBTYPE(media)) {
@@ -252,8 +247,8 @@ netsnmp_sysctl_get_if_speed(char *name, u_int *speed,
         return 0;
     }
 
-    memset(&ifmr, 0, sizeof(ifmr));
-    strlcpy(ifmr.ifm_name, name, sizeof(ifmr.ifm_name));
+    (void) memset(&ifmr, 0, sizeof(ifmr));
+    (void) strncpy(ifmr.ifm_name, name, sizeof(ifmr.ifm_name));
 
     DEBUGMSGTL(("access:interface:container:sysctl"," speed in\n"));
     if (ioctl(s, SIOCGIFMEDIA, (caddr_t)&ifmr) < 0 ||
@@ -284,7 +279,7 @@ netsnmp_sysctl_get_if_speed(char *name, u_int *speed,
                 netsnmp_sysctl_ifmedia_to_speed(media_list[i], &t_speed,
                                                 &t_speed_high);
                 if (t_speed_high > m_speed_high ||
-                    (t_speed_high == m_speed_high && t_speed > m_speed)) {
+                    (t_speed_high == m_speed_high && t_speed > t_speed)) {
                     m_speed_high = t_speed_high;
                     m_speed = t_speed;
                 }
@@ -302,12 +297,6 @@ netsnmp_sysctl_get_if_speed(char *name, u_int *speed,
                 name, *speed, *speed_high));
 
     return *speed;
-}
-
-static void set_counter(struct counter64 *c, uint64_t v)
-{
-    c->low = (uint32_t)(v);
-    c->high = (v) >> 32;
 }
 
 /*
@@ -332,14 +321,9 @@ netsnmp_arch_interface_container_load(netsnmp_container* container,
     int amask;
     char *if_name;
     int flags;
-#ifdef HAVE_STRUCT_IFNET_IF_LASTCHANGE_TV_NSEC
-    struct timespec startspec;
-
-    TIMEVAL_TO_TIMESPEC(&starttime, &startspec);
-#endif
 
     DEBUGMSGTL(("access:interface:container:sysctl",
-                "load (flags %u)\n", load_flags));
+                "load (flags %p)\n", load_flags));
 
     if (NULL == container) {
         snmp_log(LOG_ERR, "no container specified/found for interface\n");
@@ -352,14 +336,14 @@ netsnmp_arch_interface_container_load(netsnmp_container* container,
         return -2;
     }
 
-    if_list = (u_char*)malloc(if_list_size);
+    if_list = malloc(if_list_size);
     if (if_list == NULL) {
         snmp_log(LOG_ERR, "could not allocate memory for interface info "
-                 "(%zu bytes)\n", if_list_size);
+                 "(%lu bytes)\n", if_list_size);
         return -3;
     } else {
         DEBUGMSGTL(("access:interface:container:sysctl",
-                    "allocated %zu bytes for if_list\n", if_list_size));
+                    "allocated %lu bytes for if_list\n", if_list_size));
     }
 
     if (sysctl(sysctl_oid, sizeof(sysctl_oid)/sizeof(int), if_list,
@@ -416,7 +400,7 @@ netsnmp_arch_interface_container_load(netsnmp_container* container,
         /* get physical address */
         if (adl != NULL && adl->sdl_alen > 0) {
             entry->paddr_len = adl->sdl_alen;
-            entry->paddr = (char*)malloc(entry->paddr_len);
+            entry->paddr = malloc(entry->paddr_len);
             memcpy(entry->paddr, adl->sdl_data + adl->sdl_nlen, adl->sdl_alen);
             DEBUGMSGTL(("access:interface:container:sysctl",
                         "%s: paddr_len=%d, entry->paddr=%x:%x:%x:%x:%x:%x\n",
@@ -424,7 +408,7 @@ netsnmp_arch_interface_container_load(netsnmp_container* container,
                         entry->paddr[0], entry->paddr[1], entry->paddr[2],
                         entry->paddr[3], entry->paddr[4], entry->paddr[5]));
         } else {
-            entry->paddr = (char*)malloc(6);
+            entry->paddr = malloc(6);
             entry->paddr_len = 6;
             memset(entry->paddr, 0, 6);
         }
@@ -467,26 +451,28 @@ netsnmp_arch_interface_container_load(netsnmp_container* container,
             NETSNMP_INTERFACE_FLAGS_HAS_V6_REASMMAX;
 
         /* get counters */
-        set_counter(&entry->stats.ibytes, ifp->ifm_data.ifi_ibytes);
-        set_counter(&entry->stats.iucast, ifp->ifm_data.ifi_ipackets);
-        set_counter(&entry->stats.imcast, ifp->ifm_data.ifi_imcasts);
+        entry->stats.ibytes.low  = ifp->ifm_data.ifi_ibytes   & 0xffffffff;
+        entry->stats.ibytes.high = ifp->ifm_data.ifi_ibytes   >> 32;
+        entry->stats.iucast.low  = ifp->ifm_data.ifi_ipackets & 0xffffffff;
+        entry->stats.iucast.high = ifp->ifm_data.ifi_ipackets >> 32;
+        entry->stats.imcast.low  = ifp->ifm_data.ifi_imcasts  & 0xffffffff;
+        entry->stats.imcast.high = ifp->ifm_data.ifi_imcasts  >> 32;
         entry->stats.ierrors = ifp->ifm_data.ifi_ierrors;
         entry->stats.idiscards = ifp->ifm_data.ifi_iqdrops;
         entry->stats.iunknown_protos = ifp->ifm_data.ifi_noproto;
 
-        set_counter(&entry->stats.obytes, ifp->ifm_data.ifi_obytes);
-        set_counter(&entry->stats.oucast, ifp->ifm_data.ifi_opackets);
-        set_counter(&entry->stats.omcast, ifp->ifm_data.ifi_omcasts);
+        entry->stats.obytes.low  = ifp->ifm_data.ifi_obytes   & 0xffffffff;
+        entry->stats.obytes.high = ifp->ifm_data.ifi_obytes   >> 32;
+        entry->stats.oucast.low  = ifp->ifm_data.ifi_opackets & 0xffffffff;
+        entry->stats.oucast.high = ifp->ifm_data.ifi_opackets >> 32;
+        entry->stats.omcast.low  = ifp->ifm_data.ifi_omcasts  & 0xffffffff;
+        entry->stats.omcast.high = ifp->ifm_data.ifi_omcasts  >> 32;
         entry->stats.oerrors = ifp->ifm_data.ifi_oerrors;
         entry->ns_flags |=  NETSNMP_INTERFACE_FLAGS_HAS_BYTES |
                             NETSNMP_INTERFACE_FLAGS_HAS_DROPS |
                             NETSNMP_INTERFACE_FLAGS_HAS_MCAST_PKTS;
 
-#ifdef HAVE_STRUCT_IFNET_IF_LASTCHANGE_TV_NSEC
-        if (timespeccmp(&ifp->ifm_data.ifi_lastchange, &startspec, >)) {
-#else
         if (timercmp(&ifp->ifm_data.ifi_lastchange, &starttime, >)) {
-#endif
             entry->lastchange = (ifp->ifm_data.ifi_lastchange.tv_sec -
                                  starttime.tv_sec) * 100;
             entry->ns_flags |= NETSNMP_INTERFACE_FLAGS_HAS_LASTCHANGE;
@@ -511,7 +497,7 @@ netsnmp_arch_interface_container_load(netsnmp_container* container,
 
         CONTAINER_INSERT(container, entry);
         DEBUGMSGTL(("access:interface:container:sysctl",
-                    "created entry %d for %s\n", (int)entry->index, entry->name));
+                    "created entry %u for %s\n", entry->index, entry->name));
     } /* for (each interface entry) */
 
     /* pass 2: walk addresses */
@@ -563,7 +549,6 @@ netsnmp_arch_interface_container_load(netsnmp_container* container,
     return 0;
 }
 
-#ifndef NETSNMP_FEATURE_REMOVE_INTERFACE_ARCH_SET_ADMIN_STATUS
 int
 netsnmp_arch_set_admin_status(netsnmp_interface_entry * entry,
                               int ifAdminStatus_val)
@@ -578,4 +563,3 @@ netsnmp_arch_set_admin_status(netsnmp_interface_entry * entry,
 
     return -4;
 }
-#endif /* NETSNMP_FEATURE_REMOVE_INTERFACE_ARCH_SET_ADMIN_STATUS */

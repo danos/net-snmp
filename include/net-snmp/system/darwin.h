@@ -5,4 +5,3 @@
  * At least, as of 5.3.
  */
 #undef HAVE_FSTAB_H
-

@@ -1,5 +1,4 @@
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
 
@@ -12,8 +11,6 @@
 #include "sctpLookupRemHostNameTable.h"
 #include "sctpLookupRemPrimIPAddrTable.h"
 #include "sctpLookupRemIPAddrTable.h"
-
-netsnmp_feature_require(container_lifo)
 
 static void
 sctpAssocTable_collect_invalid(void *what, void *magic)
@@ -435,7 +432,7 @@ sctpTables_load(void)
 
     ret = sctpTables_arch_load(&containers, &flags);
 
-    if (flags & SCTP_TABLES_LOAD_FLAG_DELETE_INVALID) {
+    if (flags | SCTP_TABLES_LOAD_FLAG_DELETE_INVALID) {
         sctpAssocTable_delete_invalid(containers.sctpAssocTable);
         sctpAssocRemAddrTable_delete_invalid(containers.
                                              sctpAssocRemAddrTable);
@@ -443,7 +440,7 @@ sctpTables_load(void)
                                                sctpAssocLocalAddrTable);
     }
 
-    if (flags & SCTP_TABLES_LOAD_FLAG_AUTO_LOOKUP) {
+    if (flags | SCTP_TABLES_LOAD_FLAG_AUTO_LOOKUP) {
         ret = sctpTables_fill_lookup(&containers);
     }
 

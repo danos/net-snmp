@@ -38,6 +38,10 @@
 #include <netinet/in.h>
 #endif
 
+#if HAVE_WINSOCK_H
+#include <winsock.h>
+#endif
+
 #include <net-snmp/net-snmp-includes.h>
 
 #include <stdlib.h>
@@ -108,7 +112,7 @@ int             _getch(void);
 int
 main(int argc, char **argv)
 {
-    int             rval = 1;
+    int             rval = SNMPERR_SUCCESS;
     size_t          oldKu_len = SNMP_MAXBUF_SMALL,
         newKu_len = SNMP_MAXBUF_SMALL,
         oldkul_len = SNMP_MAXBUF_SMALL,
@@ -170,7 +174,6 @@ main(int argc, char **argv)
             break;
         case 'h':
             rval = 0;
-	    /* fallthrough */
         default:
             usage_to_file(stdout);
             exit(rval);
@@ -202,7 +205,7 @@ main(int argc, char **argv)
                 "Unrecognized hash transform: \"%s\".\n",
                 transform_type_input);
         usage_synopsis(stderr);
-        QUITFUN(SNMPERR_GENERR, main_quit);
+        QUITFUN(rval = SNMPERR_GENERR, main_quit);
     }
 
     if (verbose) {
@@ -229,8 +232,8 @@ main(int argc, char **argv)
         engineid_len = hex_to_binary2(engineid + 2,
                                       strlen((char *) engineid) - 2,
                                       (char **) &engineid);
-        DEBUGMSGTL(("encode_keychange", "engineIDLen: %lu\n",
-                    (unsigned long)engineid_len));
+        DEBUGMSGTL(("encode_keychange", "engineIDLen: %d\n",
+                    engineid_len));
     } else {
         engineid_len = setup_engineID(&engineid, (char *) engineid);
 
@@ -255,12 +258,12 @@ main(int argc, char **argv)
     if (strlen(oldpass) < USM_LENGTH_P_MIN) {
         fprintf(stderr, "Old passphrase must be greater than %d "
                 "characters in length.\n", USM_LENGTH_P_MIN);
-        QUITFUN(SNMPERR_GENERR, main_quit);
+        QUITFUN(rval = SNMPERR_GENERR, main_quit);
 
     } else if (strlen(newpass) < USM_LENGTH_P_MIN) {
         fprintf(stderr, "New passphrase must be greater than %d "
                 "characters in length.\n", USM_LENGTH_P_MIN);
-        QUITFUN(SNMPERR_GENERR, main_quit);
+        QUITFUN(rval = SNMPERR_GENERR, main_quit);
     }
 
     if (verbose) {
@@ -291,12 +294,12 @@ main(int argc, char **argv)
     QUITFUN(rval, main_quit);
 
 
-    DEBUGMSGTL(("encode_keychange", "EID (%lu): ", (unsigned long)engineid_len));
+    DEBUGMSGTL(("encode_keychange", "EID (%d): ", engineid_len));
     for (i = 0; i < (int) engineid_len; i++)
         DEBUGMSGTL(("encode_keychange", "%02x", (int) (engineid[i])));
     DEBUGMSGTL(("encode_keychange", "\n"));
 
-    DEBUGMSGTL(("encode_keychange", "old Ku (%lu) (from %s): ", (unsigned long)oldKu_len,
+    DEBUGMSGTL(("encode_keychange", "old Ku (%d) (from %s): ", oldKu_len,
                 oldpass));
     for (i = 0; i < (int) oldKu_len; i++)
         DEBUGMSGTL(("encode_keychange", "%02x", (int) (oldKu[i])));
@@ -308,8 +311,8 @@ main(int argc, char **argv)
     QUITFUN(rval, main_quit);
 
 
-    DEBUGMSGTL(("encode_keychange", "generating old Kul (%lu) (from Ku): ",
-                (unsigned long)oldkul_len));
+    DEBUGMSGTL(("encode_keychange", "generating old Kul (%d) (from Ku): ",
+                oldkul_len));
     for (i = 0; i < (int) oldkul_len; i++)
         DEBUGMSGTL(("encode_keychange", "%02x", (int) (oldkul[i])));
     DEBUGMSGTL(("encode_keychange", "\n"));
@@ -319,8 +322,8 @@ main(int argc, char **argv)
                         newKu, newKu_len, newkul, &newkul_len);
     QUITFUN(rval, main_quit);
 
-    DEBUGMSGTL(("encode_keychange", "generating new Kul (%lu) (from Ku): ",
-                (unsigned long)oldkul_len));
+    DEBUGMSGTL(("encode_keychange", "generating new Kul (%d) (from Ku): ",
+                oldkul_len));
     for (i = 0; i < (int) newkul_len; i++)
         DEBUGMSGTL(("encode_keychange", "%02x", newkul[i]));
     DEBUGMSGTL(("encode_keychange", "\n"));
@@ -348,11 +351,11 @@ main(int argc, char **argv)
     SNMP_ZERO(oldpass, strlen(oldpass));
     SNMP_ZERO(newpass, strlen(newpass));
 
-    memset(oldKu, 0, oldKu_len);
-    memset(newKu, 0, newKu_len);
+    SNMP_ZERO(oldKu, oldKu_len);
+    SNMP_ZERO(newKu, newKu_len);
 
-    memset(oldkul, 0, oldkul_len);
-    memset(newkul, 0, newkul_len);
+    SNMP_ZERO(oldkul, oldkul_len);
+    SNMP_ZERO(newkul, newkul_len);
 
     SNMP_ZERO(s, strlen(s));
 
@@ -390,22 +393,22 @@ usage_to_file(FILE * ofp)
 
     usage_synopsis(ofp);
 
-    fprintf(ofp, "\n%s\
-	a) Commandline options,\n\
-	b) The file \"%s/%s\",\n\
-	c) stdin  -or-  User input from the terminal.\n\n%s\
-		" NL,
-   "Only -t is mandatory.  The transform is used to convert P=>Ku, convert\n\
+    fprintf(ofp, "\n\
+    Only -t is mandatory.  The transform is used to convert P=>Ku, convert\n\
     Ku=>Kul, and to hash the old Kul with the random bits.\n\
 \n\
-    Passphrase will be taken from the first successful source as follows:\n",
-    (s = getenv("HOME")) ? s : "$HOME", local_passphrase_filename,
-   "-f will require reading from the stdin/terminal, ignoring a) and b).\n\
+    Passphrase will be taken from the first successful source as follows:\n\
+	a) Commandline options,\n\
+	b) The file \"%s/%s\",\n\
+	c) stdin  -or-  User input from the terminal.\n\
+\n\
+    -f will require reading from the stdin/terminal, ignoring a) and b).\n\
     -P will prevent prompts for passphrases to stdout from being printed.\n\
 \n\
     <engineID> is interpreted as a hex string when preceeded by \"0x\",\n\
     otherwise it is created to contain \"text\".  If nothing is given,\n\
-    <engineID> is constructed from the first IP address for the local host.\n");
+    <engineID> is constructed from the first IP address for the local host.\n\
+		" NL, (s = getenv("HOME")) ? s : "$HOME", local_passphrase_filename);
 
 
     /*
@@ -504,13 +507,13 @@ get_user_passphrases(void)
      */
     if (stat(path, &statbuf) < 0) {
         fprintf(stderr, "Cannot access directory \"%s\".\n", path);
-        QUITFUN(SNMPERR_GENERR, get_user_passphrases_quit);
+        QUITFUN(rval = SNMPERR_GENERR, get_user_passphrases_quit);
 #ifndef WIN32
     } else if (statbuf.st_mode & (S_IRWXG | S_IRWXO)) {
         fprintf(stderr,
                 "Directory \"%s\" is accessible by group or world.\n",
                 path);
-        QUITFUN(SNMPERR_GENERR, get_user_passphrases_quit);
+        QUITFUN(rval = SNMPERR_GENERR, get_user_passphrases_quit);
 #endif                          /* !WIN32 */
     }
 
@@ -521,12 +524,12 @@ get_user_passphrases(void)
     path[ sizeof(path)-1 ] = 0;
     if (stat(path, &statbuf) < 0) {
         fprintf(stderr, "Cannot access file \"%s\".\n", path);
-        QUITFUN(SNMPERR_GENERR, get_user_passphrases_quit);
+        QUITFUN(rval = SNMPERR_GENERR, get_user_passphrases_quit);
 #ifndef WIN32
     } else if (statbuf.st_mode & (S_IRWXG | S_IRWXO)) {
         fprintf(stderr,
                 "File \"%s\" is accessible by group or world.\n", path);
-        QUITFUN(SNMPERR_GENERR, get_user_passphrases_quit);
+        QUITFUN(rval = SNMPERR_GENERR, get_user_passphrases_quit);
 #endif                          /* !WIN32 */
     }
 
@@ -535,7 +538,7 @@ get_user_passphrases(void)
      */
     if ((fp = fopen(path, "r")) == NULL) {
         fprintf(stderr, "Cannot open \"%s\".", path);
-        QUITFUN(SNMPERR_GENERR, get_user_passphrases_quit);
+        QUITFUN(rval = SNMPERR_GENERR, get_user_passphrases_quit);
     }
 
     /*
@@ -610,7 +613,7 @@ get_user_passphrases(void)
 
 
   get_user_passphrases_quit:
-    memset(buf, 0, SNMP_MAXBUF);
+    SNMP_ZERO(buf, SNMP_MAXBUF);
 
     if (obuf != oldpass) {
         SNMP_ZERO(obuf, strlen(obuf));
@@ -740,15 +743,11 @@ snmp_getpassphrase(const char *prompt, int bvisible)
         ti = snmp_ttyecho(0, 0);
     }
 
-    bufp = fgets(buffer, sizeof(buffer), stdin);
+    fgets(buffer, sizeof(buffer), stdin);
 
     if (!bvisible) {
         ti = snmp_ttyecho(0, ti);
         fputs("\n", ofp);
-    }
-    if (!bufp) {
-        fprintf(stderr, "Aborted...\n");
-        exit(1);
     }
 
 
@@ -763,7 +762,7 @@ snmp_getpassphrase(const char *prompt, int bvisible)
     if (bufp)
         memcpy(bufp, buffer, len + 1);
 
-    memset(buffer, 0, SNMP_MAXBUF);
+    SNMP_ZERO(buffer, SNMP_MAXBUF);
 
 
     return bufp;

@@ -10,30 +10,32 @@
 #include "memory.h"
 
 #define DEFAULTMINIMUMSWAP 16000        /* kilobytes */
-static int minimum_swap;
+int memory_object_index;
+int minimum_swap;
 
 /** Initializes the memory module */
 void
 init_memory(void)
 {
-    const oid      memory_oid[] = { 1, 3, 6, 1, 4, 1, 2021, 4 };
-    const oid      memSwapError_oid[]  = { 1, 3, 6, 1, 4, 1, 2021, 4, 100 };
-    const oid      memSwapErrMsg_oid[] = { 1, 3, 6, 1, 4, 1, 2021, 4, 101 };
+    static oid      memory_oid[] = { 1, 3, 6, 1, 4, 1, 2021, 4 };
+    static oid      memSwapError_oid[]  = { 1, 3, 6, 1, 4, 1, 2021, 4, 100 };
+    static oid      memSwapErrMsg_oid[] = { 1, 3, 6, 1, 4, 1, 2021, 4, 101 };
 
     DEBUGMSGTL(("memory", "Initializing\n"));
 
+    memory_object_index = OID_LENGTH(memory_oid);
     netsnmp_register_scalar_group(
         netsnmp_create_handler_registration("memory", handle_memory,
-                                 memory_oid, OID_LENGTH(memory_oid),
+                                 memory_oid, memory_object_index,
                                              HANDLER_CAN_RONLY),
                                  1, 17);
     netsnmp_register_scalar(
         netsnmp_create_handler_registration("memSwapError", handle_memory,
-                           memSwapError_oid, OID_LENGTH(memSwapError_oid),
+                           memSwapError_oid, memory_object_index+1,
                                              HANDLER_CAN_RONLY));
     netsnmp_register_scalar(
         netsnmp_create_handler_registration("memSwapErrMsg", handle_memory,
-                          memSwapErrMsg_oid, OID_LENGTH(memSwapErrMsg_oid),
+                          memSwapErrMsg_oid, memory_object_index+1,
                                              HANDLER_CAN_RONLY));
 
     snmpd_register_config_handler("swap", memory_parse_config,
@@ -72,7 +74,7 @@ handle_memory(netsnmp_mib_handler *handler,
     switch (reqinfo->mode) {
     case MODE_GET:
         netsnmp_memory_load();
-        switch (requests->requestvb->name[ reginfo->rootoid_len - 2 ]) {
+        switch (requests->requestvb->name[ memory_object_index ]) {
         case MEMORY_INDEX:
             val = 0;
             break;
@@ -202,9 +204,8 @@ handle_memory(netsnmp_mib_handler *handler,
                                      (u_char *)buf, strlen(buf));
             return SNMP_ERR_NOERROR;
         default:
-            snmp_log(LOG_ERR,
-                     "unknown object (%" NETSNMP_PRIo "u) in handle_memory\n",
-                     requests->requestvb->name[ reginfo->rootoid_len - 2 ]);
+            snmp_log(LOG_ERR, "unknown object (%lu) in handle_memory\n",
+                     requests->requestvb->name[ memory_object_index ]);
 NOSUCH:
             netsnmp_set_request_error( reqinfo, requests, SNMP_NOSUCHOBJECT );
             return SNMP_ERR_NOERROR;

@@ -44,11 +44,7 @@ snmp_res_init_mutex(mutex_type *mutex)
 {
     int rc = 0;
 #if HAVE_PTHREAD_H
-    pthread_mutexattr_t attr;
-    pthread_mutexattr_init(&attr);
-    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-    rc = pthread_mutex_init(mutex, &attr);
-    pthread_mutexattr_destroy(&attr);
+    rc = pthread_mutex_init(mutex, MT_MUTEX_INIT_DEFAULT);
 #elif defined(WIN32)
     InitializeCriticalSection(mutex);
 #endif

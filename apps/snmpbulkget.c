@@ -42,7 +42,11 @@ SOFTWARE.
 #include <netinet/in.h>
 #endif
 #if TIME_WITH_SYS_TIME
-# include <sys/time.h>
+# ifdef WIN32
+#  include <sys/timeb.h>
+# else
+#  include <sys/time.h>
+# endif
 # include <time.h>
 #else
 # if HAVE_SYS_TIME_H
@@ -56,6 +60,9 @@ SOFTWARE.
 #endif
 #include <stdio.h>
 #include <ctype.h>
+#if HAVE_WINSOCK_H
+#include <winsock.h>
+#endif
 #if HAVE_NETDB_H
 #include <netdb.h>
 #endif
@@ -113,7 +120,7 @@ optProc(int argc, char *const *argv, int opt)
                     exit(1);
                 } else {
                     optarg = endptr;
-                    if (isspace((unsigned char)(*optarg))) {
+                    if (isspace(*optarg)) {
                         return;
                     }
                 }
@@ -137,6 +144,7 @@ main(int argc, char *argv[])
     netsnmp_variable_list *vars;
     int             arg;
     int             count;
+    int             running;
     int             status;
     int             exitval = 0;
 
@@ -144,11 +152,9 @@ main(int argc, char *argv[])
      * get the common command line arguments 
      */
     switch (arg = snmp_parse_args(argc, argv, &session, "C:", optProc)) {
-    case NETSNMP_PARSE_ARGS_ERROR:
-        exit(1);
-    case NETSNMP_PARSE_ARGS_SUCCESS_EXIT:
+    case -2:
         exit(0);
-    case NETSNMP_PARSE_ARGS_ERROR_USAGE:
+    case -1:
         usage();
         exit(1);
     default:
@@ -213,6 +219,7 @@ main(int argc, char *argv[])
             /*
              * error in response, print it 
              */
+            running = 0;
             if (response->errstat == SNMP_ERR_NOSUCHNAME) {
                 printf("End of MIB.\n");
             } else {
@@ -235,9 +242,11 @@ main(int argc, char *argv[])
     } else if (status == STAT_TIMEOUT) {
         fprintf(stderr, "Timeout: No Response from %s\n",
                 session.peername);
+        running = 0;
         exitval = 1;
     } else {                    /* status == STAT_ERROR */
         snmp_sess_perror("snmpbulkget", ss);
+        running = 0;
         exitval = 1;
     }
 

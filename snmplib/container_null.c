@@ -1,13 +1,12 @@
 /*
  * container_null.c
- * $Id$
+ * $Id: container_null.c 16758 2007-12-19 22:39:31Z magfr $
  *
  * see comments in header file.
  *
  */
 
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 
 #if HAVE_IO_H
 #include <io.h>
@@ -34,8 +33,6 @@
 #include <net-snmp/library/tools.h>
 #include <net-snmp/library/snmp_assert.h>
 
-netsnmp_feature_child_of(container_null, container_types)
-
 /** @defgroup null_container null_container
  *  Helps you implement specialized containers.
  *  @ingroup container
@@ -53,7 +50,6 @@ netsnmp_feature_child_of(container_null, container_types)
  *  @{
  */
 
-#ifndef NETSNMP_FEATURE_REMOVE_CONTAINER_NULL
 /**********************************************************************
  *
  * container
@@ -160,7 +156,7 @@ netsnmp_container_get_null(void)
     c->find = _null_find;
     c->find_next = _null_find_next;
     c->get_subset = _null_get_subset;
-    c->get_iterator = NULL; /* _null_iterator; */
+    c->get_iterator = 0; /* _null_iterator; */
     c->for_each = _null_for_each;
     c->clear = _null_clear;
        
@@ -184,8 +180,5 @@ netsnmp_container_null_init(void)
     netsnmp_container_register("null",
                                netsnmp_container_get_null_factory());
 }
-#else  /* NETSNMP_FEATURE_REMOVE_CONTAINER_NULL */
-netsnmp_feature_unused(container_null);
-#endif /* NETSNMP_FEATURE_REMOVE_CONTAINER_NULL */
 /**  @} */
 

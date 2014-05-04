@@ -9,12 +9,19 @@
 #include <net-snmp/net-snmp-config.h>
 
 #include <sys/types.h>
+#if HAVE_WINSOCK_H
+#include <winsock.h>
+#endif
 #include <stdio.h>
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
 #if TIME_WITH_SYS_TIME
-# include <sys/time.h>
+# ifdef WIN32
+#  include <sys/timeb.h>
+# else
+#  include <sys/time.h>
+# endif
 # include <time.h>
 #else
 # if HAVE_SYS_TIME_H
@@ -229,11 +236,7 @@ init_ksm(void)
     def->pdu_free = ksm_free_pdu;
     def->pdu_clone = ksm_clone_pdu;
 
-    register_sec_mod(NETSNMP_SEC_MODEL_KSM, "ksm", def);
-}
-
-void shutdown_ksm(void)
-{
+    register_sec_mod(NETSNMP_KSM_SECURITY_MODEL, "ksm", def);
 }
 
 /*
@@ -1000,7 +1003,7 @@ ksm_rgenerate_out_msg(struct snmp_secmod_outgoing_params *parms)
                                       parms->wholeMsgOffset, 1,
                                       (u_char) (ASN_UNIVERSAL |
                                                 ASN_PRIMITIVE |
-                                                ASN_INTEGER),
+                                                ASN_OCTET_STR),
                                       &tmp, sizeof(tmp));
 
     if (rc == 0) {

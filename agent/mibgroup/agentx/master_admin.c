@@ -2,7 +2,6 @@
  *  AgentX Administrative request handling
  */
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 
 #include <sys/types.h>
 #ifdef HAVE_STRING_H
@@ -14,7 +13,11 @@
 #include <stdlib.h>
 #endif
 #if TIME_WITH_SYS_TIME
-# include <sys/time.h>
+# ifdef WIN32
+#  include <sys/timeb.h>
+# else
+#  include <sys/time.h>
+# endif
 # include <time.h>
 #else
 # if HAVE_SYS_TIME_H
@@ -25,6 +28,9 @@
 #endif
 #if HAVE_NETINET_IN_H
 #include <netinet/in.h>
+#endif
+#if HAVE_WINSOCK_H
+#include <winsock.h>
 #endif
 #if HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
@@ -39,14 +45,12 @@
 #include <net-snmp/agent/agent_index.h>
 #include <net-snmp/agent/agent_trap.h>
 #include <net-snmp/agent/agent_callbacks.h>
-#include <net-snmp/agent/agent_sysORTable.h>
+#include "mibII/sysORTable.h"
 #include "master.h"
 
-netsnmp_feature_require(unregister_mib_table_row)
-netsnmp_feature_require(trap_vars_with_context)
-netsnmp_feature_require(calculate_sectime_diff)
-netsnmp_feature_require(allocate_globalcacheid)
-netsnmp_feature_require(remove_index)
+extern struct timeval starttime;
+
+
 
 netsnmp_session *
 find_agentx_session(netsnmp_session * session, int sessid)
@@ -64,8 +68,9 @@ int
 open_agentx_session(netsnmp_session * session, netsnmp_pdu *pdu)
 {
     netsnmp_session *sp;
+    struct timeval  now;
 
-    DEBUGMSGTL(("agentx/master", "open %8p\n", session));
+    DEBUGMSGTL(("agentx/master", "open %08p\n", session));
     sp = (netsnmp_session *) malloc(sizeof(netsnmp_session));
     if (sp == NULL) {
         session->s_snmp_errno = AGENTX_ERR_OPEN_FAILED;
@@ -103,7 +108,8 @@ open_agentx_session(netsnmp_session * session, netsnmp_pdu *pdu)
                                                  name_length);
     sp->securityAuthProtoLen = pdu->variables->name_length;
     sp->securityName = strdup((char *) pdu->variables->val.string);
-    sp->engineTime = (uint32_t)((netsnmp_get_agent_runtime() + 50) / 100) & 0x7fffffffL;
+    gettimeofday(&now, NULL);
+    sp->engineTime = calculate_time_diff(&now, &starttime);
 
     sp->subsession = session;   /* link back to head */
     sp->flags |= SNMP_FLAGS_SUBSESSION;
@@ -111,7 +117,7 @@ open_agentx_session(netsnmp_session * session, netsnmp_pdu *pdu)
     sp->flags |= (pdu->flags & AGENTX_MSG_FLAG_NETWORK_BYTE_ORDER);
     sp->next = session->subsession;
     session->subsession = sp;
-    DEBUGMSGTL(("agentx/master", "opened %8p = %ld with flags = %02lx\n",
+    DEBUGMSGTL(("agentx/master", "opened %08p = %d with flags = %02x\n",
                 sp, sp->sessid, sp->flags & AGENTX_MSG_FLAGS_MASK));
 
     return sp->sessid;
@@ -125,7 +131,7 @@ close_agentx_session(netsnmp_session * session, int sessid)
     if (!session)
         return AGENTX_ERR_NOT_OPEN;
 
-    DEBUGMSGTL(("agentx/master", "close %8p, %d\n", session, sessid));
+    DEBUGMSGTL(("agentx/master", "close %08p, %d\n", session, sessid));
     if (sessid == -1) {
         /*
          * The following is necessary to avoid locking up the agent when
@@ -143,7 +149,9 @@ close_agentx_session(netsnmp_session * session, int sessid)
                 
         unregister_mibs_by_session(session);
         unregister_index_by_session(session);
-        unregister_sysORTable_by_session(session);
+        snmp_call_callbacks(SNMP_CALLBACK_APPLICATION,
+                            SNMPD_CALLBACK_REQ_UNREG_SYSOR_SESS,
+                            (void*)session);
 	SNMP_FREE(session->myvoid);
         return AGENTX_ERR_NOERROR;
     }
@@ -155,7 +163,9 @@ close_agentx_session(netsnmp_session * session, int sessid)
         if (sp->sessid == sessid) {
             unregister_mibs_by_session(sp);
             unregister_index_by_session(sp);
-            unregister_sysORTable_by_session(sp);
+            snmp_call_callbacks(SNMP_CALLBACK_APPLICATION,
+                                SNMPD_CALLBACK_REQ_UNREG_SYSOR_SESS,
+                                (void*)sp);
 
             *prevNext = sp->next;
 
@@ -168,7 +178,7 @@ close_agentx_session(netsnmp_session * session, int sessid)
             free(sp);
             sp = NULL;
 
-            DEBUGMSGTL(("agentx/master", "closed %8p, %d okay\n",
+            DEBUGMSGTL(("agentx/master", "closed %08p, %d okay\n",
                         session, sessid));
             return AGENTX_ERR_NOERROR;
         }
@@ -223,7 +233,7 @@ register_agentx_list(netsnmp_session * session, netsnmp_pdu *pdu)
     reg->handler->myvoid = session;
     reg->global_cacheid = cacheid;
     if (NULL != pdu->community)
-        reg->contextName = strdup((char *)pdu->community);
+        reg->contextName = strdup(pdu->community);
 
     /*
      * register mib. Note that for failure cases, the registration info
@@ -370,17 +380,20 @@ int
 add_agent_caps_list(netsnmp_session * session, netsnmp_pdu *pdu)
 {
     netsnmp_session *sp;
-    char* description;
+    struct sysORTable parms;
 
     sp = find_agentx_session(session, pdu->sessid);
     if (sp == NULL)
         return AGENTX_ERR_NOT_OPEN;
 
-    description = netsnmp_strdup_and_null(pdu->variables->val.string,
-                                          pdu->variables->val_len);
-    register_sysORTable_sess(pdu->variables->name, pdu->variables->name_length,
-                             description, sp);
-    free(description);
+    parms.OR_oid = pdu->variables->name;
+    parms.OR_oidlen = pdu->variables->name_length;
+    parms.OR_descr  = netsnmp_strdup_and_null(pdu->variables->val.string,
+                                              pdu->variables->val_len);
+    parms.OR_sess = sp;
+    snmp_call_callbacks(SNMP_CALLBACK_APPLICATION,
+                        SNMPD_CALLBACK_REQ_REG_SYSOR, (void*)&parms);
+    free(parms.OR_descr);
     return AGENTX_ERR_NOERROR;
 }
 
@@ -388,28 +401,33 @@ int
 remove_agent_caps_list(netsnmp_session * session, netsnmp_pdu *pdu)
 {
     netsnmp_session *sp;
-    int rc;
+    struct sysORTable parms;
 
     sp = find_agentx_session(session, pdu->sessid);
     if (sp == NULL)
         return AGENTX_ERR_NOT_OPEN;
 
-    rc = unregister_sysORTable_sess(pdu->variables->name,
-                                    pdu->variables->name_length, sp);
-
-    if (rc < 0)
-      return AGENTX_ERR_UNKNOWN_AGENTCAPS;
-
+    parms.OR_oid = pdu->variables->name;
+    parms.OR_oidlen = pdu->variables->name_length;
+    parms.OR_sess = sp;
+    snmp_call_callbacks(SNMP_CALLBACK_APPLICATION,
+                        SNMPD_CALLBACK_REQ_UNREG_SYSOR, (void*)&parms);
+    /*
+     * no easy way to get an error code...
+     * if (rc < 0)
+     *   return AGENTX_ERR_UNKNOWN_AGENTCAPS;
+     */
     return AGENTX_ERR_NOERROR;
 }
 
 int
 agentx_notify(netsnmp_session * session, netsnmp_pdu *pdu)
 {
-    netsnmp_session       *sp;
+    netsnmp_session *sp;
     netsnmp_variable_list *var;
-    extern const oid       sysuptime_oid[], snmptrap_oid[];
-    extern const size_t    sysuptime_oid_len, snmptrap_oid_len;
+    int             got_sysuptime = 0;
+    extern oid      sysuptime_oid[], snmptrap_oid[];
+    extern size_t   sysuptime_oid_len, snmptrap_oid_len;
 
     sp = find_agentx_session(session, pdu->sessid);
     if (sp == NULL)
@@ -421,6 +439,7 @@ agentx_notify(netsnmp_session * session, netsnmp_pdu *pdu)
 
     if (snmp_oid_compare(var->name, var->name_length,
                          sysuptime_oid, sysuptime_oid_len) == 0) {
+        got_sysuptime = 1;
         var = var->next_variable;
     }
 
@@ -437,18 +456,7 @@ agentx_notify(netsnmp_session * session, netsnmp_pdu *pdu)
      *     as this is valid AgentX syntax.
      */
 
-	/* If a context name was specified, send the trap using that context.
-	 * Otherwise, send the trap without the context using the old method */
-	if (pdu->contextName != NULL)
-	{
-        send_trap_vars_with_context(-1, -1, pdu->variables, 
-                       pdu->contextName);
-	}
-	else
-	{
-        send_trap_vars(-1, -1, pdu->variables);
-	}
-
+    send_trap_vars(-1, -1, pdu->variables);
     return AGENTX_ERR_NOERROR;
 }
 
@@ -471,18 +479,15 @@ handle_master_agentx_packet(int operation,
                             int reqid, netsnmp_pdu *pdu, void *magic)
 {
     netsnmp_agent_session *asp;
+    struct timeval  now;
 
     if (operation == NETSNMP_CALLBACK_OP_DISCONNECT) {
         DEBUGMSGTL(("agentx/master",
-                    "transport disconnect on session %8p\n", session));
+                    "transport disconnect on session %08p\n", session));
         /*
          * Shut this session down gracefully.  
          */
         close_agentx_session(session, -1);
-        return 1;
-    } else if (operation == NETSNMP_CALLBACK_OP_CONNECT) {
-        DEBUGMSGTL(("agentx/master",
-                    "transport connect on session %8p\n", session));
         return 1;
     } else if (operation != NETSNMP_CALLBACK_OP_RECEIVED_MESSAGE) {
         DEBUGMSGTL(("agentx/master", "unexpected callback op %d\n",
@@ -500,9 +505,8 @@ handle_master_agentx_packet(int operation,
         asp = init_agent_snmp_session(session, pdu);
     }
 
-    DEBUGMSGTL(("agentx/master", "handle pdu (req=0x%lx,trans=0x%lx,sess=0x%lx)\n",
-                (unsigned long)pdu->reqid, (unsigned long)pdu->transid,
-		(unsigned long)pdu->sessid));
+    DEBUGMSGTL(("agentx/master", "handle pdu (req=0x%x,trans=0x%x,sess=0x%x)\n",
+                pdu->reqid,pdu->transid, pdu->sessid));
     
     switch (pdu->command) {
     case AGENTX_MSG_OPEN:
@@ -573,13 +577,13 @@ handle_master_agentx_packet(int operation,
         break;
     }
 
-    asp->pdu->time = netsnmp_get_agent_uptime();
+    gettimeofday(&now, NULL);
+    asp->pdu->time = calculate_time_diff(&now, &starttime);
     asp->pdu->command = AGENTX_MSG_RESPONSE;
     asp->pdu->errstat = asp->status;
-    DEBUGMSGTL(("agentx/master", "send response, stat %d (req=0x%lx,trans="
-                "0x%lx,sess=0x%lx)\n",
-                asp->status, (unsigned long)pdu->reqid,
-		(unsigned long)pdu->transid, (unsigned long)pdu->sessid));
+    DEBUGMSGTL(("agentx/master", "send response, stat %d (req=0x%x,trans="
+                "0x%x,sess=0x%x)\n",
+                asp->status, pdu->reqid,pdu->transid, pdu->sessid));
     if (!snmp_send(asp->session, asp->pdu)) {
         char           *eb = NULL;
         int             pe, pse;

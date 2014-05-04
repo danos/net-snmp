@@ -126,7 +126,6 @@
  *  @{
  */
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 #include <sys/types.h>
 #if HAVE_STDLIB_H
 #include <stdlib.h>
@@ -142,10 +141,10 @@
 #else
 #include <strings.h>
 #endif
-
-#if HAVE_UNISTD_H
-#include <unistd.h>
+#if HAVE_WINSOCK_H
+#include <winsock.h>
 #endif
+
 #if HAVE_DMALLOC_H
 #include <dmalloc.h>
 #endif
@@ -157,14 +156,6 @@
 #include <net-snmp/utilities.h>
 
 #include <net-snmp/library/snmp_api.h>
-
-netsnmp_feature_child_of(default_store_all, libnetsnmp)
-
-netsnmp_feature_child_of(default_store_void, default_store_all)
-
-#ifndef NETSNMP_FEATURE_REMOVE_DEFAULT_STORE_VOID
-#endif /* NETSNMP_FEATURE_REMOVE_DEFAULT_STORE_VOID */
-
 
 static const char * stores [NETSNMP_DS_MAX_IDS] = { "LIB", "APP", "TOK" };
 
@@ -182,9 +173,7 @@ static netsnmp_ds_read_config *netsnmp_ds_configs = NULL;
 static int   netsnmp_ds_integers[NETSNMP_DS_MAX_IDS][NETSNMP_DS_MAX_SUBIDS];
 static char  netsnmp_ds_booleans[NETSNMP_DS_MAX_IDS][NETSNMP_DS_MAX_SUBIDS/8];
 static char *netsnmp_ds_strings[NETSNMP_DS_MAX_IDS][NETSNMP_DS_MAX_SUBIDS];
-#ifndef NETSNMP_FEATURE_REMOVE_DEFAULT_STORE_VOID
 static void *netsnmp_ds_voids[NETSNMP_DS_MAX_IDS][NETSNMP_DS_MAX_SUBIDS];
-#endif /* NETSNMP_FEATURE_REMOVE_DEFAULT_STORE_VOID */
 
 /*
  * Prototype definitions 
@@ -324,7 +313,6 @@ netsnmp_ds_get_string(int storeid, int which)
     return netsnmp_ds_strings[storeid][which];
 }
 
-#ifndef NETSNMP_FEATURE_REMOVE_DEFAULT_STORE_VOID
 int
 netsnmp_ds_set_void(int storeid, int which, void *value)
 {
@@ -333,7 +321,7 @@ netsnmp_ds_set_void(int storeid, int which, void *value)
         return SNMPERR_GENERR;
     }
 
-    DEBUGMSGTL(("netsnmp_ds_set_void", "Setting %s:%d = %p\n",
+    DEBUGMSGTL(("netsnmp_ds_set_void", "Setting %s:%d = %x\n",
                 stores[storeid], which, value));
 
     netsnmp_ds_voids[storeid][which] = value;
@@ -351,7 +339,6 @@ netsnmp_ds_get_void(int storeid, int which)
 
     return netsnmp_ds_voids[storeid][which];
 }
-#endif /* NETSNMP_FEATURE_REMOVE_DEFAULT_STORE_VOID */
 
 int
 netsnmp_ds_parse_boolean(char *line)
@@ -452,14 +439,10 @@ netsnmp_ds_register_config(u_char type, const char *ftype, const char *token,
 
     if (netsnmp_ds_configs == NULL) {
         netsnmp_ds_configs = SNMP_MALLOC_TYPEDEF(netsnmp_ds_read_config);
-        if (netsnmp_ds_configs == NULL)
-            return SNMPERR_GENERR;
         drsp = netsnmp_ds_configs;
     } else {
         for (drsp = netsnmp_ds_configs; drsp->next != NULL; drsp = drsp->next);
         drsp->next = SNMP_MALLOC_TYPEDEF(netsnmp_ds_read_config);
-        if (drsp->next == NULL)
-            return SNMPERR_GENERR;
         drsp = drsp->next;
     }
 
@@ -502,14 +485,10 @@ netsnmp_ds_register_premib(u_char type, const char *ftype, const char *token,
 
     if (netsnmp_ds_configs == NULL) {
         netsnmp_ds_configs = SNMP_MALLOC_TYPEDEF(netsnmp_ds_read_config);
-        if (netsnmp_ds_configs == NULL)
-            return SNMPERR_GENERR;
         drsp = netsnmp_ds_configs;
     } else {
         for (drsp = netsnmp_ds_configs; drsp->next != NULL; drsp = drsp->next);
         drsp->next = SNMP_MALLOC_TYPEDEF(netsnmp_ds_read_config);
-        if (drsp->next == NULL)
-            return SNMPERR_GENERR;
         drsp = drsp->next;
     }
 
@@ -540,7 +519,7 @@ netsnmp_ds_register_premib(u_char type, const char *ftype, const char *token,
 }
 
 void
-netsnmp_ds_shutdown(void)
+netsnmp_ds_shutdown()
 {
     netsnmp_ds_read_config *drsp;
     int             i, j;

@@ -13,7 +13,6 @@
 void            init_sctpAssocLocalAddrTable(void);
 void            shutdown_sctpAssocLocalAddrTable(void);
 void            initialize_table_sctpAssocLocalAddrTable(void);
-void            shutdown_table_sctpAssocLocalAddrTable(void);
 Netsnmp_Node_Handler sctpAssocLocalAddrTable_handler;
 
 /*

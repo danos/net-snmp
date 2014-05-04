@@ -1,28 +1,23 @@
 #include <net-snmp/net-snmp-config.h>
 
-#include <net-snmp/net-snmp-features.h>
+#if HAVE_STRING_H
+#include <string.h>
+#else
+#include <strings.h>
+#endif
+
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
 
-netsnmp_feature_provide(stash_cache)
-netsnmp_feature_child_of(stash_cache, mib_helpers)
-#ifdef NETSNMP_FEATURE_REQUIRE_STASH_CACHE
-netsnmp_feature_require(oid_stash)
-netsnmp_feature_require(oid_stash_iterate)
-netsnmp_feature_require(oid_stash_get_data)
-#endif
-
-#ifndef NETSNMP_FEATURE_REMOVE_STASH_CACHE
-#include <net-snmp/agent/stash_to_next.h>
-
 #include <net-snmp/agent/stash_cache.h>
+#include <net-snmp/agent/stash_to_next.h>
 
 extern NetsnmpCacheLoad _netsnmp_stash_cache_load;
 extern NetsnmpCacheFree _netsnmp_stash_cache_free;
  
 /** @defgroup stash_cache stash_cache
  *  Automatically caches data for certain handlers.
- *  This handler caches data in an optimized way which may alleviate
+ *  This handler caches data in an optimized way which may aleviate
  *  the need for the lower level handlers to perform as much
  *  optimization.  Specifically, somewhere in the lower level handlers
  *  must be a handler that supports the MODE_GET_STASH operation.
@@ -37,8 +32,7 @@ netsnmp_get_new_stash_cache(void)
     netsnmp_stash_cache_info *cinfo;
 
     cinfo = SNMP_MALLOC_TYPEDEF(netsnmp_stash_cache_info);
-    if (cinfo != NULL)
-        cinfo->cache_length = 30;
+    cinfo->cache_length = 30;
     return cinfo;
 }
 
@@ -72,7 +66,7 @@ netsnmp_get_timed_bare_stash_cache_handler(int timeout, oid *rootoid, size_t roo
     }
 
     handler->myvoid = cinfo;
-    netsnmp_cache_handler_owns_cache(handler);
+    handler->data_free = free;
 
     return handler;
 }
@@ -118,7 +112,7 @@ netsnmp_get_timed_stash_cache_handler(int timeout, oid *rootoid, size_t rootoid_
 netsnmp_oid_stash_node  **
 netsnmp_extract_stash_cache(netsnmp_agent_request_info *reqinfo)
 {
-    return (netsnmp_oid_stash_node**)netsnmp_agent_get_list_data(reqinfo, STASH_CACHE_NAME);
+    return netsnmp_agent_get_list_data(reqinfo, STASH_CACHE_NAME);
 }
 
 
@@ -149,7 +143,7 @@ netsnmp_stash_cache_helper(netsnmp_mib_handler *handler,
     case MODE_GET:
         DEBUGMSGTL(("helper:stash_cache", "Processing GET request\n"));
         for(request = requests; request; request = request->next) {
-            cdata = (netsnmp_variable_list*)
+            cdata =
                 netsnmp_oid_stash_get_data(cinfo->cache,
                                            requests->requestvb->name,
                                            requests->requestvb->name_length);
@@ -161,6 +155,7 @@ netsnmp_stash_cache_helper(netsnmp_mib_handler *handler,
                                          cdata->val.string, cdata->val_len);
             }
         }
+        return SNMP_ERR_NOERROR;
         break;
 
     case MODE_GETNEXT:
@@ -171,7 +166,7 @@ netsnmp_stash_cache_helper(netsnmp_mib_handler *handler,
                                                requests->requestvb->name,
                                                requests->requestvb->name_length);
             if (cnode && cnode->thedata) {
-                cdata =  (netsnmp_variable_list*)cnode->thedata;
+                cdata = cnode->thedata;
                 if (cdata->val.string && cdata->name && cdata->name_length) {
                     DEBUGMSGTL(("helper:stash_cache", "Found cached GETNEXT varbind\n"));
                     DEBUGMSGOID(("helper:stash_cache", cdata->name, cdata->name_length));
@@ -183,6 +178,7 @@ netsnmp_stash_cache_helper(netsnmp_mib_handler *handler,
                 }
             }
         }
+        return SNMP_ERR_NOERROR;
         break;
 
     default:
@@ -190,8 +186,7 @@ netsnmp_stash_cache_helper(netsnmp_mib_handler *handler,
         return netsnmp_call_next_handler(handler, reginfo, reqinfo,
                                          requests);
     }
-
-    return SNMP_ERR_NOERROR;
+    return SNMP_ERR_GENERR;     /* should never get here */
 }
 
 /** updates a given cache depending on whether it needs to or not.
@@ -247,6 +242,3 @@ netsnmp_init_stash_cache_helper(void)
 }
 /**  @} */
 
-#else /* NETSNMP_FEATURE_REMOVE_STASH_CACHE */
-netsnmp_feature_unused(stash_cache);
-#endif /* NETSNMP_FEATURE_REMOVE_STASH_CACHE */

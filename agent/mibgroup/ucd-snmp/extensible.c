@@ -1,5 +1,4 @@
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 
 #if HAVE_STDLIB_H
 #include <stdlib.h>
@@ -11,7 +10,11 @@
 #include <fcntl.h>
 #endif
 #if TIME_WITH_SYS_TIME
-# include <sys/time.h>
+# ifdef WIN32
+#  include <sys/timeb.h>
+# else
+#  include <sys/time.h>
+# endif
 # include <time.h>
 #else
 # if HAVE_SYS_TIME_H
@@ -97,21 +100,22 @@
 #include <string.h>
 #endif
 #include <ctype.h>
+#if HAVE_WINSOCK_H
+#include <winsock.h>
+#endif
+#ifndef HAVE_STRNCASECMP
+int             strncasecmp(const char *s1, const char *s2, size_t n);
+#endif
 
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
 #include <net-snmp/agent/auto_nlist.h>
 #include <net-snmp/agent/agent_callbacks.h>
-#include <net-snmp/library/system.h>
 
 #include "struct.h"
 #include "extensible.h"
-#include "mibgroup/util_funcs.h"
 #include "utilities/execute.h"
-#include "util_funcs/header_simple_table.h"
-
-netsnmp_feature_require(get_exten_instance)
-netsnmp_feature_require(parse_miboid)
+#include "util_funcs.h"
 
 extern struct myproc *procwatch;        /* moved to proc.c */
 extern int      numprocs;       /* ditto */
@@ -129,20 +133,20 @@ extern struct variable2 extensible_passthru_variables[];
  * the relocatable extensible commands variables 
  */
 struct variable2 extensible_relocatable_variables[] = {
-    {MIBINDEX, ASN_INTEGER, NETSNMP_OLDAPI_RONLY,
-     var_extensible_relocatable, 1, {MIBINDEX}},
-    {ERRORNAME, ASN_OCTET_STR, NETSNMP_OLDAPI_RONLY,
-     var_extensible_relocatable, 1, {ERRORNAME}},
-    {SHELLCOMMAND, ASN_OCTET_STR, NETSNMP_OLDAPI_RONLY,
-     var_extensible_relocatable, 1, {SHELLCOMMAND}},
-    {ERRORFLAG, ASN_INTEGER, NETSNMP_OLDAPI_RONLY,
-     var_extensible_relocatable, 1, {ERRORFLAG}},
-    {ERRORMSG, ASN_OCTET_STR, NETSNMP_OLDAPI_RONLY,
-     var_extensible_relocatable, 1, {ERRORMSG}},
-    {ERRORFIX, ASN_INTEGER, NETSNMP_OLDAPI_RWRITE,
-     var_extensible_relocatable, 1, {ERRORFIX}},
-    {ERRORFIXCMD, ASN_OCTET_STR, NETSNMP_OLDAPI_RONLY,
-     var_extensible_relocatable, 1, {ERRORFIXCMD}}
+    {MIBINDEX, ASN_INTEGER, RONLY, var_extensible_relocatable, 1,
+     {MIBINDEX}},
+    {ERRORNAME, ASN_OCTET_STR, RONLY, var_extensible_relocatable, 1,
+     {ERRORNAME}},
+    {SHELLCOMMAND, ASN_OCTET_STR, RONLY, var_extensible_relocatable, 1,
+     {SHELLCOMMAND}},
+    {ERRORFLAG, ASN_INTEGER, RONLY, var_extensible_relocatable, 1,
+     {ERRORFLAG}},
+    {ERRORMSG, ASN_OCTET_STR, RONLY, var_extensible_relocatable, 1,
+     {ERRORMSG}},
+    {ERRORFIX, ASN_INTEGER, RWRITE, var_extensible_relocatable, 1,
+     {ERRORFIX}},
+    {ERRORFIXCMD, ASN_OCTET_STR, RONLY, var_extensible_relocatable, 1,
+     {ERRORFIXCMD}}
 };
 
 
@@ -151,20 +155,20 @@ init_extensible(void)
 {
 
     struct variable2 extensible_extensible_variables[] = {
-        {MIBINDEX, ASN_INTEGER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_shell, 1, {MIBINDEX}},
-        {ERRORNAME, ASN_OCTET_STR, NETSNMP_OLDAPI_RONLY,
-         var_extensible_shell, 1, {ERRORNAME}},
-        {SHELLCOMMAND, ASN_OCTET_STR, NETSNMP_OLDAPI_RONLY,
-         var_extensible_shell, 1, {SHELLCOMMAND}},
-        {ERRORFLAG, ASN_INTEGER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_shell, 1, {ERRORFLAG}},
-        {ERRORMSG, ASN_OCTET_STR, NETSNMP_OLDAPI_RONLY,
-         var_extensible_shell, 1, {ERRORMSG}},
-        {ERRORFIX, ASN_INTEGER, NETSNMP_OLDAPI_RWRITE,
-         var_extensible_shell, 1, {ERRORFIX}},
-        {ERRORFIXCMD, ASN_OCTET_STR, NETSNMP_OLDAPI_RONLY,
-         var_extensible_shell, 1, {ERRORFIXCMD}}
+        {MIBINDEX, ASN_INTEGER, RONLY, var_extensible_shell, 1,
+         {MIBINDEX}},
+        {ERRORNAME, ASN_OCTET_STR, RONLY, var_extensible_shell, 1,
+         {ERRORNAME}},
+        {SHELLCOMMAND, ASN_OCTET_STR, RONLY, var_extensible_shell, 1,
+         {SHELLCOMMAND}},
+        {ERRORFLAG, ASN_INTEGER, RONLY, var_extensible_shell, 1,
+         {ERRORFLAG}},
+        {ERRORMSG, ASN_OCTET_STR, RONLY, var_extensible_shell, 1,
+         {ERRORMSG}},
+        {ERRORFIX, ASN_INTEGER, RWRITE, var_extensible_shell, 1,
+         {ERRORFIX}},
+        {ERRORFIXCMD, ASN_OCTET_STR, RONLY, var_extensible_shell, 1,
+         {ERRORFIXCMD}}
     };
 
     /*
@@ -262,7 +266,8 @@ extensible_parse_config(const char *token, char *cptr)
         for (tcptr = cptr; *tcptr != 0 && *tcptr != '#'; tcptr++)
             if (*tcptr == ';' && ptmp->type == EXECPROC)
                 break;
-        sprintf(ptmp->command, "%.*s", (int) (tcptr - cptr), cptr);
+        strncpy(ptmp->command, cptr, tcptr - cptr);
+        ptmp->command[tcptr - cptr] = 0;
     }
 #ifdef NETSNMP_EXECFIXCMD
     sprintf(ptmp->fixcmd, NETSNMP_EXECFIXCMD, ptmp->name);
@@ -418,7 +423,8 @@ execfix_parse_config(const char *token, char *cptr)
         return;
     }
 
-    strlcpy(execp->fixcmd, cptr, sizeof(execp->fixcmd));
+    strncpy(execp->fixcmd, cptr, sizeof(execp->fixcmd));
+    execp->fixcmd[ sizeof(execp->fixcmd)-1 ] = 0;
 }
 
 u_char         *
@@ -621,7 +627,8 @@ var_extensible_relocatable(struct variable *vp,
         cp = strchr(cp1, '\n');
         if (cp)
             *cp = 0;
-        strlcpy(errmsg, cp1, sizeof(errmsg));
+        strncpy(errmsg, cp1, sizeof(errmsg));
+        errmsg[ sizeof(errmsg)-1 ] = 0;
         *var_len = strlen(errmsg);
         if (errmsg[*var_len - 1] == '\n')
             errmsg[--(*var_len)] = '\0';

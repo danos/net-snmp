@@ -11,10 +11,6 @@ extern          "C" {
 #include <sys/socket.h>
 #endif
 
-#ifndef linux
-    config_error(AAL5 PVC support unavailable for this platform -Linux only-);
-#endif
-
 #include <atm.h>
 
 #include <net-snmp/library/snmp_transport.h>

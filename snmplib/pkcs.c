@@ -774,6 +774,4 @@ pkcserr_string(CK_RV rv)
         break;
     }
 }
-#else
-int pkcs_unused;	/* Suppress "empty translation unit" warning */
 #endif

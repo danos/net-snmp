@@ -31,7 +31,7 @@ extern          "C" {
  * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
  * SOFTWARE.
  * 
- * $Id$
+ * $Id: libsnmp.h 6918 2002-04-20 07:30:29Z hardaker $
  * 
  **********************************************************************/
 
@@ -53,7 +53,11 @@ extern          "C" {
 #include <netinet/in.h>
 #endif
 #if TIME_WITH_SYS_TIME
-# include <sys/time.h>
+# ifdef WIN32
+#  include <sys/timeb.h>
+# else
+#  include <sys/time.h>
+# endif
 # include <time.h>
 #else
 # if HAVE_SYS_TIME_H
@@ -67,7 +71,9 @@ extern          "C" {
 #endif
 #include <stdio.h>
 #include <ctype.h>
-#if HAVE_NETDB_H
+#if HAVE_WINSOCK_H
+#include <winsock.h>
+#else
 #include <netdb.h>
 #endif
 #if HAVE_ARPA_INET_H
@@ -75,6 +81,8 @@ extern          "C" {
 #endif
 
 #ifdef UCD_SNMP_LIBRARY
+
+#define snmp_parse cmu_snmp_parse
 
 #include <ucd-snmp/asn1.h>
 #include <ucd-snmp/snmp_api.h>
@@ -133,9 +141,7 @@ extern          "C" {
 #define SNMP_MSG_GET GET_REQ_MSG
 #define SNMP_MSG_GETNEXT GETNEXT_REQ_MSG
 #define SNMP_MSG_RESPONSE GET_RSP_MSG
-#ifndef NETSNMP_NO_WRITE_SUPPORT
 #define SNMP_MSG_SET SET_REQ_MSG
-#endif /* !NETSNMP_NO_WRITE_SUPPORT */
 #define SNMP_MSG_TRAP TRP_REQ_MSG
 #define SNMP_MSG_GETBULK    (ASN_CONTEXT | ASN_CONSTRUCTOR | 0x5)
 #define SNMP_MSG_INFORM     (ASN_CONTEXT | ASN_CONSTRUCTOR | 0x6)

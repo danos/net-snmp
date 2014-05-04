@@ -1,5 +1,4 @@
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 
 #if HAVE_LIMITS_H
 #include <limits.h>
@@ -109,11 +108,8 @@
 
 #include "mibdefs.h"
 #include "struct.h"
-#include "util_funcs/header_generic.h"
+#include "util_funcs.h"
 #include "vmstat.h"
-
-netsnmp_feature_require(hardware_cpu_load)
-
 
 FindVarMethod var_extensible_vmstat;
 
@@ -121,8 +117,6 @@ static int has_vmstat = 1;
 static int has_cpu_26 = 1;
 static time_t cache_time;
 #define CACHE_TIMEOUT	5
-#define MAX_INT32 0x7fffffff
-#define MAX_COUNTER 0xffffffff
 
 #define STAT_FILE	"/proc/stat"
 #define VMSTAT_FILE	"/proc/vmstat"
@@ -132,64 +126,54 @@ void
 init_vmstat(void)
 {
     struct variable2 extensible_vmstat_variables[] = {
-        {MIBINDEX, ASN_INTEGER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {MIBINDEX}},
-        {ERRORNAME, ASN_OCTET_STR, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {ERRORNAME}},
-        {SWAPIN, ASN_INTEGER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {SWAPIN}},
-        {SWAPOUT, ASN_INTEGER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {SWAPOUT}},
-        {RAWSWAPIN, ASN_COUNTER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {RAWSWAPIN}},
-        {RAWSWAPOUT, ASN_COUNTER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {RAWSWAPOUT}},
-        {IOSENT, ASN_INTEGER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {IOSENT}},
-        {IORECEIVE, ASN_INTEGER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {IORECEIVE}},
-        {IORAWSENT, ASN_COUNTER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {IORAWSENT}},
-        {IORAWRECEIVE, ASN_COUNTER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {IORAWRECEIVE}},
-        {SYSINTERRUPTS, ASN_INTEGER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {SYSINTERRUPTS}},
-        {SYSCONTEXT, ASN_INTEGER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {SYSCONTEXT}},
-        {CPUUSER, ASN_INTEGER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {CPUUSER}},
-        {CPUSYSTEM, ASN_INTEGER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {CPUSYSTEM}},
-        {CPUIDLE, ASN_INTEGER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {CPUIDLE}},
-        {CPURAWUSER, ASN_COUNTER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {CPURAWUSER}},
-        {CPURAWNICE, ASN_COUNTER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {CPURAWNICE}},
-        {CPURAWSYSTEM, ASN_COUNTER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {CPURAWSYSTEM}},
-        {CPURAWKERNEL, ASN_COUNTER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {CPURAWKERNEL}},
-        {CPURAWIDLE, ASN_COUNTER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {CPURAWIDLE}},
-        {SYSRAWINTERRUPTS, ASN_COUNTER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {SYSRAWINTERRUPTS}},
-        {SYSRAWCONTEXT, ASN_COUNTER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {SYSRAWCONTEXT}},
-        {CPURAWWAIT, ASN_COUNTER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {CPURAWWAIT}},
-        {CPURAWINTR, ASN_COUNTER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {CPURAWINTR}},
-        {CPURAWSOFTIRQ, ASN_COUNTER, NETSNMP_OLDAPI_RONLY,
-         var_extensible_vmstat, 1, {CPURAWSOFTIRQ}},
+        {MIBINDEX, ASN_INTEGER, RONLY, var_extensible_vmstat, 1,
+         {MIBINDEX}},
+        {ERRORNAME, ASN_OCTET_STR, RONLY, var_extensible_vmstat, 1,
+         {ERRORNAME}},
+        {SWAPIN, ASN_INTEGER, RONLY, var_extensible_vmstat, 1, {SWAPIN}},
+        {SWAPOUT, ASN_INTEGER, RONLY, var_extensible_vmstat, 1, {SWAPOUT}},
+        {RAWSWAPIN, ASN_COUNTER, RONLY, var_extensible_vmstat, 1, {RAWSWAPIN}},
+        {RAWSWAPOUT, ASN_COUNTER, RONLY, var_extensible_vmstat, 1, {RAWSWAPOUT}},
+        {IOSENT, ASN_INTEGER, RONLY, var_extensible_vmstat, 1, {IOSENT}},
+        {IORECEIVE, ASN_INTEGER, RONLY, var_extensible_vmstat, 1,
+         {IORECEIVE}},
+        {IORAWSENT, ASN_COUNTER, RONLY, var_extensible_vmstat, 1, {IORAWSENT}},
+        {IORAWRECEIVE, ASN_COUNTER, RONLY, var_extensible_vmstat, 1,
+         {IORAWRECEIVE}},
+        {SYSINTERRUPTS, ASN_INTEGER, RONLY, var_extensible_vmstat, 1,
+         {SYSINTERRUPTS}},
+        {SYSCONTEXT, ASN_INTEGER, RONLY, var_extensible_vmstat, 1,
+         {SYSCONTEXT}},
+        {CPUUSER, ASN_INTEGER, RONLY, var_extensible_vmstat, 1, {CPUUSER}},
+        {CPUSYSTEM, ASN_INTEGER, RONLY, var_extensible_vmstat, 1,
+         {CPUSYSTEM}},
+        {CPUIDLE, ASN_INTEGER, RONLY, var_extensible_vmstat, 1, {CPUIDLE}},
+        {CPURAWUSER, ASN_COUNTER, RONLY, var_extensible_vmstat, 1,
+         {CPURAWUSER}},
+        {CPURAWNICE, ASN_COUNTER, RONLY, var_extensible_vmstat, 1,
+         {CPURAWNICE}},
+        {CPURAWSYSTEM, ASN_COUNTER, RONLY, var_extensible_vmstat, 1,
+         {CPURAWSYSTEM}},
+        {CPURAWKERNEL, ASN_COUNTER, RONLY, var_extensible_vmstat, 1,
+         {CPURAWKERNEL}},
+        {CPURAWIDLE, ASN_COUNTER, RONLY, var_extensible_vmstat, 1,
+         {CPURAWIDLE}},
+        {SYSRAWINTERRUPTS, ASN_COUNTER, RONLY, var_extensible_vmstat, 1,
+         {SYSRAWINTERRUPTS}},
+        {SYSRAWCONTEXT, ASN_COUNTER, RONLY, var_extensible_vmstat, 1,
+         {SYSRAWCONTEXT}},
+        {CPURAWWAIT, ASN_COUNTER, RONLY, var_extensible_vmstat, 1,
+         {CPURAWWAIT}},
+        {CPURAWINTR, ASN_COUNTER, RONLY, var_extensible_vmstat, 1,
+         {CPURAWINTR}},
+        {CPURAWSOFTIRQ, ASN_COUNTER, RONLY, var_extensible_vmstat, 1,
+         {CPURAWSOFTIRQ}},
         /*
          * Future use: 
          */
         /*
-         * {ERRORFLAG, ASN_INTEGER, NETSNMP_OLDAPI_RONLY,
-         *  var_extensible_vmstat, 1, {ERRORFLAG }},
-         * {ERRORMSG, ASN_OCTET_STR, NETSNMP_OLDAPI_RONLY,
-         *  var_extensible_vmstat, 1, {ERRORMSG }}
+         * {ERRORFLAG, ASN_INTEGER, RONLY, var_extensible_vmstat, 1, {ERRORFLAG }},
+         * {ERRORMSG, ASN_OCTET_STR, RONLY, var_extensible_vmstat, 1, {ERRORMSG }}
          */
     };
 
@@ -242,13 +226,7 @@ getstat(unsigned long *cuse, unsigned long *cice, unsigned long *csys,
             statfd = open(STAT_FILE, O_RDONLY, 0);
         }
         close(statfd);
-
-	if (has_vmstat) {
-          vmstatfd = open(VMSTAT_FILE, O_RDONLY, 0);
-          if (vmstatfd == -1) {
-                snmp_log(LOG_ERR, "cannot open %s\n", VMSTAT_FILE);
-                has_vmstat = 0;
-          } else {
+	if (has_vmstat && (vmstatfd = open(VMSTAT_FILE, O_RDONLY, 0)) != -1) {
 	    if (vmbsize == 0) {
 		vmbsize = 256;
 		vmbuff = malloc(vmbsize);
@@ -260,8 +238,9 @@ getstat(unsigned long *cuse, unsigned long *cice, unsigned long *csys,
 		vmstatfd = open(VMSTAT_FILE, O_RDONLY, 0);
 	    }
 	    close(vmstatfd);
-          }
 	}
+	else
+	    has_vmstat = 0;
 	cache_time = now;
     }
 
@@ -493,76 +472,76 @@ var_extensible_vmstat(struct variable *vp,
         *var_len = strlen(errmsg);
         return ((u_char *) (errmsg));
     case SWAPIN:
-        long_ret = vmstat(swapin) & MAX_INT32;
+        long_ret = vmstat(swapin);
         return ((u_char *) (&long_ret));
     case SWAPOUT:
-        long_ret = vmstat(swapout) & MAX_INT32;
+        long_ret = vmstat(swapout);
         return ((u_char *) (&long_ret));
     case RAWSWAPIN:
-        long_ret = vmstat(rawswapin) & MAX_COUNTER;
+        long_ret = vmstat(rawswapin);
         return ((u_char *) (&long_ret));
     case RAWSWAPOUT:
-        long_ret = vmstat(rawswapout) & MAX_COUNTER;
+        long_ret = vmstat(rawswapout);
         return ((u_char *) (&long_ret));
     case IOSENT:
-        long_ret = vmstat(iosent) & MAX_INT32;
+        long_ret = vmstat(iosent);
         return ((u_char *) (&long_ret));
     case IORECEIVE:
-        long_ret = vmstat(ioreceive) & MAX_INT32;
+        long_ret = vmstat(ioreceive);
         return ((u_char *) (&long_ret));
     case IORAWSENT:
-        long_ret = vmstat(rawiosent) & MAX_COUNTER;
+        long_ret = vmstat(rawiosent);
         return ((u_char *) (&long_ret));
     case IORAWRECEIVE:
-        long_ret = vmstat(rawioreceive) & MAX_COUNTER;
+        long_ret = vmstat(rawioreceive);
         return ((u_char *) (&long_ret));
     case SYSINTERRUPTS:
-        long_ret = vmstat(sysinterrupts) & MAX_INT32;
+        long_ret = vmstat(sysinterrupts);
         return ((u_char *) (&long_ret));
     case SYSCONTEXT:
-        long_ret = vmstat(syscontext) & MAX_INT32;
+        long_ret = vmstat(syscontext);
         return ((u_char *) (&long_ret));
     case CPUUSER:
-        long_ret = vmstat(cpuuser) & MAX_INT32;
+        long_ret = vmstat(cpuuser);
         return ((u_char *) (&long_ret));
     case CPUSYSTEM:
-        long_ret = vmstat(cpusystem) & MAX_INT32;
+        long_ret = vmstat(cpusystem);
         return ((u_char *) (&long_ret));
     case CPUIDLE:
-        long_ret = vmstat(cpuidle) & MAX_INT32;
+        long_ret = vmstat(cpuidle);
         return ((u_char *) (&long_ret));
     case CPURAWUSER:
-        long_ret = vmstat(cpurawuser) & MAX_COUNTER;
+        long_ret = vmstat(cpurawuser);
         return ((u_char *) (&long_ret));
     case CPURAWNICE:
-        long_ret = vmstat(cpurawnice) & MAX_COUNTER;
+        long_ret = vmstat(cpurawnice);
         return ((u_char *) (&long_ret));
     case CPURAWSYSTEM:
-        long_ret = (vmstat(cpurawsystem)+vmstat(cpurawinter)+vmstat(cpurawsoft)) & MAX_COUNTER;
+        long_ret = vmstat(cpurawsystem)+vmstat(cpurawinter)+vmstat(cpurawsoft);
         return ((u_char *) (&long_ret));
     case CPURAWKERNEL:
-        long_ret = vmstat(cpurawsystem) & MAX_COUNTER;
+        long_ret = vmstat(cpurawsystem);
         return ((u_char *) (&long_ret));
     case CPURAWIDLE:
-        long_ret = vmstat(cpurawidle) & MAX_COUNTER;
+        long_ret = vmstat(cpurawidle);
         return ((u_char *) (&long_ret));
     case SYSRAWINTERRUPTS:
-	long_ret = vmstat(rawinterrupts) & MAX_COUNTER;
+	long_ret = vmstat(rawinterrupts);
 	return (u_char *)&long_ret;
     case SYSRAWCONTEXT:
-	long_ret = vmstat(rawcontext) & MAX_COUNTER;
+	long_ret = vmstat(rawcontext);
 	return (u_char *)&long_ret;
     case CPURAWWAIT:
 	if (!has_cpu_26) return NULL;
-        long_ret = vmstat(cpurawwait) & MAX_COUNTER;
+        long_ret = vmstat(cpurawwait);
         return ((u_char *) (&long_ret));
     case CPURAWINTR:
 	if (!has_cpu_26) return NULL;
-        long_ret = vmstat(cpurawinter) & MAX_COUNTER;
+        long_ret = vmstat(cpurawinter);
         return ((u_char *) (&long_ret));
     case CPURAWSOFTIRQ:
 	if (!has_cpu_26) return NULL;
-        long_ret = vmstat(cpurawsoft) & MAX_COUNTER;
+        long_ret = vmstat(cpurawsoft);
         return ((u_char *) (&long_ret));
 		
         /*

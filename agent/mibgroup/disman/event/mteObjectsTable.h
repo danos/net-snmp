@@ -9,7 +9,6 @@
  * function declarations 
  */
 void            init_mteObjectsTable(void);
-void            shutdown_mteObjectsTable(void);
 Netsnmp_Node_Handler mteObjectsTable_handler;
 
 /*

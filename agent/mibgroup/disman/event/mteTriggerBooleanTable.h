@@ -9,7 +9,6 @@
  * function declarations 
  */
 void            init_mteTriggerBooleanTable(void);
-void            shutdown_mteTriggerBooleanTable(void);
 Netsnmp_Node_Handler mteTriggerBooleanTable_handler;
 
 /*

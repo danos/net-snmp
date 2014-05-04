@@ -54,6 +54,10 @@
 #include <stdlib.h>
 #endif
 
+#if HAVE_WINSOCK_H
+#include <winsock.h>
+#endif
+
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
 #include <net-snmp/data_access/route.h>
@@ -65,10 +69,10 @@
 #include <windows.h>
 #endif
 
-#ifndef HAVE_STRUCT_RTENTRY_RT_DST
+#ifndef STRUCT_RTENTRY_HAS_RT_DST
 #   define rt_dst rt_nodes->rn_key
 #endif
-#ifndef HAVE_STRUCT_RTENTRY_RT_HASH
+#ifndef STRUCT_RTENTRY_HAS_RT_HASH
 #   define rt_hash rt_pad1
 #endif
 

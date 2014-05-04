@@ -3,7 +3,6 @@
  */
 
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 
 #include <stdio.h>
 #include <errno.h>
@@ -20,7 +19,11 @@
 #endif
 #include <sys/types.h>
 #if TIME_WITH_SYS_TIME
-# include <sys/time.h>
+# ifdef WIN32
+#  include <sys/timeb.h>
+# else
+#  include <sys/time.h>
+# endif
 # include <time.h>
 #else
 # if HAVE_SYS_TIME_H
@@ -33,6 +36,9 @@
 #if HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
+#if HAVE_WINSOCK_H
+#include <winsock.h>
+#endif
 
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
@@ -42,7 +48,7 @@
 #include "agentx/client.h"
 #include "agentx/subagent.h"
 
-netsnmp_feature_require(set_agent_uptime)
+extern struct timeval starttime;
 
         /*
          * AgentX handling utility routines
@@ -57,6 +63,7 @@ agentx_synch_input(int op,
                    int reqid, netsnmp_pdu *pdu, void *magic)
 {
     struct synch_state *state = (struct synch_state *) magic;
+    struct timeval  now, diff;
 
     if (!state || reqid != state->reqid) {
         return handle_agentx_packet(op, session, reqid, pdu, magic);
@@ -73,7 +80,17 @@ agentx_synch_input(int op,
             /*
              * Synchronise sysUpTime with the master agent
              */
-            netsnmp_set_agent_uptime(pdu->time);
+            gettimeofday(&now, NULL);
+            now.tv_sec--;
+            now.tv_usec += 1000000L;
+            diff.tv_sec = pdu->time / 100;
+            diff.tv_usec = (pdu->time - (diff.tv_sec * 100)) * 10000;
+            starttime.tv_sec = now.tv_sec - diff.tv_sec;
+            starttime.tv_usec = now.tv_usec - diff.tv_usec;
+            if (starttime.tv_usec > 1000000L) {
+                starttime.tv_usec -= 1000000L;
+                starttime.tv_sec++;
+            }
         }
     } else if (op == NETSNMP_CALLBACK_OP_TIMED_OUT) {
         state->pdu = NULL;
@@ -106,7 +123,6 @@ agentx_open_session(netsnmp_session * ss)
     netsnmp_pdu    *pdu, *response;
     extern oid      version_sysoid[];
     extern int      version_sysoid_len;
-    u_long 	    timeout;
 
     DEBUGMSGTL(("agentx/subagent", "opening session \n"));
     if (ss == NULL || !IS_AGENTX_VERSION(ss->version)) {
@@ -116,14 +132,7 @@ agentx_open_session(netsnmp_session * ss)
     pdu = snmp_pdu_create(AGENTX_MSG_OPEN);
     if (pdu == NULL)
         return 0;
-    timeout = netsnmp_ds_get_int(NETSNMP_DS_APPLICATION_ID,
-                                   NETSNMP_DS_AGENT_AGENTX_TIMEOUT);
-    if (timeout < 0) 
     pdu->time = 0;
-    else
-	/* for master TIMEOUT is usec, but Agentx Open specifies sec */
-    	pdu->time = timeout/ONE_SEC;
-
     snmp_add_var(pdu, version_sysoid, version_sysoid_len,
 		 's', "Net-SNMP AgentX sub-agent");
 
@@ -195,7 +204,7 @@ agentx_register(netsnmp_session * ss, oid start[], size_t startlen,
     pdu->range_subid = range_subid;
     if (contextName) {
         pdu->flags |= AGENTX_MSG_FLAG_NON_DEFAULT_CONTEXT;
-        pdu->community = (u_char *) strdup(contextName);
+        pdu->community = strdup(contextName);
         pdu->community_len = strlen(contextName);
     }
 
@@ -217,7 +226,7 @@ agentx_register(netsnmp_session * ss, oid start[], size_t startlen,
     }
 
     if (response->errstat != SNMP_ERR_NOERROR) {
-        snmp_log(LOG_ERR,"registering pdu failed: %ld!\n", response->errstat);
+        snmp_log(LOG_ERR,"registering pdu failed: %d!\n", response->errstat);
         snmp_free_pdu(response);
         return 0;
     }
@@ -252,7 +261,7 @@ agentx_unregister(netsnmp_session * ss, oid start[], size_t startlen,
     pdu->range_subid = range_subid;
     if (contextName) {
         pdu->flags |= AGENTX_MSG_FLAG_NON_DEFAULT_CONTEXT;
-        pdu->community = (u_char *) strdup(contextName);
+        pdu->community = strdup(contextName);
         pdu->community_len = strlen(contextName);
     }
 
@@ -407,7 +416,7 @@ agentx_unregister_index(netsnmp_session * ss,
 
 int
 agentx_add_agentcaps(netsnmp_session * ss,
-                     const oid * agent_cap, size_t agent_caplen,
+                     oid * agent_cap, size_t agent_caplen,
                      const char *descr)
 {
     netsnmp_pdu    *pdu, *response;
@@ -437,7 +446,7 @@ agentx_add_agentcaps(netsnmp_session * ss,
 
 int
 agentx_remove_agentcaps(netsnmp_session * ss,
-                        const oid * agent_cap, size_t agent_caplen)
+                        oid * agent_cap, size_t agent_caplen)
 {
     netsnmp_pdu    *pdu, *response;
 

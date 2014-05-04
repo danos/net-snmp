@@ -98,6 +98,8 @@ extern          "C" {
 
 
 
+    int             agentx_build(netsnmp_session *, netsnmp_pdu *,
+                                 u_char *, size_t *);
     int             agentx_realloc_build(netsnmp_session * session,
                                          netsnmp_pdu *pdu, u_char ** buf,
                                          size_t * buf_len,

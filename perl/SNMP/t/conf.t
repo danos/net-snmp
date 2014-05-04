@@ -16,9 +16,7 @@ BEGIN {
 use Test;
 BEGIN {plan tests => 3}
 
-my $envsep = ($^O =~ /win32/i) ? ';' : ':';
-
-SNMP::setenv('SNMPCONFPATH', '.' . $envsep . 't', 1);
+$ENV{'SNMPCONFPATH'} = ".:t";
 
 ok(1); # just start up
 

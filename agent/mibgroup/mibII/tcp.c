@@ -5,7 +5,6 @@
  */
 
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 #include "mibII_common.h"
 
 #if HAVE_STDLIB_H
@@ -50,11 +49,11 @@
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
 #include <net-snmp/agent/auto_nlist.h>
-#include <net-snmp/agent/sysORTable.h>
 
-#include "util_funcs/MIB_STATS_CACHE_TIMEOUT.h"
+#include "util_funcs.h"
 #include "tcp.h"
 #include "tcpTable.h"
+#include "sysORTable.h"
 
 #ifndef MIB_STATS_CACHE_TIMEOUT
 #define MIB_STATS_CACHE_TIMEOUT	5
@@ -63,10 +62,7 @@
 #define TCP_STATS_CACHE_TIMEOUT	MIB_STATS_CACHE_TIMEOUT
 #endif
 
-#if defined(HAVE_LIBPERFSTAT_H) && (defined(aix4) || defined(aix5) || defined(aix6) || defined(aix7)) && !defined(FIRST_PROTOCOL)
-#ifdef HAVE_SYS_PROTOSW_H
-#include <sys/protosw.h>
-#endif
+#if defined(HAVE_LIBPERFSTAT_H) && (defined(aix4) || defined(aix5) || defined(aix6)) && !defined(FIRST_PROTOCOL)
 #include <libperfstat.h>
 #ifdef FIRST_PROTOCOL
 perfstat_protocol_t ps_proto;
@@ -92,9 +88,7 @@ perfstat_id_t ps_name;
 int  hz = 1000;
 #endif
 
-#ifndef NETSNMP_FEATURE_REMOVE_TCP_COUNT_CONNECTIONS
 extern int TCP_Count_Connections( void );
-#endif /* NETSNMP_FEATURE_REMOVE_TCP_COUNT_CONNECTIONS */
         /*********************
 	 *
 	 *  Initialisation & common implementation functions
@@ -113,7 +107,6 @@ void
 init_tcp(void)
 {
     netsnmp_handler_registration *reginfo;
-    int rc;
 
     /*
      * register ourselves with the agent as a group of scalars...
@@ -121,9 +114,7 @@ init_tcp(void)
     DEBUGMSGTL(("mibII/tcpScalar", "Initialising TCP scalar group\n"));
     reginfo = netsnmp_create_handler_registration("tcp", tcp_handler,
 		    tcp_oid, OID_LENGTH(tcp_oid), HANDLER_CAN_RONLY);
-    rc = netsnmp_register_scalar_group(reginfo, TCPRTOALGORITHM, TCPOUTRSTS);
-    if (rc != SNMPERR_SUCCESS)
-        return;
+    netsnmp_register_scalar_group(reginfo, TCPRTOALGORITHM, TCPOUTRSTS);
 
     /*
      * .... with a local cache
@@ -176,24 +167,13 @@ init_tcp(void)
 #define USES_SNMP_DESIGNED_TCPSTAT
 #endif
 
-#ifdef NETBSD_STATS_VIA_SYSCTL
-#define TCP_STAT_STRUCTURE      struct tcp_mib
-#define USES_SNMP_DESIGNED_TCPSTAT
-#undef TCP_NSTATS
-#endif
-
-#ifdef HAVE_IPHLPAPI_H
+#if defined (WIN32) || defined (cygwin)
 #include <iphlpapi.h>
 #define TCP_STAT_STRUCTURE     MIB_TCPSTATS
 #endif
 
 #ifdef HAVE_SYS_TCPIPSTATS_H
 #define TCP_STAT_STRUCTURE	struct kna
-#define USES_TRADITIONAL_TCPSTAT
-#endif
-
-#ifdef dragonfly
-#define TCP_STAT_STRUCTURE	struct tcp_stats
 #define USES_TRADITIONAL_TCPSTAT
 #endif
 
@@ -233,6 +213,11 @@ tcp_handler(netsnmp_mib_handler          *handler,
      */
 #if defined(_USE_FIRST_PROTOCOL)
     tcp_load(NULL, NULL);
+#elif !defined(hpux11)
+    if (!netsnmp_cache_is_valid(reqinfo, reginfo->handlerName)) {
+        netsnmp_assert(!"cache == valid"); /* always false */
+        tcp_load( NULL, NULL );	/* XXX - check for failure */
+    }
 #endif
 
 
@@ -373,14 +358,11 @@ tcp_handler(netsnmp_mib_handler          *handler,
         ret_value = tcpstat.tcps_drops;
         break;
     case TCPCURRESTAB:
-#ifdef NETSNMP_FEATURE_CHECKING
-        netsnmp_feature_want(tcp_count_connections)
-#endif
-#ifndef NETSNMP_FEATURE_REMOVE_TCP_COUNT_CONNECTIONS
+#ifdef USING_MIBII_TCPTABLE_MODULE
         ret_value = TCP_Count_Connections();
 #else
         ret_value = 0;
-#endif /* NETSNMP_FEATURE_REMOVE_TCP_COUNT_CONNECTIONS */
+#endif
         type = ASN_GAUGE;
         break;
     case TCPINSEGS:
@@ -398,7 +380,7 @@ tcp_handler(netsnmp_mib_handler          *handler,
         break;
     case TCPINERRS:
         ret_value = tcpstat.tcps_rcvbadsum + tcpstat.tcps_rcvbadoff
-#ifdef HAVE_STRUCT_TCPSTAT_TCPS_RCVMEMDROP
+#ifdef STRUCT_TCPSTAT_HAS_TCPS_RCVMEMDROP
             + tcpstat.tcps_rcvmemdrop
 #endif
             + tcpstat.tcps_rcvshort;
@@ -555,7 +537,6 @@ tcp_handler(netsnmp_mib_handler          *handler,
 
     case MODE_GETNEXT:
     case MODE_GETBULK:
-#ifndef NETSNMP_NO_WRITE_SUPPORT
     case MODE_SET_RESERVE1:
     case MODE_SET_RESERVE2:
     case MODE_SET_ACTION:
@@ -565,7 +546,6 @@ tcp_handler(netsnmp_mib_handler          *handler,
         snmp_log(LOG_WARNING, "mibII/tcp: Unsupported mode (%d)\n",
                                reqinfo->mode);
         break;
-#endif /* !NETSNMP_NO_WRITE_SUPPORT */
     default:
         snmp_log(LOG_WARNING, "mibII/tcp: Unrecognised mode (%d)\n",
                                reqinfo->mode);
@@ -706,21 +686,6 @@ tcp_load(netsnmp_cache *cache, void *vmagic)
         DEBUGMSGTL(("mibII/tcpScalar", "Failed to load TCP scalar Group (solaris)\n"));
     } else {
         DEBUGMSGTL(("mibII/tcpScalar", "Loaded TCP scalar Group (solaris)\n"));
-    }
-    return ret_value;
-}
-#elif defined(NETBSD_STATS_VIA_SYSCTL)
-int
-tcp_load(netsnmp_cache *cache, void *vmagic)
-{
-    long ret_value = -1;
-
-    ret_value = netbsd_read_tcp_stat(&tcpstat);
-
-    if ( ret_value < 0 ) {
-       DEBUGMSGTL(("mibII/tcpScalar", "Failed to load TCP scalar Group (netbsd)\n"));
-    } else {
-        DEBUGMSGTL(("mibII/tcpScalar", "Loaded TCP scalar Group (netbsd)\n"));
     }
     return ret_value;
 }

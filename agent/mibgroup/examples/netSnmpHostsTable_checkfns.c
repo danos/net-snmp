@@ -14,13 +14,10 @@
  * standard headers 
  */
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 #include <net-snmp/net-snmp-includes.h>
 #include "netSnmpHostsTable_checkfns.h"
 #include "netSnmpHostsTable_checkfns_local.h"
 #include "netSnmpHostsTable_enums.h"
-
-netsnmp_feature_require(check_storage_transition)
 
 /** Decides if an incoming value for the netSnmpHostAddressType mib node is legal.
  *  @param type    The incoming data type.
@@ -34,6 +31,9 @@ int
 check_netSnmpHostAddressType(int type, long *val, size_t val_len,
                              long *old_val, size_t old_val_len)
 {
+
+    int             ret;
+
     /** Check to see that we were called legally */
     if (!val)
         return SNMP_ERR_GENERR;
@@ -56,6 +56,8 @@ check_netSnmpHostAddressType(int type, long *val, size_t val_len,
     default:
         return SNMP_ERR_INCONSISTENTVALUE;
     }
+    ret = SNMP_ERR_NOERROR;
+
 
     /** looks ok, call the local version of the same function. */
     return check_netSnmpHostAddressType_local(type, val, val_len, old_val,
@@ -74,6 +76,9 @@ int
 check_netSnmpHostAddress(int type, char *val, size_t val_len,
                          char *old_val, size_t old_val_len)
 {
+
+    int             ret;
+
     /** Check to see that we were called legally */
     if (!val)
         return SNMP_ERR_GENERR;
@@ -83,8 +88,11 @@ check_netSnmpHostAddress(int type, char *val, size_t val_len,
         return SNMP_ERR_WRONGTYPE;
 
     /** Check the ranges of the passed value for legality */
-    if (!(val_len >= 0 && val_len <= 255))
+    if (!(val_len >= 0 && val_len <= 255)
+        ) {
         return SNMP_ERR_WRONGVALUE;
+    }
+
 
     /** looks ok, call the local version of the same function. */
     return check_netSnmpHostAddress_local(type, val, val_len, old_val,
@@ -127,10 +135,11 @@ check_netSnmpHostStorage(int type, long *val, size_t val_len,
     default:
         return SNMP_ERR_INCONSISTENTVALUE;
     }
+    ret = SNMP_ERR_NOERROR;
 
-    ret = check_storage_transition((old_val) ? *old_val : SNMP_STORAGE_NONE,
-                                   *val);
-    if (ret)
+    if (ret =
+        check_storage_transition((old_val) ? *old_val : SNMP_STORAGE_NONE,
+                                 *val))
         return ret;
 
     /** looks ok, call the local version of the same function. */
@@ -175,10 +184,11 @@ check_netSnmpHostRowStatus(int type, long *val, size_t val_len,
     default:
         return SNMP_ERR_INCONSISTENTVALUE;
     }
+    ret = SNMP_ERR_NOERROR;
 
-    ret = check_rowstatus_transition((old_val) ? *old_val : RS_NONEXISTENT,
-                                     *val);
-    if (ret)
+    if (ret =
+        check_rowstatus_transition((old_val) ? *old_val : RS_NONEXISTENT,
+                                   *val))
         return ret;
 
     /** looks ok, call the local version of the same function. */

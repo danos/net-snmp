@@ -5,14 +5,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#include <net-snmp/net-snmp-features.h>
 #include <net-snmp/net-snmp-includes.h>
-
-netsnmp_feature_child_of(oid_stash_all, libnetsnmp)
-netsnmp_feature_child_of(oid_stash, oid_stash_all)
-netsnmp_feature_child_of(oid_stash_no_free, oid_stash_all)
-
-#ifndef NETSNMP_FEATURE_REMOVE_OID_STASH
 
 /** @defgroup oid_stash Store and retrieve data referenced by an OID.
     This is essentially a way of storing data associated with a given
@@ -75,8 +68,6 @@ netsnmp_oid_stash_create_node(void)
     return netsnmp_oid_stash_create_sized_node(OID_STASH_CHILDREN_SIZE);
 }
 
-netsnmp_feature_child_of(oid_stash_add_data, oid_stash_all)
-#ifndef NETSNMP_FEATURE_REMOVE_OID_STASH_ADD_DATA
 /** adds data to the stash at a given oid.
 
  * @param root the top of the stash tree
@@ -90,7 +81,7 @@ netsnmp_feature_child_of(oid_stash_add_data, oid_stash_all)
  */
 int
 netsnmp_oid_stash_add_data(netsnmp_oid_stash_node **root,
-                           const oid * lookup, size_t lookup_len, void *mydata)
+                           oid * lookup, size_t lookup_len, void *mydata)
 {
     netsnmp_oid_stash_node *curnode, *tmpp, *loopp;
     unsigned int    i;
@@ -153,7 +144,6 @@ netsnmp_oid_stash_add_data(netsnmp_oid_stash_node **root,
     tmpp->thedata = mydata;
     return SNMPERR_SUCCESS;
 }
-#endif /* NETSNMP_FEATURE_REMOVE_OID_STASH_ADD_DATA */
 
 /** returns a node associated with a given OID.
  * @param root the top of the stash tree
@@ -162,7 +152,7 @@ netsnmp_oid_stash_add_data(netsnmp_oid_stash_node **root,
  */
 netsnmp_oid_stash_node *
 netsnmp_oid_stash_get_node(netsnmp_oid_stash_node *root,
-                           const oid * lookup, size_t lookup_len)
+                           oid * lookup, size_t lookup_len)
 {
     netsnmp_oid_stash_node *curnode, *tmpp, *loopp;
     unsigned int    i;
@@ -197,8 +187,6 @@ netsnmp_oid_stash_get_node(netsnmp_oid_stash_node *root,
  * @param lookup the oid to look up a node for.
  * @param lookup_len the length of the lookup oid
  */
-netsnmp_feature_child_of(oid_stash_iterate, oid_stash_all)
-#ifndef NETSNMP_FEATURE_REMOVE_OID_STASH_ITERATE
 netsnmp_oid_stash_node *
 netsnmp_oid_stash_getnext_node(netsnmp_oid_stash_node *root,
                                oid * lookup, size_t lookup_len)
@@ -280,10 +268,7 @@ netsnmp_oid_stash_getnext_node(netsnmp_oid_stash_node *root,
     /* fell off the top */
     return NULL;
 }
-#endif /* NETSNMP_FEATURE_REMOVE_OID_STASH_ITERATE */
 
-netsnmp_feature_child_of(oid_stash_get_data, oid_stash_all)
-#ifndef NETSNMP_FEATURE_REMOVE_OID_STASH_GET_DATA
 /** returns a data pointer associated with a given OID.
 
     This is equivelent to netsnmp_oid_stash_get_node, but returns only
@@ -295,7 +280,7 @@ netsnmp_feature_child_of(oid_stash_get_data, oid_stash_all)
  */
 void           *
 netsnmp_oid_stash_get_data(netsnmp_oid_stash_node *root,
-                           const oid * lookup, size_t lookup_len)
+                           oid * lookup, size_t lookup_len)
 {
     netsnmp_oid_stash_node *ret;
     ret = netsnmp_oid_stash_get_node(root, lookup, lookup_len);
@@ -303,10 +288,7 @@ netsnmp_oid_stash_get_data(netsnmp_oid_stash_node *root,
         return ret->thedata;
     return NULL;
 }
-#endif /* NETSNMP_FEATURE_REMOVE_OID_STASH_GET_DATA */
 
-netsnmp_feature_child_of(oid_stash_store_all, oid_stash_all)
-#ifndef NETSNMP_FEATURE_REMOVE_OID_STASH_STORE_ALL
 /** a wrapper around netsnmp_oid_stash_store for use with a snmp_alarm.
  * when calling snmp_alarm, you can list this as a callback.  The
  * clientarg should be a pointer to a netsnmp_oid_stash_save_info
@@ -332,7 +314,6 @@ netsnmp_oid_stash_store_all(int majorID, int minorID,
                             oidbase,0);
     return SNMP_ERR_NOERROR;
 }
-#endif /* NETSNMP_FEATURE_REMOVE_OID_STASH_STORE_ALL */
 
 /** stores data in a starsh tree to peristent storage.
 
@@ -403,7 +384,7 @@ oid_stash_dump(netsnmp_oid_stash_node *root, char *prefix)
     for (i = 0; i < root->children_size; i++) {
         if (root->children[i]) {
             for (tmpp = root->children[i]; tmpp; tmpp = tmpp->next_sibling) {
-                printf("%s%" NETSNMP_PRIo "d@%d: %s\n", prefix, tmpp->value, i,
+                printf("%s%ld@%d: %s\n", prefix, tmpp->value, i,
                        (tmpp->thedata) ? "DATA" : "");
                 oid_stash_dump(tmpp, myprefix);
             }
@@ -446,16 +427,10 @@ netsnmp_oid_stash_free(netsnmp_oid_stash_node **root,
     *root = NULL;
 }
 
-#else /* NETSNMP_FEATURE_REMOVE_OID_STASH */
-netsnmp_feature_unused(oid_stash);
-#endif/* NETSNMP_FEATURE_REMOVE_OID_STASH */
-
-#ifndef NETSNMP_FEATURE_REMOVE_OID_STASH_NO_FREE
 void
 netsnmp_oid_stash_no_free(void *bogus)
 {
     /* noop */
 }
-#endif /* NETSNMP_FEATURE_REMOVE_OID_STASH_NO_FREE */
 
 /** @} */

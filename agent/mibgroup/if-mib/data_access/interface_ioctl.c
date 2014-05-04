@@ -1,10 +1,9 @@
 /*
  *  Interface MIB architecture support
  *
- * $Id$
+ * $Id: interface_ioctl.c 15638 2006-12-06 14:34:11Z rstory $
  */
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 #include <net-snmp/net-snmp-includes.h>
 #include "mibII/mibII_common.h"
 #include "if-mib/ifTable/ifTable_constants.h"
@@ -13,8 +12,6 @@
 #include <net-snmp/data_access/interface.h>
 #include <net-snmp/data_access/ipaddress.h>
 #include "if-mib/data_access/interface.h"
-
-netsnmp_feature_child_of(interface_ioctl_flags_set, interface_all)
 
 #ifdef HAVE_NET_IF_H
 #include <net/if.h>
@@ -70,7 +67,8 @@ _ioctl_get(int fd, int which, struct ifreq *ifrq, const char* name)
         }
     }
 
-    strlcpy(ifrq->ifr_name, name, sizeof(ifrq->ifr_name));
+    strncpy(ifrq->ifr_name, name, sizeof(ifrq->ifr_name));
+    ifrq->ifr_name[ sizeof(ifrq->ifr_name)-1 ] = 0;
     rc = ioctl(fd, which, ifrq);
     if (rc < 0) {
         snmp_log(LOG_ERR,"ioctl %d returned %d\n", which, rc);
@@ -110,7 +108,7 @@ netsnmp_access_interface_ioctl_physaddr_get(int fd,
         SNMP_FREE(ifentry->paddr);
     }
     if(NULL == ifentry->paddr) 
-        ifentry->paddr = (char*)malloc(IFHWADDRLEN);
+        ifentry->paddr = malloc(IFHWADDRLEN);
 
     if(NULL == ifentry->paddr) {
             rc = -4;
@@ -140,7 +138,7 @@ netsnmp_access_interface_ioctl_physaddr_get(int fd,
 #ifdef ARPHRD_ETHER
             switch (ifrq.ifr_hwaddr.sa_family) {
             case ARPHRD_ETHER:
-                ifentry->type = IANAIFTYPE_ETHERNETCSMACD;
+                ifentry->type = 6;
                 break;
 #if defined(ARPHRD_TUNNEL) || defined(ARPHRD_IPGRE) || defined(ARPHRD_SIT)
 #ifdef ARPHRD_TUNNEL
@@ -153,55 +151,50 @@ netsnmp_access_interface_ioctl_physaddr_get(int fd,
 #ifdef ARPHRD_SIT
             case ARPHRD_SIT:
 #endif
-                ifentry->type = IANAIFTYPE_TUNNEL;
+                ifentry->type = 131;
                 break;          /* tunnel */
-#endif
-#ifdef ARPHRD_INFINIBAND
-            case ARPHRD_INFINIBAND:
-                ifentry->type = IANAIFTYPE_INFINIBAND;
-                break;
 #endif
 #ifdef ARPHRD_SLIP
             case ARPHRD_SLIP:
             case ARPHRD_CSLIP:
             case ARPHRD_SLIP6:
             case ARPHRD_CSLIP6:
-                ifentry->type = IANAIFTYPE_SLIP;
+                ifentry->type = 28;
                 break;          /* slip */
 #endif
 #ifdef ARPHRD_PPP
             case ARPHRD_PPP:
-                ifentry->type = IANAIFTYPE_PPP;
+                ifentry->type = 23;
                 break;          /* ppp */
 #endif
 #ifdef ARPHRD_LOOPBACK
             case ARPHRD_LOOPBACK:
-                ifentry->type = IANAIFTYPE_SOFTWARELOOPBACK;
+                ifentry->type = 24;
                 break;          /* softwareLoopback */
 #endif
 #ifdef ARPHRD_FDDI
             case ARPHRD_FDDI:
-                ifentry->type = IANAIFTYPE_FDDI;
+                ifentry->type = 15;
                 break;
 #endif
 #ifdef ARPHRD_ARCNET
             case ARPHRD_ARCNET:
-                ifentry->type = IANAIFTYPE_ARCNET;
+                ifentry->type = 35;
                 break;
 #endif
 #ifdef ARPHRD_LOCALTLK
             case ARPHRD_LOCALTLK:
-                ifentry->type = IANAIFTYPE_LOCALTALK;
+                ifentry->type = 42;
                 break;
 #endif
 #ifdef ARPHRD_HIPPI
             case ARPHRD_HIPPI:
-                ifentry->type = IANAIFTYPE_HIPPI;
+                ifentry->type = 47;
                 break;
 #endif
 #ifdef ARPHRD_ATM
             case ARPHRD_ATM:
-                ifentry->type = IANAIFTYPE_ATM;
+                ifentry->type = 37;
                 break;
 #endif
                 /*
@@ -210,7 +203,6 @@ netsnmp_access_interface_ioctl_physaddr_get(int fd,
             default:
                 DEBUGMSGTL(("access:interface:ioctl", "unknown entry type %d\n",
                             ifrq.ifr_hwaddr.sa_family));
-		ifentry->type = IANAIFTYPE_OTHER;
             } /* switch */
 #endif /* ARPHRD_LOOPBACK */
 
@@ -285,7 +277,6 @@ netsnmp_access_interface_ioctl_flags_get(int fd,
     return rc;
 }
 
-#ifndef NETSNMP_FEATURE_REMOVE_INTERFACE_IOCTL_FLAGS_SET
 /**
  * interface entry flags ioctl wrapper
  *
@@ -327,7 +318,8 @@ netsnmp_access_interface_ioctl_flags_set(int fd,
         }
     }
 
-    strlcpy(ifrq.ifr_name, ifentry->name, sizeof(ifrq.ifr_name));
+    strncpy(ifrq.ifr_name, ifentry->name, sizeof(ifrq.ifr_name));
+    ifrq.ifr_name[ sizeof(ifrq.ifr_name)-1 ] = 0;
     rc = ioctl(fd, SIOCGIFFLAGS, &ifrq);
     if(rc < 0) {
         snmp_log(LOG_ERR,"error getting flags\n");
@@ -353,7 +345,6 @@ netsnmp_access_interface_ioctl_flags_set(int fd,
 
     return 0;
 }
-#endif /* NETSNMP_FEATURE_REMOVE_INTERFACE_IOCTL_FLAGS_SET */
 #endif /* SIOCGIFFLAGS */
 
 #ifdef SIOCGIFMTU
@@ -417,11 +408,7 @@ netsnmp_access_interface_ioctl_ifindex_get(int fd, const char *name)
         return 0;
     }
 
-#if defined(__FreeBSD__)    /* ? Should use HAVE_STRUCT_IFREQ_IFR_INDEX */
-    return ifrq.ifr_index;
-#else
     return ifrq.ifr_ifindex;
-#endif
 #endif /* SIOCGIFINDEX */
 }
 
@@ -484,7 +471,8 @@ netsnmp_access_interface_ioctl_has_ipv4(int sd, const char *if_name,
             if (NULL != ptr)
                 *ptr = 0;
             
-            if (if_index != (int)netsnmp_access_interface_ioctl_ifindex_get(sd, ifrp->ifr_name))
+            if (if_index !=
+                netsnmp_access_interface_ioctl_ifindex_get(sd, ifrp->ifr_name))
                 continue;
         }
 

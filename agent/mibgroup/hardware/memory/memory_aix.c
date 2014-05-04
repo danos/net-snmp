@@ -4,7 +4,6 @@
 #include <net-snmp/agent/hardware/memory.h>
 
 #include <unistd.h>
-#include <sys/protosw.h>
 #include <libperfstat.h>
 #include <sys/stat.h>
 

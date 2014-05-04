@@ -1,28 +1,18 @@
 /*
  *  Interface MIB architecture support
  *
- * $Id$
+ * $Id: interface.c 17263 2008-10-16 09:56:01Z jsafranek $
  */
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 #include <net-snmp/net-snmp-includes.h>
+#include "mibII/mibII_common.h"
+#include "if-mib/ifTable/ifTable_constants.h"
+#include "if-mib/data_access/interface.h"
 
 #include <net-snmp/agent/net-snmp-agent-includes.h>
 #include <net-snmp/library/snmp_enum.h>
 #include <net-snmp/data_access/interface.h>
 
-#include "mibII/mibII_common.h"
-#include "if-mib/ifTable/ifTable.h"
-#include "if-mib/data_access/interface.h"
-
-netsnmp_feature_child_of(interface_all, libnetsnmpmibs)
-netsnmp_feature_child_of(interface, interface_all)
-netsnmp_feature_child_of(interface_access_entry_set_admin_status, interface_all)
-netsnmp_feature_child_of(interface_legacy, interface_all)
-
-#ifdef NETSNMP_FEATURE_REQUIRE_INTERFACE_ACCESS_ENTRY_SET_ADMIN_STATUS
-netsnmp_feature_require(interface_arch_set_admin_status)
-#endif /* NETSNMP_FEATURE_REQUIRE_INTERFACE_ACCESS_ENTRY_SET_ADMIN_STATUS */
 
 /**---------------------------------------------------------------------*/
 /*
@@ -260,8 +250,8 @@ netsnmp_access_interface_entry_get_by_name(netsnmp_container *container,
         return NULL;
     }
 
-    tmp.name = NETSNMP_REMOVE_CONST(char *, name);
-    return (netsnmp_interface_entry*)CONTAINER_FIND(container->next, &tmp);
+    tmp.name = (char *)name;
+    return CONTAINER_FIND(container->next, &tmp);
 }
 
 /**
@@ -347,7 +337,6 @@ netsnmp_access_interface_entry_free(netsnmp_interface_entry * entry)
     free(entry);
 }
 
-#ifndef NETSNMP_FEATURE_REMOVE_INTERFACE_LEGACY
 /*
  * Blech - backwards compatible mibII/interfaces style interface
  * functions, so we don't have to update older modules to use
@@ -357,60 +346,42 @@ netsnmp_access_interface_entry_free(netsnmp_interface_entry * entry)
     ! defined( NETSNMP_NO_BACKWARDS_COMPATABILITY )
 
 static netsnmp_iterator *it = NULL;
-static ifTable_rowreq_ctx *row = NULL;
+static netsnmp_container *c = NULL;
+static netsnmp_interface_entry *e = NULL;
 
 /**
- * Setup an iterator for scanning the interfaces using the cached entry
- * from if-mib/ifTable.
+ * 
  */
 void
 Interface_Scan_Init(void)
 {
-    netsnmp_container *cont = NULL;
-    netsnmp_cache *cache    = NULL; 
+    /*
+     * ifTable container shouldn't change, so we shouldn' have to
+     * re-fetch it every time.
+     */
+    if (NULL != c)
+        netsnmp_access_interface_container_free(c, 0);
+
+    c = netsnmp_access_interface_container_load(NULL, 0);
     
-    cache = netsnmp_cache_find_by_oid(ifTable_oid, ifTable_oid_size);
-    if (NULL != cache) {
-        netsnmp_cache_check_and_reload(cache);
-        cont = (netsnmp_container*) cache->magic;
-    }
-    
-    if (NULL != cont) {
+    if (NULL != c) {
         if (NULL != it)
             ITERATOR_RELEASE(it);
     
-        it = CONTAINER_ITERATOR(cont);
+        it = CONTAINER_ITERATOR(c);
     }
    
     if (NULL != it)
-        row = (ifTable_rowreq_ctx*)ITERATOR_FIRST(it);
+        e = ITERATOR_FIRST(it);
 }
 
 int
 Interface_Scan_Next(short *index, char *name, netsnmp_interface_entry **entry,
                     void *dc)
 {
-    int returnIndex = 0;
-    int ret;
-    if (index)
-        returnIndex = *index;
-
-    ret = Interface_Scan_NextInt( &returnIndex, name, entry, dc );
-    if (index)
-        *index = (returnIndex & 0x8fff);
-    return ret;
-}
-
-int
-Interface_Scan_NextInt(int *index, char *name, netsnmp_interface_entry **entry,
-                    void *dc)
-{
-    netsnmp_interface_entry* e = NULL;
-
-    if (NULL == row)
+    if (NULL == e)
         return 0;
-    
-    e = row->data.ifentry;
+
     if(index)
         *index = e->index;
 
@@ -420,14 +391,13 @@ Interface_Scan_NextInt(int *index, char *name, netsnmp_interface_entry **entry,
     if (entry)
         *entry = e;
 
-    row = (ifTable_rowreq_ctx*) ITERATOR_NEXT(it);
+    e = ITERATOR_NEXT(it);
 
     return 1;
 }
 #endif /* NETSNMP_NO_BACKWARDS_COMPATABILITY */
-#endif /* NETSNMP_FEATURE_REMOVE_INTERFACE_LEGACY */
 
-#ifndef NETSNMP_FEATURE_REMOVE_INTERFACE_ACCESS_ENTRY_SET_ADMIN_STATUS
+
 /**
  *
  * @retval 0   : success
@@ -456,7 +426,6 @@ netsnmp_access_interface_entry_set_admin_status(netsnmp_interface_entry * entry,
     return rc;
 }
 #endif
-#endif /* NETSNMP_FEATURE_REMOVE_INTERFACE_ACCESS_ENTRY_SET_ADMIN_STATUS */
 
 /**---------------------------------------------------------------------*/
 /*
@@ -485,7 +454,7 @@ _access_interface_entry_release(netsnmp_interface_entry * entry, void *context)
 static void
 _access_interface_entry_save_name(const char *name, oid index)
 {
-    int tmp;
+    oid tmp;
 
     if(NULL == name)
         return;
@@ -493,17 +462,19 @@ _access_interface_entry_save_name(const char *name, oid index)
     tmp = se_find_value_in_slist("interfaces", name);
     if (tmp == SE_DNE) {
         se_add_pair_to_slist("interfaces", strdup(name), index);
-        DEBUGMSGTL(("access:interface:ifIndex",
-                    "saved ifIndex %" NETSNMP_PRIo "u for %s\n",
+        DEBUGMSGTL(("access:interface:ifIndex", "saved ifIndex %d for %s\n",
                     index, name));
     }
     else
-        if (index != (oid)tmp) {
-            NETSNMP_LOGONCE((LOG_ERR, "IfIndex of an interface changed. Such " \
-                         "interfaces will appear multiple times in IF-MIB.\n"));
-            DEBUGMSGTL(("access:interface:ifIndex",
-                        "index %" NETSNMP_PRIo "u != tmp for %s\n",
-                        index, name));
+        if (index != tmp) {
+            static int logged = 0;
+            if (!logged) {
+                snmp_log(LOG_ERR, "IfIndex of an interface changed. Such " \
+                         "interfaces will appear multiple times in IF-MIB.\n");
+                logged = 1;
+            }
+            DEBUGMSGTL(("access:interface:ifIndex", "index %d != tmp for %s\n",
+                         index, name));
         }
 }
 
@@ -543,81 +514,42 @@ netsnmp_access_interface_entry_update_stats(netsnmp_interface_entry * prev_vals,
         if (NULL == prev_vals->old_stats) {
             return -2;
         }
-        memcpy(prev_vals->old_stats, &prev_vals->stats, sizeof(prev_vals->stats));
+        memcpy(prev_vals->old_stats, &prev_vals->stats, sizeof(new_vals->stats));
     }
 
-        if (0 != netsnmp_c64_check32_and_update(&prev_vals->stats.ibytes,
+        netsnmp_c64_check32_and_update(&prev_vals->stats.ibytes,
                                        &new_vals->stats.ibytes,
                                        &prev_vals->old_stats->ibytes,
-                                       &need_wrap_check))
-            DEBUGMSGTL(("access:interface",
-                    "Error expanding ifHCInOctets to 64bits\n"));
-
-        if (new_vals->ns_flags & NETSNMP_INTERFACE_FLAGS_CALCULATE_UCAST) {
-            if (0 != netsnmp_c64_check32_and_update(&prev_vals->stats.iall,
-                                           &new_vals->stats.iall,
-                                           &prev_vals->old_stats->iall,
-                                           &need_wrap_check))
-                DEBUGMSGTL(("access:interface",
-                        "Error expanding packet count to 64bits\n"));
-        } else {
-            if (0 != netsnmp_c64_check32_and_update(&prev_vals->stats.iucast,
-                                           &new_vals->stats.iucast,
-                                           &prev_vals->old_stats->iucast,
-                                           &need_wrap_check))
-                DEBUGMSGTL(("access:interface",
-                        "Error expanding ifHCInUcastPkts to 64bits\n"));
-        }
-
-        if (0 != netsnmp_c64_check32_and_update(&prev_vals->stats.iucast,
+                                       &need_wrap_check);
+        netsnmp_c64_check32_and_update(&prev_vals->stats.iucast,
                                        &new_vals->stats.iucast,
                                        &prev_vals->old_stats->iucast,
-                                       &need_wrap_check))
-            DEBUGMSGTL(("access:interface",
-                    "Error expanding ifHCInUcastPkts to 64bits\n"));
-
-        if (0 != netsnmp_c64_check32_and_update(&prev_vals->stats.imcast,
+                                       &need_wrap_check);
+        netsnmp_c64_check32_and_update(&prev_vals->stats.imcast,
                                        &new_vals->stats.imcast,
                                        &prev_vals->old_stats->imcast,
-                                       &need_wrap_check))
-            DEBUGMSGTL(("access:interface",
-                    "Error expanding ifHCInMulticastPkts to 64bits\n"));
-
-        if (0 != netsnmp_c64_check32_and_update(&prev_vals->stats.ibcast,
+                                       &need_wrap_check);
+        netsnmp_c64_check32_and_update(&prev_vals->stats.ibcast,
                                        &new_vals->stats.ibcast,
                                        &prev_vals->old_stats->ibcast,
-                                       &need_wrap_check))
-            DEBUGMSGTL(("access:interface",
-                    "Error expanding ifHCInBroadcastPkts to 64bits\n"));
-
-        if (0 != netsnmp_c64_check32_and_update(&prev_vals->stats.obytes,
+                                       &need_wrap_check);
+        netsnmp_c64_check32_and_update(&prev_vals->stats.obytes,
                                        &new_vals->stats.obytes,
                                        &prev_vals->old_stats->obytes,
-                                       &need_wrap_check))
-            DEBUGMSGTL(("access:interface",
-                    "Error expanding ifHCOutOctets to 64bits\n"));
-
-        if (0 != netsnmp_c64_check32_and_update(&prev_vals->stats.oucast,
+                                       &need_wrap_check);
+        netsnmp_c64_check32_and_update(&prev_vals->stats.oucast,
                                        &new_vals->stats.oucast,
                                        &prev_vals->old_stats->oucast,
-                                       &need_wrap_check))
-            DEBUGMSGTL(("access:interface",
-                    "Error expanding ifHCOutUcastPkts to 64bits\n"));
-
-        if (0 != netsnmp_c64_check32_and_update(&prev_vals->stats.omcast,
+                                       &need_wrap_check);
+        netsnmp_c64_check32_and_update(&prev_vals->stats.omcast,
                                        &new_vals->stats.omcast,
                                        &prev_vals->old_stats->omcast,
-                                       &need_wrap_check))
-            DEBUGMSGTL(("access:interface",
-                    "Error expanding ifHCOutMulticastPkts to 64bits\n"));
-
-        if (0 != netsnmp_c64_check32_and_update(&prev_vals->stats.obcast,
+                                       &need_wrap_check);
+        netsnmp_c64_check32_and_update(&prev_vals->stats.obcast,
                                        &new_vals->stats.obcast,
                                        &prev_vals->old_stats->obcast,
-                                       &need_wrap_check))
-            DEBUGMSGTL(("access:interface",
-                    "Error expanding ifHCOutBroadcastPkts to 64bits\n"));
-
+                                       &need_wrap_check);
+    
     /*
      * Copy 32 bit counters
      */
@@ -649,23 +581,6 @@ netsnmp_access_interface_entry_update_stats(netsnmp_interface_entry * prev_vals,
 }
 
 /**
- * Calculate stats
- *
- * @retval  0 : success
- * @retval -1 : error
- */
-int
-netsnmp_access_interface_entry_calculate_stats(netsnmp_interface_entry *entry)
-{
-    DEBUGMSGTL(("access:interface", "calculate_stats\n"));
-    if (entry->ns_flags & NETSNMP_INTERFACE_FLAGS_CALCULATE_UCAST) {
-        u64Subtract(&entry->stats.iall, &entry->stats.imcast,
-                &entry->stats.iucast);
-    }
-    return 0;
-}
-
-/**
  * copy interface entry data (after checking for counter wraps)
  *
  * @retval -2 : malloc failed
@@ -687,7 +602,6 @@ netsnmp_access_interface_entry_copy(netsnmp_interface_entry * lhs,
      * update stats
      */
     netsnmp_access_interface_entry_update_stats(lhs, rhs);
-    netsnmp_access_interface_entry_calculate_stats(lhs);
 
     /*
      * update data
@@ -697,7 +611,8 @@ netsnmp_access_interface_entry_copy(netsnmp_interface_entry * lhs,
        (0 == strcmp(lhs->descr, rhs->descr)))
         ;
     else {
-        SNMP_FREE(lhs->descr);
+        if (NULL != lhs->descr)
+            SNMP_FREE(lhs->descr);
         if (rhs->descr) {
             lhs->descr = strdup(rhs->descr);
             if(NULL == lhs->descr)
@@ -725,9 +640,10 @@ netsnmp_access_interface_entry_copy(netsnmp_interface_entry * lhs,
         if(rhs->paddr_len)
             memcpy(lhs->paddr,rhs->paddr,rhs->paddr_len);
     } else {
-        SNMP_FREE(lhs->paddr);
+        if (NULL != lhs->paddr)
+            SNMP_FREE(lhs->paddr);
         if (rhs->paddr) {
-            lhs->paddr = (char*)malloc(rhs->paddr_len);
+            lhs->paddr = malloc(rhs->paddr_len);
             if(NULL == lhs->paddr)
                 return -2;
             memcpy(lhs->paddr,rhs->paddr,rhs->paddr_len);
@@ -865,7 +781,7 @@ _free_interface_config(void)
     netsnmp_conf_if_list   *if_ptr = conf_list, *if_next;
     while (if_ptr) {
         if_next = if_ptr->next;
-        free(NETSNMP_REMOVE_CONST(char *, if_ptr->name));
+        free(if_ptr->name);
         free(if_ptr);
         if_ptr = if_next;
     }

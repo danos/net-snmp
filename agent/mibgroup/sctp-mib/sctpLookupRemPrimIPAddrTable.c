@@ -6,11 +6,11 @@
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
+#include <net-snmp/agent/net-snmp-agent-includes.h>
 #include <net-snmp/agent/table_container.h>
 #include "sctpLookupRemPrimIPAddrTable.h"
 
 static netsnmp_container *sctpLookupRemPrimIPAddrTable_container;
-static netsnmp_table_registration_info *table_info;
 
 /** Initializes the sctpLookupRemPrimIPAddrTable module */
 void
@@ -25,7 +25,8 @@ init_sctpLookupRemPrimIPAddrTable(void)
 void
 shutdown_sctpLookupRemPrimIPAddrTable(void)
 {
-    shutdown_table_sctpLookupRemPrimIPAddrTable();
+    sctpLookupRemPrimIPAddrTable_container_clear
+        (sctpLookupRemPrimIPAddrTable_container);
 }
 
 /** Initialize the sctpLookupRemPrimIPAddrTable table by defining its contents and how it's structured */
@@ -39,6 +40,7 @@ initialize_table_sctpLookupRemPrimIPAddrTable(void)
     netsnmp_handler_registration *reg = NULL;
     netsnmp_mib_handler *handler = NULL;
     netsnmp_container *container = NULL;
+    netsnmp_table_registration_info *table_info = NULL;
 
     reg =
         netsnmp_create_handler_registration("sctpLookupRemPrimIPAddrTable",
@@ -99,7 +101,6 @@ initialize_table_sctpLookupRemPrimIPAddrTable(void)
     if (SNMPERR_SUCCESS != netsnmp_register_table(reg, table_info)) {
         snmp_log(LOG_ERR,
                  "error registering table handler for sctpLookupRemPrimIPAddrTable\n");
-        reg = NULL; /* it was freed inside netsnmp_register_table */
         goto bail;
     }
 
@@ -113,25 +114,12 @@ initialize_table_sctpLookupRemPrimIPAddrTable(void)
     if (handler)
         netsnmp_handler_free(handler);
 
-    if (table_info)
-        netsnmp_table_registration_info_free(table_info);
 
     if (container)
         CONTAINER_FREE(container);
 
     if (reg)
         netsnmp_handler_registration_free(reg);
-}
-
-void
-shutdown_table_sctpLookupRemPrimIPAddrTable(void)
-{
-    if (table_info) {
-        netsnmp_table_registration_info_free(table_info);
-	table_info = NULL;
-    }
-    sctpLookupRemPrimIPAddrTable_container_clear
-        (sctpLookupRemPrimIPAddrTable_container);
 }
 
 /** handles requests for the sctpLookupRemPrimIPAddrTable table */
@@ -268,7 +256,8 @@ void
 sctpLookupRemPrimIPAddrTable_entry_free(sctpLookupRemPrimIPAddrTable_entry
                                         * entry)
 {
-    SNMP_FREE(entry);
+    if (entry != NULL)
+        SNMP_FREE(entry);
 }
 
 netsnmp_container *

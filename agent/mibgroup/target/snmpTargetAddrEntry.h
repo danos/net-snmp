@@ -10,10 +10,10 @@
 #define _MIBGROUP_SNMPTARGETADDRENTRY_H
 
 /*
- * we use header_generic from the util_funcs module
+ * we use header_generic and checkmib from the util_funcs module 
  */
 
-config_require(util_funcs/header_generic)
+config_require(util_funcs)
 
 
     /*
@@ -67,7 +67,6 @@ config_add_mib(SNMPv2-TM)
  */
 
      void            init_snmpTargetAddrEntry(void);
-     void            shutdown_snmpTargetAddrEntry(void);
      int             store_snmpTargetAddrEntry(int majorID, int minorID,
                                                void *serverarg,
                                                void *clientarg);
@@ -81,7 +80,6 @@ config_add_mib(SNMPv2-TM)
 
      void            snmpd_parse_config_targetAddr(const char *, char *);
 
-#ifndef NETSNMP_NO_WRITE_SUPPORT
      WriteMethod     write_snmpTargetAddrTDomain;
      WriteMethod     write_snmpTargetAddrTAddress;
      WriteMethod     write_snmpTargetAddrTimeout;
@@ -91,8 +89,7 @@ config_add_mib(SNMPv2-TM)
      WriteMethod     write_snmpTargetAddrStorageType;
      WriteMethod     write_snmpTargetAddrRowStatus;
 
-     WriteMethod     write_targetSpinLock;
-#endif /* !NETSNMP_NO_WRITE_SUPPORT */
      FindVarMethod   var_targetSpinLock;
+     WriteMethod     write_targetSpinLock;
 
 #endif                          /* _MIBGROUP_SNMPTARGETADDRENTRY_H */

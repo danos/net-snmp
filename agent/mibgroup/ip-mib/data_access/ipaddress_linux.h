@@ -1,7 +1,7 @@
 /*
  * ipaddress data access header
  *
- * $Id$
+ * $Id: ipaddress_linux.h 13371 2005-11-02 17:07:28Z rstory $
  */
 /**---------------------------------------------------------------------*/
 /*
@@ -17,5 +17,6 @@
  *    HPUX11 had different reuirements than other HPUX, that should
  *    be handled in the *_hpux.h header file.
  */
+config_require(ip-mib/data_access/ipaddress_linux)
 config_require(ip-mib/data_access/ipaddress_ioctl)
-config_require(util_funcs)
+

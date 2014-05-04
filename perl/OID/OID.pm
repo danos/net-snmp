@@ -92,7 +92,7 @@ use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION $AUTOLOAD);
 	snmp_oid_compare
         compare
 );
-$VERSION = '5.07021';
+$VERSION = '5.0403';
 
 sub new {
     my $type = shift;
@@ -152,8 +152,7 @@ sub AUTOLOAD {
     my $constname;
     ($constname = $AUTOLOAD) =~ s/.*:://;
     croak "& not defined" if $constname eq 'constant';
-    my $val;
-    ($!, $val) = constant($constname);
+    my $val = constant($constname, @_ ? $_[0] : 0);
     if ($! != 0) {
 	if ($! =~ /Invalid/ || $!{EINVAL}) {
 	    $AutoLoader::AUTOLOAD = $AUTOLOAD;

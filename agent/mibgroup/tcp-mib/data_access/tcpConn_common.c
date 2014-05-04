@@ -1,7 +1,7 @@
 /*
  *  TcpConn MIB architecture support
  *
- * $Id$
+ * $Id: tcpConn_common.c 16724 2007-10-14 22:10:09Z magfr $
  */
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
@@ -164,13 +164,6 @@ netsnmp_access_tcpconn_entry_free(netsnmp_tcpconn_entry * entry)
     free(entry);
 }
 
-#ifdef TCPCONN_DELETE_SUPPORTED
-
-/* XXX TODO: these are currently unsupported everywhere; to enable the
-   functions first implement netsnmp_arch_tcpconn_entry_delete in the
-   tcpConn_{OS}.c file and then define TCPCONN_DELETE_SUPPORTED in the
-   tcpConn_{OS}.h file (which may need to be created first). */
-
 /**
  * update underlying data store (kernel) for entry
  *
@@ -196,11 +189,10 @@ netsnmp_access_tcpconn_entry_set(netsnmp_tcpconn_entry * entry)
     if (! (entry->flags & NETSNMP_ACCESS_TCPCONN_DELETE))
         return -1;
     
-    rc = netsnmp_arch_tcpconn_entry_delete(entry);
+    rc = netsnmp_arch_tcpconn_delete(entry);
     
     return rc;
 }
-#endif /* TCPCONN_DELETE_SUPPORTED */
 
 /**
  * update an old tcpconn_entry from a new one

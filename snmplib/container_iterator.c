@@ -1,10 +1,9 @@
 /*
- * $Id$
+ * $Id: container_iterator.c 16758 2007-12-19 22:39:31Z magfr $
  *
  */
 
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 
 #include <stdio.h>
 #if HAVE_STDLIB_H
@@ -29,9 +28,6 @@
 
 #include <net-snmp/library/container_iterator.h>
 
-netsnmp_feature_child_of(container_iterator, container_types)
-
-#ifndef NETSNMP_FEATURE_REMOVE_CONTAINER_ITERATOR
 /**
  *  Holds iterator information containing functions which should be called
  *  by the iterator_handler to loop over your data set and sort it in a
@@ -367,6 +363,7 @@ static size_t
 _iterator_size(iterator_info *ii)
 {
     size_t count = 0;
+    int rc = SNMP_ERR_NOERROR;
     netsnmp_ref_void loop_ctx = { NULL };
     netsnmp_ref_void tmp = { NULL };
 
@@ -384,9 +381,9 @@ _iterator_size(iterator_info *ii)
     if(ii->init_loop_ctx)
         ii->init_loop_ctx(ii->user_ctx, &loop_ctx);
     
-    for( ii->get_first(ii->user_ctx, &loop_ctx, &tmp);
+    for( rc = ii->get_first(ii->user_ctx, &loop_ctx, &tmp);
          NULL != tmp.val;
-         ii->get_next(ii->user_ctx, &loop_ctx, &tmp) )
+         rc = ii->get_next(ii->user_ctx, &loop_ctx, &tmp) )
         ++count;
 
     if(ii->cleanup_loop_ctx)
@@ -399,6 +396,7 @@ static void
 _iterator_for_each(iterator_info *ii, netsnmp_container_obj_func *f,
                    void *ctx)
 {
+    int rc = SNMP_ERR_NOERROR;
     netsnmp_ref_void loop_ctx = { NULL };
     netsnmp_ref_void tmp = { NULL };
 
@@ -410,9 +408,9 @@ _iterator_for_each(iterator_info *ii, netsnmp_container_obj_func *f,
     if(ii->init_loop_ctx)
         ii->init_loop_ctx(ii->user_ctx, &loop_ctx);
     
-    for( ii->get_first(ii->user_ctx, &loop_ctx, &tmp);
+    for( rc = ii->get_first(ii->user_ctx, &loop_ctx, &tmp);
          NULL != tmp.val;
-         ii->get_next(ii->user_ctx, &loop_ctx, &tmp) )
+         rc = ii->get_next(ii->user_ctx, &loop_ctx, &tmp) )
         (*f) (tmp.val, ctx);
 
     if(ii->cleanup_loop_ctx)
@@ -508,6 +506,3 @@ netsnmp_container_iterator_set_data_cb(netsnmp_container *c,
     ii->remove_data = remove_data;
     ii->get_size = get_size;
 }
-#else  /* NETSNMP_FEATURE_REMOVE_CONTAINER_ITERATOR */
-netsnmp_feature_unused(container_iterator);
-#endif /* NETSNMP_FEATURE_REMOVE_CONTAINER_ITERATOR */

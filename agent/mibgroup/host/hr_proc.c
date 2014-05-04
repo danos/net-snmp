@@ -51,10 +51,8 @@ netsnmp_cpu_info *HRP_cpu;
 #define	HRPROC_LOAD		2
 
 struct variable4 hrproc_variables[] = {
-    {HRPROC_ID, ASN_OBJECT_ID, NETSNMP_OLDAPI_RONLY,
-     var_hrproc, 2, {1, 1}},
-    {HRPROC_LOAD, ASN_INTEGER, NETSNMP_OLDAPI_RONLY,
-     var_hrproc, 2, {1, 2}}
+    {HRPROC_ID, ASN_OBJECT_ID, RONLY, var_hrproc, 2, {1, 1}},
+    {HRPROC_LOAD, ASN_INTEGER, RONLY, var_hrproc, 2, {1, 2}}
 };
 oid             hrproc_variables_oid[] = { 1, 3, 6, 1, 2, 1, 25, 3, 3 };
 
@@ -140,7 +138,7 @@ header_hrproc(struct variable *vp,
     memcpy((char *) name, (char *) newname,
            (vp->namelen + 1) * sizeof(oid));
     *length = vp->namelen + 1;
-    *write_method = (WriteMethod*)0;
+    *write_method = 0;
     *var_len = sizeof(long);    /* default to 'long' results */
 
     DEBUGMSGTL(("host/hr_proc", "... get proc stats "));
@@ -164,7 +162,6 @@ var_hrproc(struct variable * vp,
            int exact, size_t * var_len, WriteMethod ** write_method)
 {
     int             proc_idx;
-    unsigned long long value;
     netsnmp_cpu_info *cpu;
 
     proc_idx =
@@ -182,9 +179,12 @@ var_hrproc(struct variable * vp,
            ( cpu->history[0].total_hist == cpu->total_ticks ))
             return NULL;
 
-        value = (cpu->idle_ticks  - cpu->history[0].idle_hist)*100;
-        value /= (cpu->total_ticks - cpu->history[0].total_hist);
-        long_return = 100 - value;
+        long_return  = (cpu->idle_ticks  - cpu->history[0].idle_hist)*100;
+        if (cpu->total_ticks > cpu->history[0].total_hist) /* avoid div. by 0 */
+            long_return /= (cpu->total_ticks - cpu->history[0].total_hist);
+        else
+            long_return = 0; 
+        long_return  = 100 - long_return;
         if (long_return < 0)
             long_return = 0;
         return (u_char *) & long_return;

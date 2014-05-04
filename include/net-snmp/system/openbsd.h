@@ -1,7 +1,6 @@
 #include "netbsd.h"
 
 #define netbsd1 netbsd1         /* we're really close to this */
-#define openbsd openbsd
 #define UVM
 
 #undef MBPOOL_SYMBOL
@@ -15,4 +14,6 @@
 
 /* define the extra mib modules that are supported */
 #define NETSNMP_INCLUDE_HOST_RESOURCES
+#ifdef NETSNMP_ENABLE_MFD_REWRITES
 #define NETSNMP_INCLUDE_IFTABLE_REWRITES
+#endif

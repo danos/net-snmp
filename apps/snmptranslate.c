@@ -51,6 +51,11 @@ SOFTWARE.
 #include <stdio.h>
 #include <ctype.h>
 #include <net-snmp/utilities.h>
+
+#if HAVE_WINSOCK_H
+#include <winsock.h>
+#endif
+
 #include <net-snmp/config_api.h>
 #include <net-snmp/output_api.h>
 #include <net-snmp/mib_api.h>
@@ -74,7 +79,7 @@ usage(void)
     fprintf(stderr,
             "  -M DIR[:...]\t\tlook in given list of directories for MIBs\n");
     fprintf(stderr,
-            "  -D[TOKEN[,...]]\tturn on debugging output for the specified TOKENs\n\t\t\t   (ALL gives extremely verbose debugging output)\n");
+            "  -D TOKEN[,...]\tturn on debugging output for the specified TOKENs\n\t\t\t   (ALL gives extremely verbose debugging output)\n");
     fprintf(stderr, "  -w WIDTH\t\tset width of tree and detail output\n");
     fprintf(stderr,
             "  -T TRANSOPTS\t\tSet various options controlling report produced:\n");
@@ -202,8 +207,7 @@ main(int argc, char *argv[])
 #endif /* NETSNMP_DISABLE_MIB_LOADING */
                 case 'd':
                     description = 1;
-                    netsnmp_ds_set_boolean(NETSNMP_DS_LIBRARY_ID, 
-                                           NETSNMP_DS_LIB_SAVE_MIB_DESCRS, 1);
+                    snmp_set_save_descriptions(1);
                     break;
                 case 'B':
                     find_all = 1;
@@ -262,8 +266,7 @@ main(int argc, char *argv[])
 
     do {
         name_length = MAX_OID_LEN;
-        if (netsnmp_ds_get_boolean(NETSNMP_DS_LIBRARY_ID, 
-				  NETSNMP_DS_LIB_RANDOM_ACCESS)) {
+        if (snmp_get_random_access()) {
 #ifndef NETSNMP_DISABLE_MIB_LOADING
             if (!get_node(current_name, name, &name_length)) {
 #endif /* NETSNMP_DISABLE_MIB_LOADING */

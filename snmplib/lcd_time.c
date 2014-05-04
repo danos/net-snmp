@@ -6,9 +6,11 @@
  */
 
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 
 #include <sys/types.h>
+#if HAVE_WINSOCK_H
+#include <winsock.h>
+#endif
 #include <stdio.h>
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
@@ -19,7 +21,11 @@
 #include <strings.h>
 #endif
 #if TIME_WITH_SYS_TIME
-# include <sys/time.h>
+# ifdef WIN32
+#  include <sys/timeb.h>
+# else
+#  include <sys/time.h>
+# endif
 # include <time.h>
 #else
 # if HAVE_SYS_TIME_H
@@ -32,9 +38,6 @@
 #include <netinet/in.h>
 #endif
 
-#if HAVE_UNISTD_H
-#include <unistd.h>
-#endif
 #if HAVE_DMALLOC_H
 #include <dmalloc.h>
 #endif
@@ -52,11 +55,6 @@
 #include <net-snmp/library/snmpv3.h>
 
 #include <net-snmp/library/transform_oids.h>
-
-netsnmp_feature_child_of(usm_support, libnetsnmp)
-netsnmp_feature_child_of(usm_lcd_time, usm_support)
-
-#ifndef NETSNMP_FEATURE_REMOVE_USM_LCD_TIME
 
 /*
  * Global static hashlist to contain Enginetime entries.
@@ -94,13 +92,13 @@ static Enginetime etimelist[ETIMELIST_SIZE];
  *            this is another matter.
  */
 int
-get_enginetime(const u_char * engineID,
+get_enginetime(u_char * engineID,
                u_int engineID_len,
                u_int * engineboot,
                u_int * engine_time, u_int authenticated)
 {
     int             rval = SNMPERR_SUCCESS;
-    int             timediff = 0;
+    time_t          timediff = 0;
     Enginetime      e = NULL;
 
 
@@ -132,7 +130,7 @@ get_enginetime(const u_char * engineID,
         *engine_time = e->engineTime;
         *engineboot = e->engineBoot;
 
-       timediff = (int) (snmpv3_local_snmpEngineTime() - e->lastReceivedEngineTime);
+       timediff = snmpv3_local_snmpEngineTime() - e->lastReceivedEngineTime;
 
 #ifdef LCD_TIME_SYNC_OPT
     }
@@ -196,7 +194,7 @@ get_enginetime_ex(u_char * engineID,
                   u_int * last_engine_time, u_int authenticated)
 {
     int             rval = SNMPERR_SUCCESS;
-    int             timediff = 0;
+    time_t          timediff = 0;
     Enginetime      e = NULL;
 
 
@@ -228,7 +226,7 @@ get_enginetime_ex(u_char * engineID,
         *last_engine_time = *engine_time = e->engineTime;
         *engineboot = e->engineBoot;
 
-       timediff = (int) (snmpv3_local_snmpEngineTime() - e->lastReceivedEngineTime);
+       timediff = snmpv3_local_snmpEngineTime() - e->lastReceivedEngineTime;
 
 #ifdef LCD_TIME_SYNC_OPT
     }
@@ -297,14 +295,14 @@ void free_enginetime(unsigned char *engineID, size_t engineID_len)
 void free_etimelist(void)
 {
      int index = 0;
-     Enginetime e = NULL;
-     Enginetime nextE = NULL;
+     Enginetime e = 0;
+     Enginetime nextE = 0;
 
      for( ; index < ETIMELIST_SIZE; ++index)
      {
            e = etimelist[index];
 
-           while(e != NULL)
+           while(e != 0)
            {
                  nextE = e->next;
                  SNMP_FREE(e->engineID);
@@ -312,7 +310,7 @@ void free_etimelist(void)
                  e = nextE;
            }
 
-           etimelist[index] = NULL;
+           etimelist[index] = 0;
      }
      return;
 }
@@ -341,7 +339,7 @@ void free_etimelist(void)
  * XXX	"Current time within the local engine" == time(NULL)...
  */
 int
-set_enginetime(const u_char * engineID,
+set_enginetime(u_char * engineID,
                u_int engineID_len,
                u_int engineboot, u_int engine_time, u_int authenticated)
 {
@@ -422,7 +420,7 @@ set_enginetime(const u_char * engineID,
  * ASSUMES that no engineID will have more than one record in the list.
  */
 Enginetime
-search_enginetime_list(const u_char * engineID, u_int engineID_len)
+search_enginetime_list(u_char * engineID, u_int engineID_len)
 {
     int             rval = SNMPERR_SUCCESS;
     Enginetime      e = NULL;
@@ -480,7 +478,7 @@ search_enginetime_list(const u_char * engineID, u_int engineID_len)
  *
  */
 int
-hash_engineID(const u_char * engineID, u_int engineID_len)
+hash_engineID(u_char * engineID, u_int engineID_len)
 {
     int             rval = SNMPERR_GENERR;
     size_t          buf_len = SNMP_MAXBUF;
@@ -520,7 +518,7 @@ hash_engineID(const u_char * engineID, u_int engineID_len)
     SNMP_FREE(context);
     memset(buf, 0, SNMP_MAXBUF);
 
-    return (rval < 0) ? rval : (int)(additive % ETIMELIST_SIZE);
+    return (rval < 0) ? rval : (additive % ETIMELIST_SIZE);
 
 }                               /* end hash_engineID() */
 
@@ -605,4 +603,3 @@ dump_etimelist(void)
 
 }                               /* end dump_etimelist() */
 #endif                          /* NETSNMP_ENABLE_TESTING_CODE */
-#endif /* NETSNMP_FEATURE_REMOVE_USM_LCD_TIME */

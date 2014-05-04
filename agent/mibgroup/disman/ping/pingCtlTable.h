@@ -15,6 +15,8 @@
 #ifndef PINGCTLTABLE_H
 #define PINGCTLTABLE_H
 
+
+
 #include	<sys/types.h>   /* basic system data types */
 #include	<sys/socket.h>  /* basic socket definitions */
 #include	<sys/time.h>    /* timeval{} for select() */
@@ -90,10 +92,21 @@
 #include <ctype.h>
 #include <linux/errqueue.h>
 
+/* #include <linux/in6.h>  */
+/* #include <linux/ipv6.h> */
+
+#include "in6.h"
+#include "ipv6.h"
+
+
+#include <linux/icmpv6.h>
 #include <sched.h>
 
-#include <netinet/ip6.h>
-#include <netinet/icmp6.h>
+
+
+
+#define	BUFSIZE		1500
+
 
 
 /*
@@ -174,9 +187,8 @@ struct pingResultsTable_data {
     unsigned long   pingResultsProbeResponses;
     unsigned long   pingResultsSendProbes;
     unsigned long   pingResultsRttSumOfSquares;
-    u_char         *pingResultsLastGoodProbe;
+    char           *pingResultsLastGoodProbe;
     size_t          pingResultsLastGoodProbeLen;
-    time_t          pingResultsLastGoodProbe_time;
 
     int             storageType;
 
@@ -193,9 +205,8 @@ struct pingProbeHistoryTable_data {
     unsigned long   pingProbeHistoryResponse;
     long            pingProbeHistoryStatus;
     long            pingProbeHistoryLastRC;
-    u_char         *pingProbeHistoryTime;
+    char           *pingProbeHistoryTime;
     size_t          pingProbeHistoryTimeLen;
-    time_t          pingProbeHistoryTime_time;
 
     int             storageType;
 
@@ -206,7 +217,6 @@ struct pingProbeHistoryTable_data {
  * function declarations 
  */
 void            init_pingCtlTable(void);
-void            shutdown_pingCtlTable(void);
 FindVarMethod   var_pingCtlTable;
 void            parse_pingCtlTable(const char *, char *);
 SNMPCallback    store_pingCtlTable;
@@ -335,6 +345,9 @@ struct proto {
 #endif
 
 
+static char    *pr_addr(struct in6_addr *addr, int options);
+static char    *pr_addr_n(struct in6_addr *addr);
+static int      pr_icmph(__u8 type, __u8 code, __u32 info);
 
 #define	MAX_DUP_CHK	0x10000
 char            rcvd_tbl[MAX_DUP_CHK / 8];
@@ -388,6 +401,16 @@ volatile int    status_snapshot;
 #define MULTICAST_TTL		0x002
 #define MULTICAST_IF		0x004
 
+static inline void tvsub(struct timeval *, struct timeval *);
+static inline void set_signal(int, void (*)(int));
+static inline int schedule_exit(int, int *, long *, long *, long *,
+                                long *);
+static inline int in_flight(__u16 *, long *, long *, long *);
+static inline void acknowledge(__u16, __u16 *, long *, int *);
+static inline void advance_ntransmitted(__u16 *, long *);
+static void     sigexit(int);
+static void     sigexit(int);
+static inline void update_interval(int, int, int *, int *);
 int             __schedule_exit(int, long *, long *);
 int             pinger(int, int, int, char *, struct sockaddr_in6 *, int *,
                        int, int, int, int, int, char *, int *, int *,
@@ -408,12 +431,14 @@ int             gather_statistics(int *, struct pingCtlTable_data *,
                                   long *, long *, long *, long long *,
                                   long long *, int *, int *, int *,
                                   struct pingProbeHistoryTable_data *);
+static long     llsqrt(long long);
 void            finish(int, char *, int, int, int *, struct timeval *,
                        int *, long *, long *, long *, long *, long *,
                        long *, long *, long *, long long *, long long *,
                        int *, struct timeval *);
 void            status(int, int *, long *, long *, long *, long *, long *,
                        long long *, long long *);
+static __inline__ int ipv6_addr_any(struct in6_addr *);
 size_t          inet6_srcrt_space(int, int);
 struct cmsghdr *inet6_srcrt_init(void *, int);
 int             inet6_srcrt_add(struct cmsghdr *, const struct in6_addr *);
@@ -429,7 +454,10 @@ int             parse_reply(int *, struct pingCtlTable_data *,
                             long *, long *, long *, long long *,
                             long long *, int *, int *, int *,
                             struct pingProbeHistoryTable_data *);
+static int      pr_icmph(__u8, __u8, __u32);
 void            install_filter(int, int *);
+static char    *pr_addr(struct in6_addr *, int);
+static char    *pr_addr_n(struct in6_addr *);
 
 #endif
 /*

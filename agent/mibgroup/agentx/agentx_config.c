@@ -2,7 +2,6 @@
  *  AgentX Configuration
  */
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 
 #include <stdio.h>
 #include <sys/types.h>
@@ -15,14 +14,18 @@
 #include <strings.h>
 #endif
 
+#if HAVE_PWD_H
+#include <pwd.h>
+#endif
+#if HAVE_GRP_H
+#include <grp.h>
+#endif
+
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
 #include "snmpd.h"
 #include "agentx/agentx_config.h"
 #include "agentx/protocol.h"
-
-netsnmp_feature_require(user_information)
-netsnmp_feature_require(string_time_to_secs)
 
 /* ---------------------------------------------------------------------
  *
@@ -44,6 +47,7 @@ void
 agentx_parse_master(const char *token, char *cptr)
 {
     int             i = -1;
+    char            buf[BUFSIZ];
 
     if (!strcmp(cptr, "agentx") ||
         !strcmp(cptr, "all") ||
@@ -56,7 +60,8 @@ agentx_parse_master(const char *token, char *cptr)
         i = atoi(cptr);
 
     if (i < 0 || i > 1) {
-	netsnmp_config_error("master '%s' unrecognised", cptr);
+        sprintf(buf, "master '%s' unrecognised", cptr);
+        config_perror(buf);
     } else
         netsnmp_ds_set_boolean(NETSNMP_DS_APPLICATION_ID, NETSNMP_DS_AGENT_AGENTX_MASTER, i);
 }
@@ -70,6 +75,12 @@ agentx_parse_agentx_perms(const char *token, char *cptr)
     int s_perm = -1;
     int d_perm = -1;
     char *st;
+#if HAVE_GETPWNAM && HAVE_PWD_H
+    struct passwd *pwd;
+#endif
+#if HAVE_GETGRNAM && HAVE_GRP_H
+    struct group  *grp;
+#endif
 
     DEBUGMSGTL(("agentx/config", "port permissions: %s\n", cptr));
     socket_perm = strtok_r(cptr, " \t", &st);
@@ -96,7 +107,16 @@ agentx_parse_agentx_perms(const char *token, char *cptr)
      * Try to handle numeric UIDs or user names for the socket owner
      */
     if (socket_user) {
-        uid = netsnmp_str_to_uid(socket_user);
+        uid = atoi(socket_user);
+        if ( uid == 0 ) {
+#if HAVE_GETPWNAM && HAVE_PWD_H
+            pwd = getpwnam( socket_user );
+            if (pwd)
+                uid = pwd->pw_uid;
+            else
+#endif
+                snmp_log(LOG_WARNING, "Can't identify AgentX socket user (%s).\n", socket_user);
+        }
         if ( uid != 0 )
             netsnmp_ds_set_int(NETSNMP_DS_APPLICATION_ID,
                                NETSNMP_DS_AGENT_X_SOCK_USER, uid);
@@ -108,7 +128,16 @@ agentx_parse_agentx_perms(const char *token, char *cptr)
      * and similarly for the socket group ownership
      */
     if (socket_group) {
-        gid = netsnmp_str_to_gid(socket_group);
+        gid = atoi(socket_group);
+        if ( gid == 0 ) {
+#if HAVE_GETGRNAM && HAVE_GRP_H
+            grp = getgrnam( socket_group );
+            if (grp)
+                gid = grp->gr_gid;
+            else
+#endif
+                snmp_log(LOG_WARNING, "Can't identify AgentX socket group (%s).\n", socket_group);
+        }
         if ( gid != 0 )
             netsnmp_ds_set_int(NETSNMP_DS_APPLICATION_ID,
                                NETSNMP_DS_AGENT_X_SOCK_GROUP, gid);
@@ -120,12 +149,8 @@ agentx_parse_agentx_perms(const char *token, char *cptr)
 void
 agentx_parse_agentx_timeout(const char *token, char *cptr)
 {
-    int x = netsnmp_string_time_to_secs(cptr);
+    int x = atoi(cptr);
     DEBUGMSGTL(("agentx/config/timeout", "%s\n", cptr));
-    if (x == -1) {
-        config_perror("Invalid timeout value");
-        return;
-    }
     netsnmp_ds_set_int(NETSNMP_DS_APPLICATION_ID,
                        NETSNMP_DS_AGENT_AGENTX_TIMEOUT, x * ONE_SEC);
 }
@@ -160,14 +185,11 @@ agentx_register_config_handler(const char *token,
     register_config_handler(":agentx", token, parser, releaser, help);
 }
 
-netsnmp_feature_child_of(agentx_unregister_config_handler, netsnmp_unused)
-#ifndef NETSNMP_FEATURE_REMOVE_AGENTX_UNREGISTER_CONFIG_HANDLER
 void
 agentx_unregister_config_handler(const char *token)
 {
     unregister_config_handler(":agentx", token);
 }
-#endif /* NETSNMP_FEATURE_REMOVE_AGENTX_UNREGISTER_CONFIG_HANDLER */
 
 void
 agentx_config_init(void)
@@ -180,8 +202,10 @@ agentx_config_init(void)
      */
     netsnmp_register_default_domain("agentx", "unix tcp");
     netsnmp_register_default_target("agentx", "unix", NETSNMP_AGENTX_SOCKET);
+#define val(x) __STRING(x)
     netsnmp_register_default_target("agentx", "tcp",
-                                    "localhost:" __STRING(AGENTX_PORT));
+                                    "localhost:" val(AGENTX_PORT));
+#undef val
     agentx_register_config_handler("agentxsocket",
                                   agentx_parse_agentx_socket, NULL,
                                   "AgentX bind address");

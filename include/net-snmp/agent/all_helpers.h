@@ -32,7 +32,6 @@ extern          "C" {
 #include <net-snmp/agent/table_array.h> 
 
 #include <net-snmp/agent/mfd.h>
-#include <net-snmp/agent/snmp_get_statistic.h>
 
 
 void            netsnmp_init_helpers(void);

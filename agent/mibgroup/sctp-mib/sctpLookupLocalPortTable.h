@@ -13,7 +13,6 @@
 void            init_sctpLookupLocalPortTable(void);
 void            shutdown_sctpLookupLocalPortTable(void);
 void            initialize_table_sctpLookupLocalPortTable(void);
-void            shutdown_table_sctpLookupLocalPortTable(void);
 Netsnmp_Node_Handler sctpLookupLocalPortTable_handler;
 
 /*

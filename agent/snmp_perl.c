@@ -1,7 +1,3 @@
-#if defined(_WIN32) && !defined(_WIN32_WINNT)
-#define _WIN32_WINNT 0x501
-#endif
-
 #include <EXTERN.h>
 #include "perl.h"
 
@@ -9,14 +5,12 @@
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
 
-#include "snmp_perl.h"
-
 static PerlInterpreter *my_perl;
 
-void            boot_DynaLoader(pTHX_ CV * cv);
+void            boot_DynaLoader(CV * cv);
 
 void
-xs_init(pTHX)
+xs_init(void)
 {
     char            myfile[] = __FILE__;
     char            modulename[] = "DynaLoader::boot_DynaLoader";
@@ -29,14 +23,10 @@ xs_init(pTHX)
 void
 maybe_source_perl_startup(void)
 {
-    int             argc;
-    char          **argv;
-    char          **env;
-    char           *embedargs[] = { NULL, NULL };
+    const char     *embedargs[] = { "", "" };
     const char     *perl_init_file = netsnmp_ds_get_string(NETSNMP_DS_APPLICATION_ID,
 							   NETSNMP_DS_AGENT_PERL_INIT_FILE);
     char            init_file[SNMP_MAXBUF];
-    int             res;
 
     static int      have_done_init = 0;
 
@@ -44,58 +34,31 @@ maybe_source_perl_startup(void)
         return;
     have_done_init = 1;
 
-    embedargs[0] = strdup("");
     if (!perl_init_file) {
         snprintf(init_file, sizeof(init_file) - 1,
                  "%s/%s", SNMPSHAREPATH, "snmp_perl.pl");
         perl_init_file = init_file;
     }
-    embedargs[1] = strdup(perl_init_file);
+    embedargs[1] = perl_init_file;
 
     DEBUGMSGTL(("perl", "initializing perl (%s)\n", embedargs[1]));
-    argc = 0;
-    argv = NULL;
-    env = NULL;
-    PERL_SYS_INIT3(&argc, &argv, &env);
     my_perl = perl_alloc();
-    if (!my_perl) {
-        snmp_log(LOG_ERR,
-                 "embedded perl support failed to initialize (perl_alloc())\n");
+    if (!my_perl)
         goto bail_out;
-    }
 
     perl_construct(my_perl);
-
-#ifdef PERL_EXIT_DESTRUCT_END
-    PL_exit_flags |= PERL_EXIT_DESTRUCT_END;
-#endif
-
-    res = perl_parse(my_perl, xs_init, 2, embedargs, NULL);
-    if (res) {
-        snmp_log(LOG_ERR,
-                 "embedded perl support failed to initialize (perl_parse(%s)"
-                 " returned %d)\n", embedargs[1], res);
+    if (perl_parse(my_perl, xs_init, 2, (char **) embedargs, NULL))
         goto bail_out;
-    }
 
-    res = perl_run(my_perl);
-    if (res) {
-        snmp_log(LOG_ERR,
-                 "embedded perl support failed to initialize (perl_run()"
-                 " returned %d)\n", res);
+    if (perl_run(my_perl))
         goto bail_out;
-    }
-
-    free(embedargs[0]);
-    free(embedargs[1]);
 
     DEBUGMSGTL(("perl", "done initializing perl\n"));
 
     return;
 
   bail_out:
-    free(embedargs[0]);
-    free(embedargs[1]);
+    snmp_log(LOG_ERR, "embedded perl support failed to initialize\n");
     netsnmp_ds_set_boolean(NETSNMP_DS_APPLICATION_ID, 
 			   NETSNMP_DS_AGENT_DISABLE_PERL, 1);
     return;
@@ -175,12 +138,11 @@ void
 shutdown_perl(void)
 {
     if (netsnmp_ds_get_boolean(NETSNMP_DS_APPLICATION_ID, 
-			       NETSNMP_DS_AGENT_DISABLE_PERL) ||
-        my_perl == NULL) {
+			       NETSNMP_DS_AGENT_DISABLE_PERL)) {
         return;
     }
     DEBUGMSGTL(("perl", "shutting down perl\n"));
     perl_destruct(my_perl);
-    my_perl = NULL;
+    perl_free(my_perl);
     DEBUGMSGTL(("perl", "finished shutting down perl\n"));
 }

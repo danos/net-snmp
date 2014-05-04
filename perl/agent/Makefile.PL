@@ -30,13 +30,14 @@ sub InitMakeParams {
     }
                                    
     my ($snmp_lib, $snmp_llib, $sep);
-    if (($Config{'osname'} eq 'MSWin32' && $ENV{'OSTYPE'} eq '')) {
+    if (($Config{'osname'} eq 'MSWin32' && $ENV{'OSTYPE'} ne 'msys')) {
       $opts = NetSNMPGetOpts();	
-      $Params{'DEFINE'} = "-DMSVC_PERL -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS";
+      $Params{'DEFINE'} = "-DMSVC_PERL";
       $sep = '\\';
       $snmp_lib_file = 'netsnmp.lib';
       $snmp_link_lib = 'netsnmp';
       $agent_link_lib = 'netsnmpagent';
+      $helpers_link_lib = 'netsnmphelpers';
       $mibs_link_lib = 'netsnmpmibs';
 
       if (lc($opts->{'debug'}) eq "true") {
@@ -47,7 +48,7 @@ sub InitMakeParams {
       }
     
       if (lc($opts->{'insource'}) eq "true") {
-	$Params{'LIBS'} = "-L$basedir\\win32\\$lib_dir\\ -l$snmp_link_lib -l$agent_link_lib " .
+	$Params{'LIBS'} = "-L$basedir\\win32\\$lib_dir\\ -l$snmp_link_lib -l$agent_link_lib -l$helpers_link_lib " .
                 "-l$mibs_link_lib";
       }
       else {
@@ -71,7 +72,7 @@ sub InitMakeParams {
 	    $LibDirs[0] =~ s/\\$//;
 	  }
 	}
-	$Params{LIBS} = "-L$LibDir -l$snmp_link_lib -l$agent_link_lib -l$mibs_link_lib";
+	$Params{LIBS} = "-L$LibDir -l$snmp_link_lib -l$agent_link_lib -l$helpers_link_lib -l$mibs_link_lib";
       }
 
       $Params{'INC'} = "-I$basedir\\include\\ -I$basedir\\include\\net-snmp\\ -I$basedir\\win32\\ ";
@@ -86,7 +87,7 @@ sub InitMakeParams {
 	$Params{'CCFLAGS'} .= " " . $Config{'ccflags'};
         $lib_version = `$opts->{'nsconfig'} --version`;
 	if (lc($opts->{'insource'}) eq "true") {
-	    $Params{'LIBS'} = "-L../../snmplib/.libs -L../../snmplib/ -L../../agent/.libs -L../../agent/ " . $Params{'LIBS'};
+	    $Params{'LIBS'} = "-L../../snmplib/.libs -L../../snmplib/ -L../../agent/.libs -L../../agent/ -L../../agent/helpers/.libs -L../../agent/helpers/ " . $Params{'LIBS'};
 	    $Params{'CCFLAGS'} = "-I../../include " . $Params{'CCFLAGS'};
 #	} else {
 	    $Params{'LIBS'} = `$opts->{'nsconfig'} --libdir` . $Params{'LIBS'};
@@ -108,7 +109,7 @@ sub NetSNMPGetOpts {
     $rootpath = "../" if (!$rootpath);
     $rootpath .= '/' if ($rootpath !~ /\/$/);
     
-    if (($Config{'osname'} eq 'MSWin32' && $ENV{'OSTYPE'} eq '')) {
+    if (($Config{'osname'} eq 'MSWin32' && $ENV{'OSTYPE'} ne 'msys')) {
 
       # Grab command line options first.  Only used if environment variables are not set
       GetOptions("NET-SNMP-IN-SOURCE=s" => \$ret{'insource'},
@@ -191,7 +192,7 @@ sub find_files {
 
 
 sub Check_Version {
-  if (($Config{'osname'} ne 'MSWin32' || $ENV{'OSTYPE'} ne '')) {
+  if (($Config{'osname'} ne 'MSWin32' || $ENV{'OSTYPE'} eq 'msys')) {
     my $foundversion = 0;
     return if ($ENV{'NETSNMP_DONT_CHECK_VERSION'});
     open(I,"<Makefile");

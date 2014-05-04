@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 void            init_data_set(void);
-void            shutdown_data_set(void);
 
 
 #ifdef __cplusplus

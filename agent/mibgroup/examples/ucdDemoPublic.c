@@ -13,7 +13,11 @@
 #endif
 
 #if TIME_WITH_SYS_TIME
-# include <sys/time.h>
+# ifdef WIN32
+#  include <sys/timeb.h>
+# else
+#  include <sys/time.h>
+# endif
 # include <time.h>
 #else
 # if HAVE_SYS_TIME_H
@@ -23,11 +27,14 @@
 # endif
 #endif
 
+#if HAVE_WINSOCK_H
+#include <winsock.h>
+#endif
+
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
-#include <net-snmp/library/tools.h>
 
-#include "util_funcs/header_generic.h"
+#include "util_funcs.h"
 #include "ucdDemoPublic.h"
 
 #define MYMAX 1024
@@ -65,14 +72,11 @@ ucdDemo_parse_userpass(const char *word, char *line)
  */
 
 struct variable2 ucdDemoPublic_variables[] = {
-    {UCDDEMORESETKEYS, ASN_INTEGER, NETSNMP_OLDAPI_RWRITE,
-     var_ucdDemoPublic, 1, {1}},
-    {UCDDEMOPUBLICSTRING, ASN_OCTET_STR, NETSNMP_OLDAPI_RWRITE,
-     var_ucdDemoPublic, 1, {2}},
-    {UCDDEMOUSERLIST, ASN_OCTET_STR, NETSNMP_OLDAPI_RWRITE,
-     var_ucdDemoPublic, 1, {3}},
-    {UCDDEMOPASSPHRASE, ASN_OCTET_STR, NETSNMP_OLDAPI_RWRITE,
-     var_ucdDemoPublic, 1, {4}},
+    {UCDDEMORESETKEYS, ASN_INTEGER, RWRITE, var_ucdDemoPublic, 1, {1}},
+    {UCDDEMOPUBLICSTRING, ASN_OCTET_STR, RWRITE, var_ucdDemoPublic, 1,
+     {2}},
+    {UCDDEMOUSERLIST, ASN_OCTET_STR, RWRITE, var_ucdDemoPublic, 1, {3}},
+    {UCDDEMOPASSPHRASE, ASN_OCTET_STR, RWRITE, var_ucdDemoPublic, 1, {4}},
 
 };
 
@@ -125,7 +129,7 @@ var_ucdDemoPublic(struct variable *vp,
 
     case UCDDEMOPUBLICSTRING:
         *write_method = write_ucdDemoPublicString;
-        *var_len = strlen((const char*)publicString);
+        *var_len = strlen(publicString);
         return (unsigned char *) publicString;
 
     case UCDDEMOUSERLIST:
@@ -214,9 +218,16 @@ write_ucdDemoPublicString(int action,
         return SNMP_ERR_WRONGLENGTH;
     }
     if (action == COMMIT) {
-        sprintf((char*) publicString, "%.*s",
-                (int) SNMP_MIN(sizeof(publicString) - 1, var_val_len),
-                (const char*) var_val);
+        if (var_val_len != 0) {
+            strncpy(publicString, var_val, sizeof(publicString)-1);
+            /* some sanity checks */
+            if (strlen(var_val) > sizeof(publicString)-1 ||
+                    strlen(var_val) != var_val_len)
+                publicString[sizeof(publicString)-1] = '\0';
+            else
+                publicString[var_val_len] = '\0';
+        } else
+            publicString[0] = '\0';
     }
     return SNMP_ERR_NOERROR;
 }

@@ -1,7 +1,3 @@
-.\" -*- nroff -*-
-.\" Portions of this file are subject to the following copyright.  See
-.\" the Net-SNMP COPYING file for more details and other copyrights
-.\" that may apply:
 .\" /***********************************************************
 .\" 	Copyright 1988, 1989 by Carnegie Mellon University
 .\" 
@@ -23,12 +19,13 @@
 .\" ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
 .\" SOFTWARE.
 .\" ******************************************************************/
-.TH SNMPGETNEXT 1 "04 Mar 2002" VVERSIONINFO "Net-SNMP"
+.TH SNMPGETNEXT 1 "08 Feb 2002" VVERSIONINFO "Net-SNMP"
+.UC 4
 .SH NAME
 snmpgetnext - communicates with a network entity using SNMP GETNEXT requests
 .SH SYNOPSIS
 .B snmpgetnext
-[COMMON OPTIONS] [\-Cf] AGENT OID [OID]...
+[COMMON OPTIONS] [-Cf] OID [OID]...
 .SH DESCRIPTION
 .B snmpget
 is an SNMP application that uses the SNMP GETNEXT request to query for
@@ -41,7 +38,7 @@ remote entity's MIB will be returned.
 .PP
 For example:
 .PP
-snmpgetnext \-c public zeus interfaces.ifTable.ifEntry.ifType.1
+snmpgetnext -c public zeus interfaces.ifTable.ifEntry.ifType.1
 .PP
 will retrieve the variable interfaces.ifTable.ifEntry.ifType.2:
 .PP
@@ -50,28 +47,14 @@ interfaces.ifTable.ifEntry.ifType.2 = softwareLoopback(24)
 If the network entity has an error processing the request packet, an
 error message will be shown, helping to pinpoint in what way the
 request was malformed.
-.SH "OPTIONS"
-.TP 8
-.B \-Cf
-If
-.B \-Cf
-is
-.I not
-specified, some applications
-.RB ( snmpdelta ", " snmpget ", " snmpgetnext " and " snmpstatus )
-will try to fix errors returned by the agent that you were talking to
-and resend the request.  The only time this is really useful is if you
-specified a OID that didn't exist in your request and you're using
-SNMPv1 which requires "all or nothing" kinds of requests.
-.PP
-In addition to this option,
+.SH OPTIONS
 .B snmpgetnext
 takes the common options described in the
 .I snmpcmd(1)
+manual page and also the
+.B -Cf
+option described in the
+.I snmpget(1)
 manual page.
-Note that 
-.B snmpgetnext
-REQUIRES an argument specifying the agent to query
-and at least one OID argument, as described there.
 .SH "SEE ALSO"
 snmpcmd(1), snmpget(1), variables(5).

@@ -1,7 +1,7 @@
 /*
  * ioctl interface data access header
  *
- * $Id$
+ * $Id: interface_ioctl.h 13309 2005-10-29 03:30:43Z rstory $
  */
 #ifndef NETSNMP_ACCESS_INTERFACE_IOCTL_H
 #define NETSNMP_ACCESS_INTERFACE_IOCTL_H

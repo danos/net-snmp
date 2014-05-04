@@ -1,4 +1,5 @@
 .TH tkmib "1" "16 Nov 2006" VVERSIONINFO "Net-SNMP"
+.UC 5
 .SH NAME
 tkmib - an interactive graphical MIB browser for SNMP
 .SH SYNOPSIS

@@ -7,8 +7,6 @@
 
 #include "mibdefs.h"
 
-config_require(util_funcs/header_simple_table)
-
 void            init_file(void);
 
 /*

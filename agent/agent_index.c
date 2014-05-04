@@ -8,7 +8,6 @@
 
 
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 #include <signal.h>
 #if HAVE_STRING_H
 #include <string.h>
@@ -19,8 +18,15 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <fcntl.h>
+#if HAVE_WINSOCK_H
+#include <winsock.h>
+#endif
 #if TIME_WITH_SYS_TIME
-# include <sys/time.h>
+# ifdef WIN32
+#  include <sys/timeb.h>
+# else
+#  include <sys/time.h>
+# endif
 # include <time.h>
 #else
 # if HAVE_SYS_TIME_H
@@ -48,10 +54,6 @@
 #include "agentx/subagent.h"
 #include "agentx/client.h"
 #endif
-
-netsnmp_feature_child_of(agent_index_all, libnetsnmpagent)
-
-netsnmp_feature_child_of(remove_index, agent_index_all)
 
         /*
          * Initial support for index allocation
@@ -91,11 +93,7 @@ register_string_index(oid * name, size_t name_len, char *cp)
     if (res == NULL) {
         return NULL;
     } else {
-        char *rv = (char *)malloc(res->val_len + 1);
-        if (rv) {
-            memcpy(rv, res->val.string, res->val_len);
-            rv[res->val_len] = 0;
-        }
+        char           *rv = strdup(res->val.string);
         free(res);
         return rv;
     }
@@ -166,7 +164,7 @@ register_index(netsnmp_variable_list * varbind, int flags,
 
     DEBUGMSGTL(("register_index", "register "));
     DEBUGMSGVAR(("register_index", varbind));
-    DEBUGMSG(("register_index", "for session %8p\n", ss));
+    DEBUGMSG(("register_index", "for session %08p\n", ss));
 
 #if defined(USING_AGENTX_SUBAGENT_MODULE) && !defined(TESTING)
     if (netsnmp_ds_get_boolean(NETSNMP_DS_APPLICATION_ID, 
@@ -304,12 +302,12 @@ register_index(netsnmp_variable_list * varbind, int flags,
     if (new_index == NULL)
         return NULL;
 
-    if (NULL == snmp_varlist_add_variable(&new_index->varbind,
-                                          varbind->name,
-                                          varbind->name_length,
-                                          varbind->type,
-                                          varbind->val.string,
-                                          varbind->val_len)) {
+    if (0 == snmp_varlist_add_variable(&new_index->varbind,
+                                       varbind->name,
+                                       varbind->name_length,
+                                       varbind->type,
+                                       varbind->val.string,
+                                       varbind->val_len)) {
         /*
          * if (snmp_clone_var( varbind, new_index->varbind ) != 0 ) 
          */
@@ -456,16 +454,12 @@ register_index(netsnmp_variable_list * varbind, int flags,
          * Release an allocated index,
          *   to allow it to be used elsewhere
          */
-netsnmp_feature_child_of(release_index,netsnmp_unused)
-#ifndef NETSNMP_FEATURE_REMOVE_RELEASE_INDEX
 int
 release_index(netsnmp_variable_list * varbind)
 {
     return (unregister_index(varbind, TRUE, NULL));
 }
-#endif /* NETSNMP_FEATURE_REMOVE_RELEASE_INDEX */
 
-#ifndef NETSNMP_FEATURE_REMOVE_REMOVE_INDEX
         /*
          * Completely remove an allocated index,
          *   due to errors in the registration process.
@@ -475,7 +469,6 @@ remove_index(netsnmp_variable_list * varbind, netsnmp_session * ss)
 {
     return (unregister_index(varbind, FALSE, ss));
 }
-#endif /* NETSNMP_FEATURE_REMOVE_REMOVE_INDEX */
 
 void
 unregister_index_by_session(netsnmp_session * ss)
@@ -578,8 +571,6 @@ unregister_index(netsnmp_variable_list * varbind, int remember,
     return SNMP_ERR_NOERROR;
 }
 
-netsnmp_feature_child_of(unregister_indexes,netsnmp_unused)
-#ifndef NETSNMP_FEATURE_REMOVE_UNREGISTER_INDEXES
 int
 unregister_string_index(oid * name, size_t name_len, char *cp)
 {
@@ -619,7 +610,6 @@ unregister_oid_index(oid * name, size_t name_len,
                        value_len * sizeof(oid));
     return (unregister_index(&varbind, FALSE, main_session));
 }
-#endif /* NETSNMP_FEATURE_REMOVE_UNREGISTER_INDEXES */
 
 void
 dump_idx_registry(void)
@@ -685,8 +675,6 @@ dump_idx_registry(void)
     }
 }
 
-netsnmp_feature_child_of(count_indexes, netsnmp_unused)
-#ifndef NETSNMP_FEATURE_REMOVE_UNUSED
 unsigned long
 count_indexes(oid * name, size_t namelen, int include_unallocated)
 {
@@ -706,7 +694,7 @@ count_indexes(oid * name, size_t namelen, int include_unallocated)
     }
     return n;
 }
-#endif /* NETSNMP_FEATURE_REMOVE_UNUSED */
+
 
 #ifdef TESTING
 netsnmp_variable_list varbind;

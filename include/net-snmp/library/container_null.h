@@ -10,7 +10,6 @@ extern "C" {
 
 netsnmp_container *netsnmp_container_get_null(void);
 
-    NETSNMP_IMPORT
     void netsnmp_container_null_init(void);
 
 

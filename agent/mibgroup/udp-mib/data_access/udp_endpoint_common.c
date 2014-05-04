@@ -1,10 +1,9 @@
 /*
  *  UDP-MIB endpoint architecture support
  *
- * $Id$
+ * $Id: udp_endpoint_common.c 13920 2005-12-11 17:55:01Z rstory $
  */
 #include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-features.h>
 #include <net-snmp/net-snmp-includes.h>
 #include "udp-mib/udpEndpointTable/udpEndpointTable_constants.h"
 
@@ -13,10 +12,6 @@
 #include <net-snmp/data_access/udp_endpoint.h>
 
 #include "udp_endpoint_private.h"
-
-netsnmp_feature_child_of(udp_endpoint_common, libnetsnmpmibs)
-
-netsnmp_feature_child_of(udp_endpoint_entry_create, udp_endpoint_common)
 
 /**---------------------------------------------------------------------*/
 /*
@@ -28,6 +23,11 @@ netsnmp_feature_child_of(udp_endpoint_entry_create, udp_endpoint_common)
 /*
  * initialization
  */
+
+void
+netsnmp_access_udp_endpoint_init(void)
+{
+}
 
 /**---------------------------------------------------------------------*/
 /*
@@ -105,8 +105,7 @@ netsnmp_access_udp_endpoint_container_free(netsnmp_container *container,
          * free all items.
          */
         CONTAINER_CLEAR(container,
-                        (netsnmp_container_obj_func*)
-                        netsnmp_access_udp_endpoint_entry_free,
+                        (netsnmp_container_obj_func*)free,
                         NULL);
     }
 
@@ -120,7 +119,6 @@ netsnmp_access_udp_endpoint_container_free(netsnmp_container *container,
  */
 /**
  */
-#ifndef NETSNMP_FEATURE_REMOVE_UDP_ENDPOINT_ENTRY_CREATE
 netsnmp_udp_endpoint_entry *
 netsnmp_access_udp_endpoint_entry_create(void)
 {
@@ -137,7 +135,6 @@ netsnmp_access_udp_endpoint_entry_create(void)
 
     return entry;
 }
-#endif /* NETSNMP_FEATURE_REMOVE_UDP_ENDPOINT_ENTRY_CREATE */
 
 /**
  */
@@ -156,3 +153,23 @@ netsnmp_access_udp_endpoint_entry_free(netsnmp_udp_endpoint_entry * entry)
 
     free(entry);
 }
+
+
+/**---------------------------------------------------------------------*/
+/*
+ * Utility routines
+ */
+
+/**
+ * \internal
+ */
+static void
+_entry_release(netsnmp_udp_endpoint_entry * entry, void *context)
+{
+    netsnmp_access_udp_endpoint_entry_free(entry);
+}
+
+/**---------------------------------------------------------------------*/
+/*
+ *
+ */

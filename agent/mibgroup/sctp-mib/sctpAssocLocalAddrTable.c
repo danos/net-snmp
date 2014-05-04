@@ -13,7 +13,6 @@
  * content of the sctpAssocLocalAddrTable 
  */
 static netsnmp_container *sctpAssocLocalAddrTable_container;
-static netsnmp_table_registration_info *table_info;
 
 /** Initializes the sctpAssocLocalAddrTable module */
 void
@@ -28,7 +27,8 @@ init_sctpAssocLocalAddrTable(void)
 void
 shutdown_sctpAssocLocalAddrTable(void)
 {
-    shutdown_table_sctpAssocLocalAddrTable();
+    sctpAssocLocalAddrTable_container_clear
+        (sctpAssocLocalAddrTable_container);
 }
 
 /** Initialize the sctpAssocLocalAddrTable table by defining its contents and how it's structured */
@@ -42,6 +42,7 @@ initialize_table_sctpAssocLocalAddrTable(void)
     netsnmp_handler_registration *reg = NULL;
     netsnmp_mib_handler *handler = NULL;
     netsnmp_container *container = NULL;
+    netsnmp_table_registration_info *table_info = NULL;
 
     reg =
         netsnmp_create_handler_registration("sctpAssocLocalAddrTable",
@@ -102,7 +103,6 @@ initialize_table_sctpAssocLocalAddrTable(void)
     if (SNMPERR_SUCCESS != netsnmp_register_table(reg, table_info)) {
         snmp_log(LOG_ERR,
                  "error registering table handler for sctpAssocLocalAddrTable\n");
-        reg = NULL; /* it was freed inside netsnmp_register_table */
         goto bail;
     }
 
@@ -121,25 +121,11 @@ initialize_table_sctpAssocLocalAddrTable(void)
     if (handler)
         netsnmp_handler_free(handler);
 
-    if (table_info)
-        netsnmp_table_registration_info_free(table_info);
-
     if (container)
         CONTAINER_FREE(container);
 
     if (reg)
         netsnmp_handler_registration_free(reg);
-}
-
-void
-shutdown_table_sctpAssocLocalAddrTable(void)
-{
-    if (table_info) {
-        netsnmp_table_registration_info_free(table_info);
-	table_info = NULL;
-    }
-    sctpAssocLocalAddrTable_container_clear
-        (sctpAssocLocalAddrTable_container);
 }
 
 /** handles requests for the sctpAssocLocalAddrTable table */
@@ -274,7 +260,8 @@ sctpAssocLocalAddrTable_entry_copy(sctpAssocLocalAddrTable_entry * from,
 void
 sctpAssocLocalAddrTable_entry_free(sctpAssocLocalAddrTable_entry * entry)
 {
-    SNMP_FREE(entry);
+    if (entry != NULL)
+        SNMP_FREE(entry);
 }
 
 netsnmp_container *

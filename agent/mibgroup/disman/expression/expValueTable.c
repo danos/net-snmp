@@ -76,29 +76,21 @@ struct variable2 expValueTable_variables[] = {
      * magic number        , variable type , ro/rw , callback fn  , L, oidsuffix 
      */
 #define	EXPVALUECOUNTER32VAL 2
-    {EXPVALUECOUNTER32VAL,  ASN_COUNTER,  NETSNMP_OLDAPI_RONLY,
-     var_expValueTable, 2, {1, 2}},
+    {EXPVALUECOUNTER32VAL,  ASN_COUNTER,  RONLY, var_expValueTable, 2, {1, 2}},
 #define	EXPVALUEUNSIGNED32VAL 3
-    {EXPVALUEUNSIGNED32VAL, ASN_UNSIGNED, NETSNMP_OLDAPI_RONLY,
-     var_expValueTable, 2, {1, 3}},
+    {EXPVALUEUNSIGNED32VAL, ASN_UNSIGNED, RONLY, var_expValueTable, 2, {1, 3}},
 #define	EXPVALUETIMETICKSVAL 4
-    {EXPVALUETIMETICKSVAL,  ASN_UNSIGNED, NETSNMP_OLDAPI_RONLY,
-     var_expValueTable, 2, {1, 4}},
+    {EXPVALUETIMETICKSVAL,  ASN_UNSIGNED, RONLY, var_expValueTable, 2, {1, 4}},
 #define	EXPVALUEINTEGER32VAL 5
-    {EXPVALUEINTEGER32VAL,  ASN_INTEGER,  NETSNMP_OLDAPI_RONLY,
-     var_expValueTable, 2, {1, 5}},
+    {EXPVALUEINTEGER32VAL,  ASN_INTEGER,  RONLY, var_expValueTable, 2, {1, 5}},
 #define	EXPVALUEIPADDRESSVAL 6
-    {EXPVALUEIPADDRESSVAL, ASN_IPADDRESS, NETSNMP_OLDAPI_RONLY,
-     var_expValueTable, 2, {1, 6}},
+    {EXPVALUEIPADDRESSVAL, ASN_IPADDRESS, RONLY, var_expValueTable, 2, {1, 6}},
 #define	EXPVALUEOCTETSTRINGVAL 7
-    {EXPVALUEOCTETSTRINGVAL, ASN_OCTET_STR, NETSNMP_OLDAPI_RONLY,
-     var_expValueTable, 2, {1, 7}},
+    {EXPVALUEOCTETSTRINGVAL, ASN_OCTET_STR, RONLY, var_expValueTable, 2, {1, 7}},
 #define	EXPVALUEOIDVAL  8
-    {EXPVALUEOIDVAL,       ASN_OBJECT_ID, NETSNMP_OLDAPI_RONLY,
-     var_expValueTable, 2, {1, 8}},
+    {EXPVALUEOIDVAL,       ASN_OBJECT_ID, RONLY, var_expValueTable, 2, {1, 8}},
 #define	EXPVALUECOUNTER64VAL  9
-    {EXPVALUECOUNTER64VAL, ASN_INTEGER,   NETSNMP_OLDAPI_RONLY,
-     var_expValueTable, 2, {1, 9}}
+    {EXPVALUECOUNTER64VAL, ASN_INTEGER,   RONLY, var_expValueTable, 2, {1, 9}}
 };
 
 
@@ -133,7 +125,7 @@ init_expValueTable(void)
      * Initialize a "session" that defines who we're going to talk to
      */
     snmp_sess_init(&session);   /* set up defaults */
-    session.peername = strdup("localhost");
+    session.peername = "localhost";
 
     DEBUGMSGTL(("expValueTable", "done.\n"));
 }
@@ -245,6 +237,7 @@ Evaluate_Expression(struct expValueTable_data *vtable_data)
     char           *result, *resultbak;
     char           *temp, *tempbak;
     char            intchar[10];
+    int             dollar1, dollar2;
     int             i = 0, j, k, l;
     long            value;
     unsigned long   result_u_long;
@@ -272,7 +265,8 @@ Evaluate_Expression(struct expValueTable_data *vtable_data)
                     break;
                 }
             }
-            sprintf(temp, "%.*s", j - 1, expression + 1);
+            strncpy(temp, expression + 1, j - 1);
+            *(temp + j - 1) = '\0';
             l = atoi(temp);
             expression = expression + j;
             /*
@@ -321,6 +315,7 @@ Evaluate_Expression(struct expValueTable_data *vtable_data)
             }
             struct variable_list *vars;
             int             status;
+            int             count = 1;
 
             /*
              * Initialize the SNMP library
@@ -367,7 +362,7 @@ Evaluate_Expression(struct expValueTable_data *vtable_data)
 
                 vars = response->variables;
                 value = *(vars->val.integer);
-                sprintf(intchar, "%lu", value);
+                sprintf(intchar, "%u", value);
                 for (k = 1; k <= strlen(intchar); k++) {
                     *result = intchar[k - 1];
                     result++;
@@ -431,14 +426,30 @@ expValueTable_clean(void *data)
 
 
 void
-build_valuetable(void)
+build_valuetable()
 {
-    struct expExpressionTable_data *expstorage;
+    struct expExpressionTable_data *expstorage, *expfound;
     struct expObjectTable_data *objstorage, *objfound = NULL;
     struct header_complex_index *hcindex, *object_hcindex;
+    char           *owner;
+    size_t          owner_len;
+    char           *name;
+    size_t          name_len;
     char           *expression;
+    size_t          expression_len;
     oid            *index;
-    int             i = 0, j, l;
+
+
+    char           *result, *resultbak;
+    char           *temp, *tempbak;
+    int             i = 0, j, k, l;
+    temp = malloc(100);
+    result = malloc(100);
+    tempbak = temp;
+    memset(result, 0, 100);
+    *result = '\0';
+    resultbak = result;
+
 
     DEBUGMSGTL(("expValueTable", "building valuetable...  \n"));
 
@@ -447,6 +458,7 @@ build_valuetable(void)
         expstorage = (struct expExpressionTable_data *) hcindex->data;
         if (expstorage->expExpressionEntryStatus == RS_ACTIVE) {
             expression = expstorage->expExpression;
+            expression_len = expstorage->expExpressionLen;
             while (*expression != '\0') {
                 if (*expression == '$') {
                     i++;
@@ -461,12 +473,9 @@ build_valuetable(void)
                             break;
                         }
                     }
-                    {
-                        char temp[100];
-
-                        sprintf(temp, "%.*s", j - 1, expression + 1);
-                        l = atoi(temp);
-                    }
+                    strncpy(temp, expression + 1, j - 1);
+                    *(temp + j - 1) = '\0';
+                    l = atoi(temp);
                     for (object_hcindex = expObjectTableStorage;
                          object_hcindex != NULL;
                          object_hcindex = object_hcindex->next) {
@@ -484,6 +493,7 @@ build_valuetable(void)
                                 expstorage->expExpressionNameLen)
                             && (l == objstorage->expObjectIndex)) {
                             if (objfound == NULL) {
+                                expfound = expstorage;
                                 objfound = objstorage;
                             }
                             if (objstorage->expObjectIDWildcard ==
@@ -519,7 +529,9 @@ build_valuetable(void)
             oid            *next_OID;
             size_t          next_OID_len;
             taggetOID_len = objfound->expObjectIDLen;
+            struct variable_list *vars;
             int             status;
+            int             count = 1;
             struct snmp_session *ss;
             /*
              * Initialize the SNMP library
@@ -631,7 +643,12 @@ var_expValueTable(struct variable *vp,
                   int exact, size_t *var_len, WriteMethod ** write_method)
 {
 
+    static netsnmp_variable_list *vars;
+    size_t          newlen =
+        *length - (sizeof(expValueTable_variables_oid) / sizeof(oid) +
+                   3 - 1);
     struct expValueTable_data *StorageTmp = NULL;
+    unsigned int    counter32;
 
 
 
@@ -706,7 +723,6 @@ var_expValueTable(struct variable *vp,
         return NULL;
     default:
         ERROR_MSG("");
-	return NULL;
     }
 }
 
@@ -776,7 +792,6 @@ calculate(int operater, unsigned long a, unsigned long b)
         } else
             return (a / b);
     }
-    return 0;
 }
 
 unsigned long

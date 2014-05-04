@@ -31,7 +31,11 @@
 #include <sys/types.h>
 #include <stdio.h>
 #if TIME_WITH_SYS_TIME
-# include <sys/time.h>
+# ifdef WIN32
+#  include <sys/timeb.h>
+# else
+#  include <sys/time.h>
+# endif
 # include <time.h>
 #else
 # if HAVE_SYS_TIME_H
@@ -39,6 +43,10 @@
 # else
 #  include <time.h>
 # endif
+#endif
+
+#if HAVE_WINSOCK_H
+#include <winsock.h>
 #endif
 
 #if HAVE_NETINET_IN_H
@@ -54,7 +62,6 @@
 #include <net-snmp/config_api.h>
 
 #include <net-snmp/library/snmp_api.h>
-#include <net-snmp/library/tools.h>
 #include <net-snmp/library/vacm.h>
 
 static struct vacm_viewEntry *viewList = NULL, *viewScanPtr = NULL;
@@ -159,7 +166,7 @@ vacm_save_view(struct vacm_viewEntry *view, const char *token,
 }
 
 void
-vacm_parse_config_view(const char *token, const char *line)
+vacm_parse_config_view(const char *token, char *line)
 {
     struct vacm_viewEntry view;
     struct vacm_viewEntry *vptr;
@@ -169,17 +176,17 @@ vacm_parse_config_view(const char *token, const char *line)
     size_t          len;
 
     view.viewStatus = atoi(line);
-    line = skip_token_const(line);
+    line = skip_token(line);
     view.viewStorageType = atoi(line);
-    line = skip_token_const(line);
+    line = skip_token(line);
     view.viewType = atoi(line);
-    line = skip_token_const(line);
+    line = skip_token(line);
     len = sizeof(view.viewName);
     line =
         read_config_read_octet_string(line, (u_char **) & viewName, &len);
     view.viewSubtreeLen = MAX_OID_LEN;
     line =
-        read_config_read_objid_const(line, (oid **) & viewSubtree,
+        read_config_read_objid(line, (oid **) & viewSubtree,
                                &view.viewSubtreeLen);
 
     vptr =
@@ -192,10 +199,10 @@ vacm_parse_config_view(const char *token, const char *line)
     vptr->viewStatus = view.viewStatus;
     vptr->viewStorageType = view.viewStorageType;
     vptr->viewType = view.viewType;
-    viewMask = vptr->viewMask;
-    vptr->viewMaskLen = sizeof(vptr->viewMask);
+    viewMask = (u_char *) vptr->viewMask;
     line =
-        read_config_read_octet_string(line, &viewMask, &vptr->viewMaskLen);
+        read_config_read_octet_string(line, (u_char **) & viewMask,
+                                      &vptr->viewMaskLen);
 }
 
 /*
@@ -277,8 +284,7 @@ vacm_save_auth_access(struct vacm_accessEntry *access_entry,
 }
 
 char *
-_vacm_parse_config_access_common(struct vacm_accessEntry **aptr,
-                                 const char *line)
+_vacm_parse_config_access_common(struct vacm_accessEntry **aptr, char *line)
 {
     struct vacm_accessEntry access;
     char           *cPrefix = (char *) &access.contextPrefix;
@@ -286,15 +292,15 @@ _vacm_parse_config_access_common(struct vacm_accessEntry **aptr,
     size_t          len;
 
     access.status = atoi(line);
-    line = skip_token_const(line);
+    line = skip_token(line);
     access.storageType = atoi(line);
-    line = skip_token_const(line);
+    line = skip_token(line);
     access.securityModel = atoi(line);
-    line = skip_token_const(line);
+    line = skip_token(line);
     access.securityLevel = atoi(line);
-    line = skip_token_const(line);
+    line = skip_token(line);
     access.contextMatch = atoi(line);
-    line = skip_token_const(line);
+    line = skip_token(line);
     len  = sizeof(access.groupName);
     line = read_config_read_octet_string(line, (u_char **) &gName,   &len);
     len  = sizeof(access.contextPrefix);
@@ -317,11 +323,11 @@ _vacm_parse_config_access_common(struct vacm_accessEntry **aptr,
     (*aptr)->securityModel = access.securityModel;
     (*aptr)->securityLevel = access.securityLevel;
     (*aptr)->contextMatch  = access.contextMatch;
-    return NETSNMP_REMOVE_CONST(char *, line);
+    return line;
 }
 
 void
-vacm_parse_config_access(const char *token, const char *line)
+vacm_parse_config_access(const char *token, char *line)
 {
     struct vacm_accessEntry *aptr;
     char           *readView, *writeView, *notifyView;
@@ -347,7 +353,7 @@ vacm_parse_config_access(const char *token, const char *line)
 }
 
 void
-vacm_parse_config_auth_access(const char *token, const char *line)
+vacm_parse_config_auth_access(const char *token, char *line)
 {
     struct vacm_accessEntry *aptr;
     int             authtype;
@@ -359,7 +365,7 @@ vacm_parse_config_auth_access(const char *token, const char *line)
         return;
 
     authtype = atoi(line);
-    line = skip_token_const(line);
+    line = skip_token(line);
 
     view = (char *) aptr->views[authtype];
     len  = sizeof(aptr->views[authtype]);
@@ -395,7 +401,7 @@ vacm_save_group(struct vacm_groupEntry *group_entry, const char *token,
 }
 
 void
-vacm_parse_config_group(const char *token, const char *line)
+vacm_parse_config_group(const char *token, char *line)
 {
     struct vacm_groupEntry group;
     struct vacm_groupEntry *gptr;
@@ -404,11 +410,11 @@ vacm_parse_config_group(const char *token, const char *line)
     size_t          len;
 
     group.status = atoi(line);
-    line = skip_token_const(line);
+    line = skip_token(line);
     group.storageType = atoi(line);
-    line = skip_token_const(line);
+    line = skip_token(line);
     group.securityModel = atoi(line);
-    line = skip_token_const(line);
+    line = skip_token(line);
     len = sizeof(group.securityName);
     line =
         read_config_read_octet_string(line, (u_char **) & securityName,
@@ -436,21 +442,21 @@ netsnmp_view_get(struct vacm_viewEntry *head, const char *viewName,
     int count=0;
 
     glen = (int) strlen(viewName);
-    if (glen < 0 || glen > VACM_MAX_STRING)
+    if (glen < 0 || glen >= VACM_MAX_STRING)
         return NULL;
     view[0] = glen;
     strcpy(view + 1, viewName);
     for (vp = head; vp; vp = vp->next) {
         if (!memcmp(view, vp->viewName, glen + 1)
             && viewSubtreeLen >= (vp->viewSubtreeLen - 1)) {
-            int             mask = 0x80;
-            unsigned int    oidpos, maskpos = 0;
+            int             mask = 0x80, maskpos = 0;
+            int             oidpos;
             found = 1;
 
             for (oidpos = 0;
-                 found && oidpos < vp->viewSubtreeLen - 1;
+                 found && oidpos < (int) vp->viewSubtreeLen - 1;
                  oidpos++) {
-                if (mode==VACM_MODE_IGNORE_MASK || (VIEW_MASK(vp, maskpos, mask) != 0)) {
+                if (mode==VACM_MODE_IGNORE_MASK || (VIEW_MASK(vp, maskpos, mask)) != 0) {
                     if (viewSubtree[oidpos] !=
                         vp->viewSubtree[oidpos + 1])
                         found = 0;
@@ -519,7 +525,7 @@ netsnmp_view_subtree_check(struct vacm_viewEntry *head, const char *viewName,
     int             found, glen;
 
     glen = (int) strlen(viewName);
-    if (glen < 0 || glen > VACM_MAX_STRING)
+    if (glen < 0 || glen >= VACM_MAX_STRING)
         return VACM_NOTINVIEW;
     view[0] = glen;
     strcpy(view + 1, viewName);
@@ -532,15 +538,15 @@ netsnmp_view_subtree_check(struct vacm_viewEntry *head, const char *viewName,
              * subtree we are comparing against.
              */
             if (viewSubtreeLen >= (vp->viewSubtreeLen - 1)) {
-                int             mask = 0x80;
-                unsigned int    oidpos, maskpos = 0;
+                int             mask = 0x80, maskpos = 0;
+                int             oidpos;
                 found = 1;
 
                 /*
                  * check the mask
                  */
                 for (oidpos = 0;
-                     found && oidpos < vp->viewSubtreeLen - 1;
+                     found && oidpos < (int) vp->viewSubtreeLen - 1;
                      oidpos++) {
                     if (VIEW_MASK(vp, maskpos, mask) != 0) {
                         if (viewSubtree[oidpos] !=
@@ -580,15 +586,15 @@ netsnmp_view_subtree_check(struct vacm_viewEntry *head, const char *viewName,
              * response.
              */
             else {
-                int             mask = 0x80;
-                unsigned int    oidpos, maskpos = 0;
+                int             mask = 0x80, maskpos = 0;
+                int             oidpos;
                 found = 1;
 
                 /*
                  * check the mask up to the length of the provided subtree
                  */
                 for (oidpos = 0;
-                     found && oidpos < viewSubtreeLen;
+                     found && oidpos < (int) viewSubtreeLen;
                      oidpos++) {
                     if (VIEW_MASK(vp, maskpos, mask) != 0) {
                         if (viewSubtree[oidpos] !=
@@ -675,7 +681,7 @@ netsnmp_view_create(struct vacm_viewEntry **head, const char *viewName,
     int             cmp, cmp2, glen;
 
     glen = (int) strlen(viewName);
-    if (glen < 0 || glen > VACM_MAX_STRING)
+    if (glen < 0 || glen >= VACM_MAX_STRING)
         return NULL;
     vp = (struct vacm_viewEntry *) calloc(1,
                                           sizeof(struct vacm_viewEntry));
@@ -765,7 +771,7 @@ vacm_getGroupEntry(int securityModel, const char *securityName)
     int             glen;
 
     glen = (int) strlen(securityName);
-    if (glen < 0 || glen > VACM_MAX_STRING)
+    if (glen < 0 || glen >= VACM_MAX_STRING)
         return NULL;
     secname[0] = glen;
     strcpy(secname + 1, securityName);
@@ -801,7 +807,7 @@ vacm_createGroupEntry(int securityModel, const char *securityName)
     int             cmp, glen;
 
     glen = (int) strlen(securityName);
-    if (glen < 0 || glen > VACM_MAX_STRING)
+    if (glen < 0 || glen >= VACM_MAX_STRING)
         return NULL;
     gp = (struct vacm_groupEntry *) calloc(1,
                                            sizeof(struct vacm_groupEntry));
@@ -842,7 +848,6 @@ vacm_createGroupEntry(int securityModel, const char *securityName)
     return gp;
 }
 
-#ifndef NETSNMP_NO_WRITE_SUPPORT
 void
 vacm_destroyGroupEntry(int securityModel, const char *securityName)
 {
@@ -868,7 +873,6 @@ vacm_destroyGroupEntry(int securityModel, const char *securityName)
     free(vp);
     return;
 }
-#endif /* NETSNMP_NO_WRITE_SUPPORT */
 
 void
 vacm_destroyAllGroupEntries(void)
@@ -932,10 +936,10 @@ vacm_getAccessEntry(const char *groupName,
     int             glen, clen;
 
     glen = (int) strlen(groupName);
-    if (glen < 0 || glen > VACM_MAX_STRING)
+    if (glen < 0 || glen >= VACM_MAX_STRING)
         return NULL;
     clen = (int) strlen(contextPrefix);
-    if (clen < 0 || clen > VACM_MAX_STRING)
+    if (clen < 0 || clen >= VACM_MAX_STRING)
         return NULL;
 
     group[0] = glen;
@@ -984,10 +988,10 @@ vacm_createAccessEntry(const char *groupName,
     int             cmp, glen, clen;
 
     glen = (int) strlen(groupName);
-    if (glen < 0 || glen > VACM_MAX_STRING)
+    if (glen < 0 || glen >= VACM_MAX_STRING)
         return NULL;
     clen = (int) strlen(contextPrefix);
-    if (clen < 0 || clen > VACM_MAX_STRING)
+    if (clen < 0 || clen >= VACM_MAX_STRING)
         return NULL;
     vp = (struct vacm_accessEntry *) calloc(1,
                                             sizeof(struct
@@ -1040,7 +1044,6 @@ vacm_createAccessEntry(const char *groupName,
     return vp;
 }
 
-#ifndef NETSNMP_NO_WRITE_SUPPORT
 void
 vacm_destroyAccessEntry(const char *groupName,
                         const char *contextPrefix,
@@ -1072,7 +1075,6 @@ vacm_destroyAccessEntry(const char *groupName,
     free(vp);
     return;
 }
-#endif /* NETSNMP_NO_WRITE_SUPPORT */
 
 void
 vacm_destroyAllAccessEntries(void)
@@ -1146,14 +1148,12 @@ vacm_createViewEntry(const char *viewName,
                                 viewSubtreeLen);
 }
 
-#ifndef NETSNMP_NO_WRITE_SUPPORT
 void
 vacm_destroyViewEntry(const char *viewName,
                       oid * viewSubtree, size_t viewSubtreeLen)
 {
     netsnmp_view_destroy( &viewList, viewName, viewSubtree, viewSubtreeLen);
 }
-#endif /* NETSNMP_NO_WRITE_SUPPORT */
 
 void
 vacm_destroyAllViewEntries(void)

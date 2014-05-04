@@ -12,6 +12,6 @@ $var = new SNMP::Varbind([]);
 
 do {
   $val = $sess->getnext($var);
-  print SNMP::Varbind::tag($var).".".SNMP::Varbind::iid($var)." = ".
-        SNMP::Varbind::val($var)."\n";
+  print "$var->[$SNMP::Varbind::tag_f].$var->[$SNMP::Varbind::iid_f] = ",
+        "$var->[$SNMP::Varbind::val_f]\n";
 } until ($sess->{ErrorStr});

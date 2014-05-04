@@ -31,16 +31,16 @@
  */
 #include <net-snmp/net-snmp-config.h>
 
+#if !HAVE_STRTOK_R
+
 #ifndef WIN32
 #include <sys/cdefs.h>
 #endif
 
 #include <string.h>
 
-#include <net-snmp/library/system.h>
-
 /*
- * thread-safe version of strtok
+ * thread-save version of strtok
  */
 char *
 strtok_r(char *s, const char *delim, char **lasts)
@@ -50,8 +50,8 @@ strtok_r(char *s, const char *delim, char **lasts)
 	char *tok;
 
 	/* s may be NULL */
-	/*netsnmp_assert(delim != NULL);*/
-	/*netsnmp_assert(lasts != NULL);*/
+	/*assert(delim != NULL);*/
+	/*assert(lasts != NULL);*/
 
 	if (s == NULL && (s = *lasts) == NULL)
 		return (NULL);
@@ -92,3 +92,4 @@ cont:
 	}
 	/* NOTREACHED */
 }
+#endif                          /* !HAVE_STRTOK_R */
