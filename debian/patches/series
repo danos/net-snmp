@@ -24,3 +24,5 @@ fix_manpage-has-errors-from-man.patch
 agentx-crash.patch
 TrapReceiver.patch
 ifmib.patch
+Fix-kfreebsd-builds-with-kernel-headers-10.patch
+fix-request-id-0.patch

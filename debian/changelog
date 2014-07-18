@@ -1,3 +1,21 @@
+net-snmp (5.7.2.1~dfsg-6.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Fix "hardcodes /usr/lib/perl5":
+    Make debian/libsnmp-perl.install executable and use $Config{vendorarch} to
+    get the perl library directory. Patch from Niko Tyni.
+    (Closes: #751918)
+  * Fix "FTBFS on kfreebsd-amd64 - 'struct kinfo_proc' has no member
+    named 'kp_eproc'":
+    Add patch from Niko Tyni which fixes a DEFINE that changed between
+    kfreebsd-kernel-headers 9 and 10.
+    (Closes: #753144)
+  * Fix "snmpd: Memory leak when SNMP GET request id is zero":
+    add patch from upstream bug, prepared by Roland Stigge.
+    (Closes: #746225)
+
+ -- gregor herrmann <gregoa@debian.org>  Fri, 18 Jul 2014 14:48:18 +0200
+
 net-snmp (5.7.2.1~dfsg-6) unstable; urgency=medium
 
   * debian/{snmpd.conf,patches/add_rocommunity6.patch}
