@@ -5,6 +5,9 @@ net-snmp (5.7.2.1~dfsg-6) unstable; urgency=medium
       (Closes: #746399)
   * debian/control
     - libsnmp-dev: add "Depends: libpci-dev" (Closes: #744023)
+  * debian/patches
+    - add CVE-2014-3565.patch taken from upstream to fix CVE-2014-3565
+      (Closes: #760132)
 
  -- Hideki Yamane <henrich@debian.org>  Sun, 04 May 2014 10:55:05 +0900
 
