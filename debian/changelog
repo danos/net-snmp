@@ -2,6 +2,8 @@ net-snmp (5.7.3+dfsg-1) UNRELEASED; urgency=medium
 
   * Imported Upstream version 5.7.3+dfsg
   * refresh debian/patches and drop unnecessary patches from upstream
+  * debian/control
+    - set Standards-Version: 3.9.6
 
  -- Hideki Yamane <henrich@debian.org>  Tue, 28 Apr 2015 20:06:08 +0900
 
