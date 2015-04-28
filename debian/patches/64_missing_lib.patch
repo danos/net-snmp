@@ -1,7 +1,5 @@
-Index: net-snmp-5.7.2~dfsg/apps/Makefile.in
-===================================================================
---- net-snmp-5.7.2~dfsg.orig/apps/Makefile.in	2012-10-09 22:28:58.000000000 +0000
-+++ net-snmp-5.7.2~dfsg/apps/Makefile.in	2013-01-14 05:56:10.000000000 +0000
+--- a/apps/Makefile.in
++++ b/apps/Makefile.in
 @@ -83,6 +83,8 @@
  USEAGENTLIBS	= $(MIBLIB) $(AGENTLIB) $(USELIBS)
  MYSQL_LIBS	= @MYSQL_LIBS@
@@ -29,10 +27,8 @@ Index: net-snmp-5.7.2~dfsg/apps/Makefile.in
  
  snmpvacm$(EXEEXT):    snmpvacm.$(OSUFFIX) $(USELIBS)
  	$(LINK) ${CFLAGS} -o $@ snmpvacm.$(OSUFFIX) ${LDFLAGS} ${LIBS}
-Index: net-snmp-5.7.2~dfsg/configure.ac
-===================================================================
---- net-snmp-5.7.2~dfsg.orig/configure.ac	2012-10-09 22:28:58.000000000 +0000
-+++ net-snmp-5.7.2~dfsg/configure.ac	2013-01-14 05:56:44.894900017 +0000
+--- a/configure.ac
++++ b/configure.ac
 @@ -78,6 +78,9 @@
  
  AC_SUBST(PARTIALTARGETFLAGS)

@@ -10,7 +10,7 @@ Applied-Upstream: http://sourceforge.net/p/net-snmp/patches/1040/
 
 --- a/snmplib/snmp_api.c
 +++ b/snmplib/snmp_api.c
-@@ -4998,6 +4998,9 @@
+@@ -5025,6 +5025,9 @@
          /*
           * No response expected...  
           */

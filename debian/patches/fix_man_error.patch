@@ -11,10 +11,8 @@ Origin: vendor
 Forwarded: no
 Last-Update: 2013-01-26
 
-Index: net-snmp-5.7.2~dfsg/man/mib2c.conf.5.in
-===================================================================
---- net-snmp-5.7.2~dfsg.orig/man/mib2c.conf.5.in	2013-01-26 19:04:05.000000000 +0900
-+++ net-snmp-5.7.2~dfsg/man/mib2c.conf.5.in	2013-01-26 19:04:05.000000000 +0900
+--- a/man/mib2c.conf.5.in
++++ b/man/mib2c.conf.5.in
 @@ -1,6 +1,6 @@
  .TH MIB2C.CONF 5 "28 Apr 2004" VVERSIONINFO "Net-SNMP"
  .SH NAME

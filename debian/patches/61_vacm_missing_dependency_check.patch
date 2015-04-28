@@ -5,10 +5,8 @@ http://net-snmp.git.sourceforge.net/git/gitweb.cgi?p=net-snmp/net-snmp;a=commitd
 
 However, it isn't applied newest 5.7.2 source tree... why?
 
-Index: net-snmp-5.7.2~dfsg/apps/snmptrapd_auth.c
-===================================================================
---- net-snmp-5.7.2~dfsg.orig/apps/snmptrapd_auth.c	2013-01-23 11:40:36.267276110 +0900
-+++ net-snmp-5.7.2~dfsg/apps/snmptrapd_auth.c	2013-01-23 11:40:36.263276099 +0900
+--- a/apps/snmptrapd_auth.c
++++ b/apps/snmptrapd_auth.c
 @@ -27,6 +27,7 @@
  #endif
  
@@ -17,10 +15,8 @@ Index: net-snmp-5.7.2~dfsg/apps/snmptrapd_auth.c
  
  /**
   * initializes the snmptrapd authorization code registering needed
-Index: net-snmp-5.7.2~dfsg/agent/agent_read_config.c
-===================================================================
---- net-snmp-5.7.2~dfsg.orig/agent/agent_read_config.c	2013-01-23 11:38:12.334930631 +0900
-+++ net-snmp-5.7.2~dfsg/agent/agent_read_config.c	2013-01-23 11:41:40.083429045 +0900
+--- a/agent/agent_read_config.c
++++ b/agent/agent_read_config.c
 @@ -290,6 +290,9 @@
      snmp_call_callbacks(SNMP_CALLBACK_APPLICATION,
                          SNMPD_CALLBACK_PRE_UPDATE_CONFIG, NULL);

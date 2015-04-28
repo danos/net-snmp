@@ -1,9 +1,7 @@
 Patch from Jonathan Nieder <jrnieder@gmail.com> to update lmsensors API to libsensors4.
 
-Index: net-snmp-5.7.2~dfsg/agent/mibgroup/ucd-snmp/lmSensors.c
-===================================================================
---- net-snmp-5.7.2~dfsg.orig/agent/mibgroup/ucd-snmp/lmSensors.c	2013-01-14 15:20:53.481713884 +0900
-+++ net-snmp-5.7.2~dfsg/agent/mibgroup/ucd-snmp/lmSensors.c	2013-01-14 15:34:53.367634884 +0900
+--- a/agent/mibgroup/ucd-snmp/lmSensors.c
++++ b/agent/mibgroup/ucd-snmp/lmSensors.c
 @@ -94,7 +94,6 @@
      #endif 
  #else

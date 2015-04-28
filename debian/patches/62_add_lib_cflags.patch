@@ -7,10 +7,8 @@ http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=502806
 
 
 
-Index: net-snmp-5.7.2~dfsg/net-snmp-config.in
-===================================================================
---- net-snmp-5.7.2~dfsg.orig/net-snmp-config.in	2013-01-14 04:28:45.350028570 +0000
-+++ net-snmp-5.7.2~dfsg/net-snmp-config.in	2013-01-14 04:28:45.350028570 +0000
+--- a/net-snmp-config.in
++++ b/net-snmp-config.in
 @@ -140,6 +140,9 @@
      --base-cflags)
        echo @CFLAGS@ @CPPFLAGS@ -I${NSC_INCLUDEDIR}

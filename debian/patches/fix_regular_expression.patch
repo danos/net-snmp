@@ -23,10 +23,8 @@ Origin: vendor
 Forwarded: no
 Last-Update: 2013-01-07
 
-Index: net-snmp-5.7.1~dfsg/python/setup.py
-===================================================================
---- net-snmp-5.7.1~dfsg.orig/python/setup.py	2013-01-07 11:33:32.346195340 +0900
-+++ net-snmp-5.7.1~dfsg/python/setup.py	2013-01-07 11:33:58.654255360 +0900
+--- a/python/setup.py
++++ b/python/setup.py
 @@ -18,14 +18,14 @@
      netsnmp_libs = os.popen(basedir+'/net-snmp-config --libs').read()
      libdir = os.popen(basedir+'/net-snmp-config --build-lib-dirs '+basedir).read()

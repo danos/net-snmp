@@ -8,11 +8,9 @@ Origin: vendor
 Forwarded: no
 Last-Update: 2012-07-17
 
-Index: net-snmp-5.7.2~dfsg/man/snmptranslate.1.def
-===================================================================
---- net-snmp-5.7.2~dfsg.orig/man/snmptranslate.1.def	2012-10-10 07:28:58.000000000 +0900
-+++ net-snmp-5.7.2~dfsg/man/snmptranslate.1.def	2013-01-15 01:19:05.000000000 +0900
-@@ -163,22 +163,22 @@
+--- a/man/snmptranslate.1.def
++++ b/man/snmptranslate.1.def
+@@ -166,22 +166,22 @@
  .nf
  +--system(1)
     |
@@ -43,7 +41,7 @@ Index: net-snmp-5.7.2~dfsg/man/snmptranslate.1.def
     |        Textual Convention: TimeStamp
     |
     +--sysORTable(9)
-@@ -186,11 +186,11 @@
+@@ -189,11 +189,11 @@
        +--sysOREntry(1)
           |
           +-- ---- Integer   sysORIndex(1)

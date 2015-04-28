@@ -7,9 +7,9 @@ $ LC_ALL=C MANROFFSEQ='' MANWIDTH=80 man --warnings -E UTF-8 -l -Tutf8 -Z man/va
 Forwarded: no
 Last-Update: 2014-01-11
 
---- net-snmp-5.7.2~dfsg.orig/man/variables.5.def
-+++ net-snmp-5.7.2~dfsg/man/variables.5.def
-@@ -84,7 +84,8 @@ A variant of this (typically used when w
+--- a/man/variables.5.def
++++ b/man/variables.5.def
+@@ -84,7 +84,8 @@
  text, rather than running programs), is to combine the name and
  numeric subidentifier:
  .RS

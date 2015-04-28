@@ -7,9 +7,9 @@ Bug-Debian: http://bugs.debian.org/616437
 Forwarded: no
 Last-Update: 2013-01-23
 
---- net-snmp-5.7.2~dfsg.orig/man/snmpd.8.def
-+++ net-snmp-5.7.2~dfsg/man/snmpd.8.def
-@@ -78,9 +78,9 @@ To get a list of compiled modules, run t
+--- a/man/snmpd.8.def
++++ b/man/snmpd.8.def
+@@ -78,9 +78,9 @@
  .I "\-Dmib_init \-H"
  (assuming debugging support has been compiled in).
  .TP
