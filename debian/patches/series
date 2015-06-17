@@ -23,3 +23,4 @@ fix_manpage-has-errors-from-man.patch
 agentx-crash.patch
 Fix-kfreebsd-builds-with-kernel-headers-10.patch
 fix-request-id-0.patch
+Bug-788964-net-snmp-snmp_pdu_parse-DoS.patch
