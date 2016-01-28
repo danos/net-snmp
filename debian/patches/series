@@ -12,7 +12,6 @@ fix_snmpcheck_perl_path.patch
 fix_regular_expression.patch
 snmptranslate.1.patch
 fix_spelling_error.patch
-#net-snmp-config_multi-arch.patch
 fix_logging_option.patch
 fix_typo_in_snmpd.conf.patch
 fix_man_error.patch
@@ -23,4 +22,5 @@ fix_manpage-has-errors-from-man.patch
 agentx-crash.patch
 Fix-kfreebsd-builds-with-kernel-headers-10.patch
 fix-request-id-0.patch
-Bug-788964-net-snmp-snmp_pdu_parse-DoS.patch
+0025-Bug-788964-net-snmp-snmp_pdu_parse-DoS.patch
+0026-fix-Bug-785380-incorrect-date-format.patch

@@ -1,10 +1,13 @@
-Description: exclude under RFC5378 modules
-Author: Hideki Yamane <henrich@debian.org>
----
-Origin: vendor
-Forwarded: not-needed
-Last-Update: 2013-02-08
+From: Net-SNMP Packaging Team <pkg-net-snmp-devel@lists.alioth.debian.org>
+Date: Thu, 18 Jun 2015 06:12:05 +0900
+Subject: after_RFC5378
 
+---
+ mibs/rfclist | 45 ---------------------------------------------
+ 1 file changed, 45 deletions(-)
+
+diff --git a/mibs/rfclist b/mibs/rfclist
+index e0d3eef..9cca4cc 100644
 --- a/mibs/rfclist
 +++ b/mibs/rfclist
 @@ -232,48 +232,3 @@
