@@ -24,3 +24,4 @@ Fix-kfreebsd-builds-with-kernel-headers-10.patch
 fix-request-id-0.patch
 0025-Bug-788964-net-snmp-snmp_pdu_parse-DoS.patch
 0026-fix-Bug-785380-incorrect-date-format.patch
+0027-fix-455707-traptoemail-use-FQDN.patch
