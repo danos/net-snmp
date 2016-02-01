@@ -73,10 +73,9 @@ Description: SNMP configuration script, MIBs and documentation
  for the exchange of management information between agents (servers)
  and clients.
  .
- This package includes net-snmp-config scripts, documentation and MIBs
- (Management Information Bases) for the SNMP libraries, agents and
- applications. MIBs contain a formal description of the data that can be
- managed using SNMP and applications.
+ This package includes documentation and MIBs (Management Information Bases)
+ for the SNMP libraries, agents and applications. MIBs contain a formal
+ description of the data that can be managed using SNMP and applications.
  .
  NOTE: If you want the OIDs (Object Identifiers) to resolve to their text
  description, you need to activate the non-free repository and install the
@@ -128,8 +127,8 @@ Description: SNMP (Simple Network Management Protocol) development files
  and clients.
  .
  The Net-SNMP development files include the library headers, static
- libraries, and documentation needed for development of custom SNMP
- applications.
+ libraries, net-snmp-config scripts and documentation needed for development
+ of custom SNMP applications.
 
 Package: libsnmp-perl
 Section: perl
