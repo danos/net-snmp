@@ -25,6 +25,7 @@ net-snmp (5.7.3+dfsg-2) UNRELEASED; urgency=medium
       Thanks to Guillem Jover <gjover@sipwise.com> for the patch
   * debian/rules
     - make it parallel build
+  * move debian/NEWS to debian/snmpd.NEWS (Closes: #586722, #587183)
 
  -- Hideki Yamane <henrich@debian.org>  Thu, 18 Jun 2015 06:43:28 +0900
 
