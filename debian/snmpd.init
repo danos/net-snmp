@@ -1,4 +1,4 @@
-#!/bin/sh
+#! /bin/sh
 ### BEGIN INIT INFO
 # Provides:           snmpd
 # Required-Start:     $network $remote_fs $syslog
@@ -34,11 +34,9 @@ SNMPDOPTS="-Lsd -Lf /dev/null -p $SNMP_PID"
 # Cd to / before starting any daemons.
 cd /
 
-status=0
-
 case "$1" in
   start)
-    log_daemon_msg "Starting SNMP services"
+    log_daemon_msg "Starting SNMP services:"
     # remove old symlink with previous version
     if [ -L /var/run/agentx ]; then
 	    rm -f /var/run/agentx
@@ -47,40 +45,36 @@ case "$1" in
 	    mkdir -p /var/run/agentx
     fi
     if [ "$SNMPDRUN" = "yes" -a -f /etc/snmp/snmpd.conf ]; then
-	log_progress_msg "snmpd"
 	start-stop-daemon --quiet --start --oknodo --exec /usr/sbin/snmpd \
-	    -- $SNMPDOPTS || status=$?
+	    -- $SNMPDOPTS
+	log_progress_msg " snmpd"
     fi
-    log_end_msg $status
     ;;
   stop)
-    log_daemon_msg "Stopping SNMP services" "snmpd"
-    start-stop-daemon --quiet --stop --oknodo --retry 3 --exec /usr/sbin/snmpd || status=$?
-    [ $status -eq 0 -a -f $SNMP_PID ] && rm $SNMP_PID
-    log_end_msg $status
+    log_daemon_msg "Stopping SNMP services:"
+    start-stop-daemon --quiet --stop --oknodo --retry 3 --exec /usr/sbin/snmpd && [ ! -f $SNMP_PID ] || rm $SNMP_PID
+    log_progress_msg " snmpd"
     ;;
   restart)
-    log_daemon_msg "Restarting SNMP services"
-    start-stop-daemon --quiet --stop --oknodo --retry 3 --exec /usr/sbin/snmpd || status=$?
-    [ $status -eq 0 -a -f $SNMP_PID ] && rm $SNMP_PID
+    log_daemon_msg "Restarting SNMP services:"
+    start-stop-daemon --quiet --stop --oknodo --retry 3 --exec /usr/sbin/snmpd  && [ ! -f $SNMP_PID ] || rm $SNMP_PID
     if [ "$SNMPDRUN" = "yes" -a -f /etc/snmp/snmpd.conf ]; then
-	log_progress_msg "snmpd"
-	start-stop-daemon --quiet --start --exec /usr/sbin/snmpd -- $SNMPDOPTS || status=$?
+	start-stop-daemon --quiet --start --exec /usr/sbin/snmpd -- $SNMPDOPTS
+	log_progress_msg " snmpd"
     fi
-    log_end_msg $status
     ;;
   reload|force-reload)
-    log_daemon_msg "Reloading SNMP services"
+    log_daemon_msg "Reloading SNMP services:"
     if [ "$SNMPDRUN" = "yes" -a -f /etc/snmp/snmpd.conf ]; then
-	log_progress_msg "snmpd"
         start-stop-daemon --quiet --stop --signal 1 \
-	    --pidfile "$SNMP_PID" --exec /usr/sbin/snmpd || status=$?
+	    --pidfile "$SNMP_PID" --exec /usr/sbin/snmpd
+	log_progress_msg " snmpd"
     fi
-    log_end_msg $status
     ;;
   status)
+    status=0
     if [ "$SNMPDRUN" = "yes" -a -f /etc/snmp/snmpd.conf ]; then
-	status_of_proc /usr/sbin/snmpd snmpd || status=$?
+    	status_of_proc /usr/sbin/snmpd snmpd || status=$?
     fi
     exit $status
     ;;

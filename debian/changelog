@@ -1,5 +1,10 @@
-net-snmp (5.7.3+dfsg-2) UNRELEASED; urgency=medium
+net-snmp (5.7.3+dfsg-1.1) unstable; urgency=medium
 
+  * Non-maintainer upload, done on top of the latest version in pkg-net-snmp
+    git, as well as adding Steven Chamberlain's kFreeBSD patches from
+    bug #810892.
+
+  [ Hideki Yamane ]
   * debian/patches
     - add Bug-788964-net-snmp-snmp_pdu_parse-DoS.patch (Closes: #788964)
     - add 0026-fix-Bug-785380-incorrect-date-format.patch (Closes: #785380)
@@ -13,23 +18,30 @@ net-snmp (5.7.3+dfsg-2) UNRELEASED; urgency=medium
       (Closes: #794641, #794647)
   * debian/snmp.preinst
     - revert "killall", it is unnecessary anymore (Closes: #781257)
-  * debian/control
-    - fix lintian error "old-style-config-script-multiarch-path" by adding
-      "Multi-Arch: no" to libsnmp-dev. It also fix multi-arch install
-      (Closes: #774775)
-    - note net-snmp-config script moved to libsnmp-dev (Closes: #801991)
-      Thanks to Vanush Misha Paturyan <misha@cs.nuim.ie>
-    - use https for Vcs-*
-  * debian/libsnmp-perl.manpages
-    - fix to install perl modules man pages (Closes: #778539)
-      Thanks to Guillem Jover <gjover@sipwise.com> for the patch
-  * debian/rules
-    - make it parallel build
-  * move debian/NEWS to debian/snmpd.NEWS (Closes: #586722, #587183)
-  * make init script sane (add Missing log_end_msg, etc) (Closes: #746397)
-    Thanks to Uwe Storbeck <uwe@ibr.ch> for the patch.
 
- -- Hideki Yamane <henrich@debian.org>  Thu, 18 Jun 2015 06:43:28 +0900
+  [ Steven Chamberlain ]
+  * Fix a typo in 26_kfreebsd.patch
+  * Add 27_kfreebsd.patch: (Closes: #810982)
+    - Add missing dependency of mibII/icmp on kfreebsd
+    - Add kfreebsd definitions not in GNU libc's icmp6.h
+  * Remove obsolete Fix-kfreebsd-builds-with-kernel-headers-10.patch
+  * Re-enable IPv6 on kfreebsd (Closes: #765846)
+  * Build with the libbsd overlay on kfreebsd, for nlist
+
+  [ Steinar H. Gunderson ]
+  * New patches, mostly for various bug fixes (some of them for crash bugs):
+    * fix_engineid_reprobe.diff: Do not probe engineID for USM
+      if it is already given. (Closes: #765873)
+    * callback_print.diff: Fix enum formatting when doing asynchronous queries
+      from Perl. (Closes: #765289)
+    * do_not_callback_for_failed_reports.diff: Fix access of freed data due to
+      callbacks for reports occasionally coming twice.
+    * fix_perl_bulk_gets.diff: Fix handling of truncated bulk get responses
+      in the Perl module. (Patch 1278 in upstream patch tracker.)
+    * let_perl_access_engineid.diff: Add a new functions to let Perl code
+      access the security engine ID.
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Tue, 29 Mar 2016 10:30:24 +0200
 
 net-snmp (5.7.3+dfsg-1) unstable; urgency=medium
 

@@ -23,8 +23,10 @@ IPV6 = --enable-ipv6
 DEB_DH_GENCONTROL_ARGS=-- -Vos-specific-dev="libsensors4-dev"
 else
 ifeq (kfreebsd,$(DEB_BUILD_ARCH_OS))
-IPV6 = --disable-ipv6
+IPV6 = --enable-ipv6
 DEB_DH_GENCONTROL_ARGS=-- -Vos-specific-dev="libkvm-dev"
+CFLAGS += $(shell pkg-config --cflags libbsd-overlay)
+LDFLAGS += $(shell pkg-config --libs libbsd-overlay)
 endif
 endif
 ifeq (hurd,$(DEB_BUILD_ARCH_OS))
@@ -35,7 +37,7 @@ MIB_MODULES += host
 endif
 
 %:
-	dh $@ --with autotools-dev,autoreconf,python2 --parallel
+	dh $@ --with autotools-dev,autoreconf,python2
 
 override_dh_auto_configure:
 	dh_auto_configure -- --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man \
@@ -62,7 +64,11 @@ override_dh_clean:
 	dh_clean
 	rm -rf `find . -name .libs` \
 	       python/build         \
-	       python/netsnmp_python.egg-info
+	       python/netsnmp_python.egg-info \
+	       dist/generation-scripts/gen-variables \
+	       perl/SNMP/t/snmptest.cmd \
+	       perl/TrapReceiver/const-c.inc \
+	       perl/TrapReceiver/const-xs.inc
 
 override_dh_strip:
 	dh_strip -plibsnmp$(LIB_VERSION) --dbg-package=libsnmp$(LIB_VERSION)-dbg

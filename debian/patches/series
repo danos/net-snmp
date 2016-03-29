@@ -4,6 +4,7 @@
 06_extramibs.patch
 07_docfiles.patch
 26_kfreebsd.patch
+27_kfreebsd.patch
 60_libsensors_api.patch
 61_vacm_missing_dependency_check.patch
 62_add_lib_cflags.patch
@@ -20,8 +21,12 @@ fix_manpage-has-errors_break_line.patch
 add_rocommunity6.patch
 fix_manpage-has-errors-from-man.patch
 agentx-crash.patch
-Fix-kfreebsd-builds-with-kernel-headers-10.patch
 fix-request-id-0.patch
 0025-Bug-788964-net-snmp-snmp_pdu_parse-DoS.patch
 0026-fix-Bug-785380-incorrect-date-format.patch
 0027-fix-455707-traptoemail-use-FQDN.patch
+let_perl_access_engineid.diff
+fix_perl_bulk_gets.diff
+do_not_callback_for_failed_reports.diff
+callback_print.diff
+fix_engineid_reprobe.diff
