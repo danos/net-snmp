@@ -15,7 +15,7 @@ case "$1" in
 
         adduser --quiet --system --group --home "$SNMP_DIR" \
                 --disabled-password  --disabled-login \
-                --shell "$SNMP_SHELL" "$SNMP_USER"
+                --shell "$SNMP_SHELL" --force-badname "$SNMP_USER"
 
         # care if SNMP_DIR is used by previous "snmp" user
         chown -R "$SNMP_USER"."$SNMP_GROUP" "$SNMP_DIR"

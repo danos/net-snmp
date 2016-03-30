@@ -1,3 +1,16 @@
+net-snmp (5.7.3+dfsg-1.2) unstable; urgency=medium
+
+  * Non-maintainer upload.
+
+  [ Steven Chamberlain ]
+  * Add missing Build-Depends: pkg-config on kfreebsd (Closes: #810982)
+
+  [ Steinar H. Gunderson ] 
+  * Add --force-badname when creating the Debian-snmp user, as the name would
+    otherwise be rejected. (Closes: #819531)
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Wed, 30 Mar 2016 21:46:44 +0200
+
 net-snmp (5.7.3+dfsg-1.1) unstable; urgency=medium
 
   * Non-maintainer upload, done on top of the latest version in pkg-net-snmp
