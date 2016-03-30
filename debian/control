@@ -8,6 +8,7 @@ Build-Depends: debhelper (>= 9), libtool, libwrap0-dev, libssl-dev (>> 0.9.8), p
  python-all (>= 2.6.6-3~), python-setuptools (>=0.6b3), python2.7-dev,
  autoconf, automake, autotools-dev, debianutils (>=1.13.1), dh-autoreconf,
  bash (>=2.05), findutils (>=4.1.20), procps, 
+ pkg-config [kfreebsd-i386 kfreebsd-amd64], 
  libbsd-dev [kfreebsd-i386 kfreebsd-amd64], 
  libkvm-dev [kfreebsd-i386 kfreebsd-amd64], 
  libsensors4-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64],
