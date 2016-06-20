@@ -1,3 +1,15 @@
+net-snmp (5.7.3+dfsg-1.4) unstable; urgency=medium
+
+  [ Sophie Brun ]
+  * Non-maintainer upload.
+  * Add a snmpd.service and a snmptrapd.service (Closes: #782243)
+
+  [ Raphaël Hertzog ]
+  * Fix the package so that it can build "Arch: all" without "Arch: any" (and
+    thus letting us make source only uploads).
+
+ -- Raphaël Hertzog <hertzog@debian.org>  Mon, 20 Jun 2016 10:24:35 +0200
+
 net-snmp (5.7.3+dfsg-1.3) unstable; urgency=medium
 
   * _Really_ add missing Build-Depends: pkg-config on kfreebsd
