@@ -15,7 +15,7 @@ Build-Depends: debhelper (>= 9), libtool, libwrap0-dev, libssl-dev (>> 0.9.8), p
  libsensors4-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64],
  libmysqld-dev, libpci-dev
 Build-Conflicts: libsnmp-dev
-Standards-Version: 3.9.6
+Standards-Version: 3.9.8
 Vcs-Git: https://anonscm.debian.org/git/pkg-net-snmp/pkg-net-snmp.git
 Vcs-Browser: https://anonscm.debian.org/cgit/pkg-net-snmp/pkg-net-snmp.git
 XS-Python-Version: 2.7
