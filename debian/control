@@ -3,6 +3,7 @@ Section: net
 Priority: optional
 Maintainer: Net-SNMP Packaging Team <pkg-net-snmp-devel@lists.alioth.debian.org>
 Uploaders: Jochen Friedrich <jochen@scram.de>, Thomas Anders <tanders@users.sourceforge.net>, Noah Meyerhans <noahm@debian.org>,
+ Hideki Yamane <henrich@debian.org>
 Build-Depends: debhelper (>= 9), libtool, libwrap0-dev, libssl-dev (>> 0.9.8), perl (>=5.8), libperl-dev,
  python-all (>= 2.6.6-3~), python-setuptools (>=0.6b3), python2.7-dev,
  autoconf, automake, autotools-dev, debianutils (>=1.13.1),
@@ -14,9 +15,9 @@ Build-Depends: debhelper (>= 9), libtool, libwrap0-dev, libssl-dev (>> 0.9.8), p
  libsensors4-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64],
  libmysqld-dev, libpci-dev
 Build-Conflicts: libsnmp-dev
-Standards-Version: 3.9.8
-Vcs-Git: https://anonscm.debian.org/git/pkg-net-snmp/pkg-net-snmp.git
-Vcs-Browser: https://anonscm.debian.org/cgit/pkg-net-snmp/pkg-net-snmp.git
+Standards-Version: 3.9.6
+Vcs-Git: git://anonscm.debian.org/pkg-net-snmp/pkg-net-snmp.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-net-snmp/pkg-net-snmp.git
 XS-Python-Version: 2.7
 Homepage: http://net-snmp.sourceforge.net/
 
@@ -170,3 +171,4 @@ Description: SNMP (Simple Network Management Protocol) MIB browser
  The Net-SNMP MIB (Management Information Base) Browser provides a
  graphical frontend for the Net-SNMP tools. It can be used to browse
  the MIB tree and interactively send requests to SNMP agents.
+

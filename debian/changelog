@@ -1,11 +1,16 @@
-net-snmp (5.7.3+dfsg-2) UNRELEASED; urgency=medium
+net-snmp (5.7.3+dfsg-1.5) unstable; urgency=medium
 
-  * debian/control
-    - use https for Vcs-* 
-    - set Standards-Version: 3.9.8
-    - drop Hideki Yamane <henrich@debian.org> from Uploaders.
+  * Non-maintainer upload.
+  * Fix "FTBFS with Perl 5.24: error: conflicting types for 'U64'":
+    add patch from upstream git which removes the U64 typedef from the
+    Net-SNMP header files.
+    Thanks to Niky Tyni for extracting the patch.
+    (Closes: #825014)
+  * Additionally add another patch from upstream git which fixes
+    perl/*/Makefile.PL to fix build failures with Perl 5.24.
+    Cf. https://sourceforge.net/p/net-snmp/bugs/2712/
 
- -- Hideki Yamane <henrich@debian.org>  Sun, 28 Aug 2016 11:17:04 +0900
+ -- gregor herrmann <gregoa@debian.org>  Fri, 02 Sep 2016 16:43:42 +0200
 
 net-snmp (5.7.3+dfsg-1.4) unstable; urgency=medium
 
