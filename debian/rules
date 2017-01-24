@@ -1,9 +1,7 @@
 #!/usr/bin/make -f
 #export DH_VERBOSE=1
 
-# TODO
-# without -pie build fails during perl module build somehow...
-export DEB_BUILD_MAINT_OPTIONS := hardening=+all,-pie
+export DEB_BUILD_MAINT_OPTIONS := hardening=+all
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 LIB_VERSION = 30

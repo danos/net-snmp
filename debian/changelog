@@ -1,3 +1,35 @@
+net-snmp (5.7.3+dfsg-1.7) unstable; urgency=medium
+
+  [ Niels Thykier ]
+  * Non-maintainer upload with the following changes from
+    other people.
+
+  [ Sebastian Andrzej Siewior ]
+  * drop dep on libssl1.0-dev in the dev package.  (Closes: #851946)
+  * add a guard to catch users of the wrong library
+  * remove "-lcrypto" from the pkg-config when linking statically.
+    This is technical suboptimal and should ideally be reverted
+    for buster (when all packages migrate to the same ssl version).
+
+  [ Adrian Bunk ]
+  * Re-able "pie" hardening as its absence is causing issues for
+    reverse dependencies.  (Closes: #852023)
+
+ -- Niels Thykier <niels@thykier.net>  Tue, 24 Jan 2017 20:16:23 +0000
+
+net-snmp (5.7.3+dfsg-1.6) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Update Build-Depends to use libssl1.0-dev and
+    default-libmysqlclient-dev.  (Closes: #846569, #836312)
+  * Use "perl" instead of the (now removed) "perl-modules" package
+    in Recommends.
+  * Add dh-python build-depends because dh_python2 asked for it.
+  * Drop debian/libsnmp30.postinst - its entire contents was handled
+    by debhelper.
+
+ -- Niels Thykier <niels@thykier.net>  Sat, 14 Jan 2017 08:40:05 +0000
+
 net-snmp (5.7.3+dfsg-1.5) unstable; urgency=medium
 
   * Non-maintainer upload.
