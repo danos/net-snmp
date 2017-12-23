@@ -1,3 +1,14 @@
+net-snmp (5.7.3+dfsg-1.8) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Add support for OpenSSL 1.1.0 and revert that were added
+    (Closes: #828449):
+    - add libssl-dev back as dependency of libsnmp-dev
+    - drop the guard which enforced libssl 1.0.2
+    - add -lcrypto back to pkg-config
+
+ -- Sebastian Andrzej Siewior <sebastian@breakpoint.cc>  Sat, 23 Dec 2017 23:48:23 +0100
+
 net-snmp (5.7.3+dfsg-1.7) unstable; urgency=medium
 
   [ Niels Thykier ]
