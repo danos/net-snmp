@@ -109,8 +109,8 @@ override_dh_auto_test:
 	true
 
 override_dh_installsystemd:
-	dh_installsystemd --no-enable --no-start snmptrapd
-	dh_installsystemd snmpd
+	dh_installsystemd -psnmptrapd --no-enable --no-start
+	dh_installsystemd -Nsnmptrapd
 
 get-orig-source:
 	@uscan --download-version $(UPSTREAM_VERSION) --destdir /tmp --force-download --no-symlink
