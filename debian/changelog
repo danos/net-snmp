@@ -1,12 +1,14 @@
 net-snmp (5.7.3+dfsg-2) UNRELEASED; urgency=medium
 
   * New maintainer Closes: #835654
+  * Imported old NMU diff Closes: 851343, #852479
   * Change VCS urls to salsa
   * Update to standards 4.1.3 - no change
   * Update to debhelper version 11
   * Remove empty copyright file for libsnmp30
   * snmp.prerm - remove killall
   * snmpd and snmptrapd init scripts follow LSB minimal skeleton
+    Closes: #823079, #746397
   * Removed Jochen Friedrich from uploaders Closes: #891770
   * Make snmpd and snmptrapd write pid files Closes: #878828
 
