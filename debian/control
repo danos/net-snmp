@@ -118,6 +118,7 @@ Description: SNMP (Simple Network Management Protocol) library debug
 Package: libsnmp-dev
 Section: libdevel
 Architecture: any
+Multi-Arch: no
 Replaces: libsnmp9-dev, libsnmp15-dev, snmp (<< 5.4~dfsg), libsnmp-base (<< 5.7.2~dfsg-8.1~)
 Provides: libsnmp9-dev
 Conflicts: libsnmp9-dev, libsnmp15-dev, snmp (<< 5.4~dfsg)
