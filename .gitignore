@@ -13,6 +13,8 @@
 *.out
 *.pdb
 *.rej
+*.swo
+*.swp
 .libs/
 agent/*.exe
 agent/mibgroup/agent_module_dot_conf.h
