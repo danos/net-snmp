@@ -112,6 +112,10 @@ override_dh_installsystemd:
 	dh_installsystemd -psnmptrapd --no-enable --no-start
 	dh_installsystemd -Nsnmptrapd
 
+override_dh_installinit:
+	dh_installinit -psnmptrapd --no-enable --no-start
+	dh_installinit -Nsnmptrapd
+
 get-orig-source:
 	@uscan --download-version $(UPSTREAM_VERSION) --destdir /tmp --force-download --no-symlink
 	@tar xf /tmp/net-snmp-$(UPSTREAM_VERSION).tar.gz -C /tmp
