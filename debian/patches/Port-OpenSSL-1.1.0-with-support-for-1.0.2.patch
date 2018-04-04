@@ -12,15 +12,17 @@ Changes by sebastian@breakpoint.cc:
 BTS: https://bugs.debian.org/828449
 Signed-off-by: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
 ---
- apps/snmpusm.c              |   43 ++++++++++++++++++++++++++++++++++++-------
- configure.d/config_os_libs2 |    6 ------
- snmplib/keytools.c          |   13 ++++++-------
- snmplib/scapi.c             |   17 +++++------------
+ apps/snmpusm.c              | 43 ++++++++++++++++++++++++++++++++++++-------
+ configure.d/config_os_libs2 |  6 ------
+ snmplib/keytools.c          | 13 ++++++-------
+ snmplib/scapi.c             | 17 +++++------------
  4 files changed, 47 insertions(+), 32 deletions(-)
 
+diff --git a/apps/snmpusm.c b/apps/snmpusm.c
+index f0985fd..15bc918 100644
 --- a/apps/snmpusm.c
 +++ b/apps/snmpusm.c
-@@ -183,6 +183,31 @@ setup_oid(oid * it, size_t * len, u_char
+@@ -183,6 +183,31 @@ setup_oid(oid * it, size_t * len, u_char * id, size_t idlen,
  }
  
  #if defined(HAVE_OPENSSL_DH_H) && defined(HAVE_LIBCRYPTO)
@@ -52,7 +54,7 @@ Signed-off-by: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
  int
  get_USM_DH_key(netsnmp_variable_list *vars, netsnmp_variable_list *dhvar,
                 size_t outkey_len,
-@@ -190,7 +215,7 @@ get_USM_DH_key(netsnmp_variable_list *va
+@@ -190,7 +215,7 @@ get_USM_DH_key(netsnmp_variable_list *vars, netsnmp_variable_list *dhvar,
                 oid *keyoid, size_t keyoid_len) {
      u_char *dhkeychange;
      DH *dh;
@@ -61,7 +63,7 @@ Signed-off-by: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
      u_char *key;
      size_t key_len;
              
-@@ -205,25 +230,29 @@ get_USM_DH_key(netsnmp_variable_list *va
+@@ -205,25 +230,29 @@ get_USM_DH_key(netsnmp_variable_list *vars, netsnmp_variable_list *dhvar,
          dh = d2i_DHparams(NULL, &cp, dhvar->val_len);
      }
  
@@ -97,9 +99,11 @@ Signed-off-by: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
  
      key_len = DH_size(dh);
      if (!key_len) {
+diff --git a/configure.d/config_os_libs2 b/configure.d/config_os_libs2
+index 47491e2..3ce241f 100644
 --- a/configure.d/config_os_libs2
 +++ b/configure.d/config_os_libs2
-@@ -291,12 +291,6 @@ if test "x$tryopenssl" != "xno" -a "x$tr
+@@ -291,12 +291,6 @@ if test "x$tryopenssl" != "xno" -a "x$tryopenssl" != "xinternal"; then
              AC_CHECK_LIB(${CRYPTO}, AES_cfb128_encrypt, 
                  AC_DEFINE(HAVE_AES_CFB128_ENCRYPT, 1,
                      [Define to 1 if you have the `AES_cfb128_encrypt' function.]))
@@ -112,9 +116,11 @@ Signed-off-by: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
          fi
          if echo " $transport_result_list " | $GREP "DTLS" > /dev/null; then
  	    AC_CHECK_LIB(ssl, DTLSv1_method,
+diff --git a/snmplib/keytools.c b/snmplib/keytools.c
+index 0ccb3a6..96e102d 100644
 --- a/snmplib/keytools.c
 +++ b/snmplib/keytools.c
-@@ -149,13 +149,13 @@ generate_Ku(const oid * hashtype, u_int
+@@ -149,13 +149,13 @@ generate_Ku(const oid * hashtype, u_int hashtype_len,
       */
  #ifdef NETSNMP_USE_OPENSSL
  
@@ -132,7 +138,7 @@ Signed-off-by: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
  #ifndef NETSNMP_DISABLE_MD5
      if (ISTRANSFORM(hashtype, HMACMD5Auth)) {
          if (!EVP_DigestInit(ctx, EVP_md5()))
-@@ -259,11 +259,10 @@ generate_Ku(const oid * hashtype, u_int
+@@ -259,11 +259,10 @@ generate_Ku(const oid * hashtype, u_int hashtype_len,
      memset(buf, 0, sizeof(buf));
  #ifdef NETSNMP_USE_OPENSSL
      if (ctx) {
@@ -146,9 +152,11 @@ Signed-off-by: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
  #endif
      }
  #endif
+diff --git a/snmplib/scapi.c b/snmplib/scapi.c
+index 16ac829..1b3d986 100644
 --- a/snmplib/scapi.c
 +++ b/snmplib/scapi.c
-@@ -486,15 +486,10 @@ sc_hash(const oid * hashtype, size_t has
+@@ -486,15 +486,10 @@ sc_hash(const oid * hashtype, size_t hashtypelen, const u_char * buf,
      }
  
  /** initialize the pointer */
@@ -166,7 +174,7 @@ Signed-off-by: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
  #endif
      if (!EVP_DigestInit(cptr, hashfn)) {
          /* requested hash function is not available */
-@@ -507,13 +502,11 @@ sc_hash(const oid * hashtype, size_t has
+@@ -507,13 +502,11 @@ sc_hash(const oid * hashtype, size_t hashtypelen, const u_char * buf,
  /** do the final pass */
      EVP_DigestFinal(cptr, MAC, &tmp_len);
      *MAC_len = tmp_len;
