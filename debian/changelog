@@ -1,8 +1,8 @@
-net-snmp (5.7.3+dfsg-3) UNRELEASED; urgency=medium
+net-snmp (5.7.3+dfsg-3) unstable; urgency=medium
 
   * Compile perl module after library Closes: #894626
 
- -- Craig Small <csmall@debian.org>  Wed, 04 Apr 2018 21:14:56 +1000
+ -- Craig Small <csmall@debian.org>  Wed, 04 Apr 2018 21:34:09 +1000
 
 net-snmp (5.7.3+dfsg-2) unstable; urgency=medium
 
