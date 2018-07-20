@@ -16,6 +16,7 @@
 *.swo
 *.swp
 .libs/
+.pc/
 agent/*.exe
 agent/mibgroup/agent_module_dot_conf.h
 agent/mibgroup/agent_module_includes.h
