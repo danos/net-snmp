@@ -5,6 +5,7 @@ net-snmp (5.7.3+dfsg-4) UNRELEASED; urgency=medium
 
   [ Ondřej Nový ]
   * d/copyright: Use https protocol in Format field
+  * d/control: Removing redundant Priority field in binary package
 
  -- Craig Small <csmall@debian.org>  Fri, 20 Jul 2018 20:45:58 +1000
 

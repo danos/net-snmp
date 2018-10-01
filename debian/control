@@ -104,7 +104,6 @@ Description: SNMP (Simple Network Management Protocol) library
 
 Package: libsnmp30-dbg
 Section: debug
-Priority: optional
 Architecture: any
 Depends: libsnmp30 (=${binary:Version}), ${misc:Depends}
 Description: SNMP (Simple Network Management Protocol) library debug
