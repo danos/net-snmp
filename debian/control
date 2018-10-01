@@ -10,10 +10,10 @@ Build-Depends: debhelper (>= 11),
  python-all (>= 2.6.6-3~), python-setuptools (>=0.6b3), python2.7-dev,
  autoconf, automake, debianutils (>=1.13.1),
  dh-python,
- bash (>=2.05), findutils (>=4.1.20), procps, 
- pkg-config [kfreebsd-i386 kfreebsd-amd64], 
- libbsd-dev [kfreebsd-i386 kfreebsd-amd64], 
- libkvm-dev [kfreebsd-i386 kfreebsd-amd64], 
+ bash (>=2.05), findutils (>=4.1.20), procps,
+ pkg-config [kfreebsd-i386 kfreebsd-amd64],
+ libbsd-dev [kfreebsd-i386 kfreebsd-amd64],
+ libkvm-dev [kfreebsd-i386 kfreebsd-amd64],
  libsensors4-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64],
  default-libmysqlclient-dev, libpci-dev
 Build-Conflicts: libsnmp-dev
@@ -58,7 +58,7 @@ Breaks: libsnmp15 (<< 5.7.2~dfsg-0.1)
 Description: SNMP (Simple Network Management Protocol) applications
  The Simple Network Management Protocol (SNMP) provides a framework
  for the exchange of management information between agents (servers)
- and clients. 
+ and clients.
  .
  The Net-SNMP applications are a collection of command line clients
  for issuing SNMP requests to agents.
