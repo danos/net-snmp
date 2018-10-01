@@ -1,6 +1,10 @@
 net-snmp (5.7.3+dfsg-4) UNRELEASED; urgency=medium
 
+  [ Craig Small ]
   * Use correct snmpwalk args in snmpcheck Closes: #898197
+
+  [ Ondřej Nový ]
+  * d/copyright: Use https protocol in Format field
 
  -- Craig Small <csmall@debian.org>  Fri, 20 Jul 2018 20:45:58 +1000
 
