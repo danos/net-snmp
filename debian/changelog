@@ -8,6 +8,7 @@ net-snmp (5.7.3+dfsg-4) UNRELEASED; urgency=medium
   * d/control: Removing redundant Priority field in binary package
   * d/changelog: Remove trailing whitespaces
   * d/control: Remove trailing whitespaces
+  * d/watch: Use https protocol
 
  -- Craig Small <csmall@debian.org>  Fri, 20 Jul 2018 20:45:58 +1000
 
