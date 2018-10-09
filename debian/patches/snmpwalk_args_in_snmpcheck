@@ -10,29 +10,10 @@ Closes: #898197
 References:
  https://bugs.kali.org/view.php?id=4655
 ---
- debian/changelog    | 6 ++++++
- local/snmpcheck.def | 4 ++--
- 2 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/debian/changelog b/debian/changelog
-index d071458..c424c09 100644
---- a/debian/changelog
-+++ b/debian/changelog
-@@ -1,3 +1,9 @@
-+net-snmp (5.7.3+dfsg-4) UNRELEASED; urgency=medium
-+
-+  * Fix snmpcheck snmpwalk args Closes: #898197
-+
-+ -- Craig Small <csmall@debian.org>  Fri, 20 Jul 2018 20:32:19 +1000
-+
- net-snmp (5.7.3+dfsg-3) unstable; urgency=medium
- 
-   * Compile perl module after library Closes: #894626
-diff --git a/local/snmpcheck.def b/local/snmpcheck.def
-index df3450e..445078c 100755
 --- a/local/snmpcheck.def
 +++ b/local/snmpcheck.def
-@@ -27,8 +27,8 @@ $mibupdateconfig="$mibheadall.VERSIONMIBNUM.VERUPDATECONFIG";
+@@ -27,8 +27,8 @@ $mibupdateconfig="$mibheadall.VERSIONMIB
  		 '.LOADAVEMIBNUM.1' => 1,
  		 '.ERRORMIBNUM' => 1);
  $errlog="/net/tyfon/1/OV/log/ece-log";
