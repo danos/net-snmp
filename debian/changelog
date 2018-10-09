@@ -10,6 +10,10 @@ net-snmp (5.7.3+dfsg-4) UNRELEASED; urgency=medium
   * d/control: Remove trailing whitespaces
   * d/watch: Use https protocol
 
+  [ Salvatore Bonaccorso ]
+  * snmpd crashes when receiving a GetNext PDU with multiple Varbinds
+    (CVE-2018-18065) (Closes: #910638)
+
  -- Craig Small <csmall@debian.org>  Fri, 20 Jul 2018 20:45:58 +1000
 
 net-snmp (5.7.3+dfsg-3) unstable; urgency=medium
