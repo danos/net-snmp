@@ -2,6 +2,7 @@ net-snmp (5.7.3+dfsg-4) UNRELEASED; urgency=medium
 
   [ Craig Small ]
   * Use correct snmpwalk args in snmpcheck Closes: #898197
+  * Remove user only on purge Closes: #911216
 
   [ Ondřej Nový ]
   * d/copyright: Use https protocol in Format field
