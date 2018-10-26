@@ -1,4 +1,4 @@
-net-snmp (5.7.3+dfsg-4) UNRELEASED; urgency=medium
+net-snmp (5.7.3+dfsg-4) unstable; urgency=medium
 
   [ Craig Small ]
   * Use correct snmpwalk args in snmpcheck Closes: #898197
@@ -15,7 +15,7 @@ net-snmp (5.7.3+dfsg-4) UNRELEASED; urgency=medium
   * snmpd crashes when receiving a GetNext PDU with multiple Varbinds
     (CVE-2018-18065) (Closes: #910638)
 
- -- Craig Small <csmall@debian.org>  Fri, 20 Jul 2018 20:45:58 +1000
+ -- Craig Small <csmall@debian.org>  Fri, 26 Oct 2018 12:40:34 +1100
 
 net-snmp (5.7.3+dfsg-3) unstable; urgency=medium
 
