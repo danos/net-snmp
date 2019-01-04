@@ -21,8 +21,7 @@ Copyright:
  2013 IETF Trust
  2016 VMware, Inc.
  2017-2018 Information Sciences Institute
-
-License: BSD-LIKE and BSD
+License: BSD-LIKE and BSD-3-clause
 Comment:
  Various copyrights apply to this package, listed in various separate parts
  below.  Please make sure that you read all the parts.  Up until 2001,
@@ -49,35 +48,35 @@ Copyright: 1997-2003 David Engel <david@debian.org>
            2004-2018 Jochen Friedrich <jochen@scram.de>.
            2013-2018 Hideki Yamane <henrich@debian.org>
            2018 Craig Small <csmall@debian.org>
-License: BSD
+License: BSD-3-clause
 
 Files: perl/*
 Copyright: 2001-2003 Networks Associates Technology, Inc
            1995-2000 G. S. Marzot.
            2003-2006 SPARTA, Inc
            2004 W. Hardaker
-License: GPL-2+ or Artistic
+License: GPL-2+ or Artistic-1.0
 
 Files: python/*
 Copyright: 2003-2010 Sparta Inc
            2006 ScienceLogic, LLC
-License: BSD
+License: BSD-3-clause
 
 Files: snmplib/winpipe.c
        include/net-snmp/library/winpipe.h
 Copyright: 
  2003 Fabasoft R&D Software GmbH & Co KG <oss@fabasoft.com> Bernhard Penz <bernhard.penz@fabasoft.com>
-License: BSD
+License: BSD-3-clause
 
 Files: snmplib/sd-daemon.c
        include/net-snmp/library/sd-daemon.h
 Copyright: 2010 Lennart Poettering
-License: BSD
+License: BSD-3-clause
 
 Files: apps/snmppcap.c
        apps/snmpping.c
 Copyright: 2013 Arista Networks, Inc.
-License: BSD
+License: BSD-3-clause
 
 License: BSD-LIKE
  Permission to use, copy, modify and distribute this software and its
@@ -98,7 +97,7 @@ License: BSD-LIKE
  CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  
-License: BSD
+License: BSD-3-clause
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
@@ -122,9 +121,6 @@ License: BSD
  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- .
- On Debian systems, the complete text of the GNU Lesser General
- Public License can be found in "/usr/share/common-licenses/BSD".
 
 License: Artistic-1.0
  This program is free software; you can redistribute it and/or modify it
