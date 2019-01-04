@@ -53,7 +53,7 @@ Description: Net-SNMP notification receiver
 Package: snmp
 Architecture: any
 Recommends: perl
-Depends: ${shlibs:Depends}, ${misc:Depends}, libsnmp-base
+Depends: ${shlibs:Depends}, ${misc:Depends}, libsnmp-base (>= 5.7.3+dfsg-5)
 Breaks: libsnmp15 (<< 5.7.2~dfsg-0.1)
 Description: SNMP (Simple Network Management Protocol) applications
  The Simple Network Management Protocol (SNMP) provides a framework
@@ -66,9 +66,9 @@ Description: SNMP (Simple Network Management Protocol) applications
 Package: libsnmp-base
 Section: libs
 Architecture: all
-Replaces: libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev (<< 5.4~dfsg), libsnmp15 (<< 5.7.2~dfsg-5)
+Replaces: libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev (<< 5.4~dfsg), libsnmp15 (<< 5.7.2~dfsg-5), snmp (<< 5.7.3+dfsg-5)
 Conflicts: libsnmp-dev (<< 5.4~dfsg), libsnmp9-dev (<< 5.4~dfsg), libsnmp30 (<< 5.7.2~dfsg-5)
-Breaks: libsnmp15 (<< 5.7.2~dfsg-5)
+Breaks: libsnmp15 (<< 5.7.2~dfsg-5), snmp (<< 5.7.3+dfsg-5)
 Depends: ${misc:Depends}
 Suggests: snmp-mibs-downloader
 Multi-Arch: foreign
