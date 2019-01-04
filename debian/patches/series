@@ -36,3 +36,4 @@ Port-OpenSSL-1.1.0-with-support-for-1.0.2.patch
 perl-parallel-build.patch
 snmpwalk_args_in_snmpcheck
 CVE-2018-18065.patch
+snmptrapd_mysql_init
