@@ -1,9 +1,9 @@
-net-snmp (5.7.3+dfsg-5) UNRELEASED; urgency=medium
+net-snmp (5.7.3+dfsg-5) unstable; urgency=medium
 
   * Use debhelper macros for shlibs Closes: #912685
   * Relocate snmp.conf to libsnmp-base Closes: #914657
 
- -- Craig Small <csmall@debian.org>  Mon, 26 Nov 2018 22:27:24 +1100
+ -- Craig Small <csmall@debian.org>  Sat, 05 Jan 2019 16:16:10 +1100
 
 net-snmp (5.7.3+dfsg-4) unstable; urgency=medium
 
