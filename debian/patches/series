@@ -1,3 +1,4 @@
+pingmib_perl_path
 02_statistics.patch
 03_makefiles.patch
 05_searchdirs.patch
