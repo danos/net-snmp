@@ -1,1 +1,3 @@
 snmptrapd: non-standard-file-perm etc/snmp/snmptrapd.conf 0600 != 0644
+snmptrapd: binary-without-manpage usr/bin/traptoemail
+snmptrapd: init.d-script-should-always-start-service

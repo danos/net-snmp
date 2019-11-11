@@ -1,1 +1,4 @@
 snmp: description-starts-with-package-name
+snmp: binary-without-manpage usr/bin/snmpcheck
+snmp: killall-is-dangerous prerm:7
+snmp: binary-without-manpage usr/bin/agentxtrap

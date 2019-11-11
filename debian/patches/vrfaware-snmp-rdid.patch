@@ -1,0 +1,271 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -126,6 +126,34 @@ AH_VERBATIM([PACKAGE_VERSION],[/* Define
+ #undef PACKAGE_VERSION
+ #endif])
+ 
++AC_MSG_CHECKING([if Routing Domain is available])
++
++AC_RUN_IFELSE(
++    [AC_LANG_PROGRAM([[
++            #include <linux/rtnetlink.h>
++            #include <linux/if_link.h>
++            #include <sys/socket.h>
++            #include <linux/rtg_domains.h>
++        ]],[[
++            #if !(defined(SO_RTDOMAIN) && defined(RTM_NEWRTDMN) && \
++            defined(RTM_DELRTDMN) && defined(RTM_GETRTDMN) && \
++            defined(VRF_NAME_SIZE) && defined(RD_DEFAULT))
++            #error
++            #endif
++            int a = RTA_RTG_DOMAIN, b = IFLA_RTG_DOMAIN, c = RTDMN_ATTR_NAME;
++        ]])
++    ],
++    [routing_domain_support=yes],
++    [routing_domain_support=no],
++    [routing_domain_support=no])
++
++AC_MSG_RESULT([$routing_domain_support])
++
++if test "x$routing_domain_support" = "xyes"; then
++    AC_DEFINE(HAVE_ROUTING_DOMAIN, 1, [Have Routing Domain support])
++fi
++AM_CONDITIONAL([HAVE_ROUTING_DOMAIN], [test x$routing_domain_support != xno])
++
+ AC_OUTPUT
+ 
+ AC_MSG_CACHE_DISPLAY()
+--- a/snmplib/transports/snmpTCPDomain.c
++++ b/snmplib/transports/snmpTCPDomain.c
+@@ -188,7 +188,17 @@ netsnmp_tcp_transport(struct sockaddr_in
+     t->flags = NETSNMP_TRANSPORT_FLAG_STREAM;
+ 
+     if (vrf && *vrf != '\0') {
+-#if defined(SO_BINDTODEVICE)
++#if defined(HAVE_ROUTING_DOMAIN)
++        int rdid = atoi(vrf);
++        DEBUGMSGTL(("netsnmp_tcp", "netsnmp_tcp_transport: rdid %u\n", rdid));
++        if (rdid && setsockopt(t->sock, SOL_SOCKET, SO_RTDOMAIN,
++                                &rdid, sizeof(rdid)) == -1) {
++            netsnmp_transport_free(t);
++            DEBUGMSGTL(("netsnmp_tcp", "netsnmp_tcp_transport: set rdid failed: %s\n",
++                            strerror(errno)));
++            return NULL;
++        }
++#elif defined(SO_BINDTODEVICE)
+         DEBUGMSGTL(("netsnmp_tcp", "netsnmp_tcp_transport: vrf %s\n", vrf));
+         if (setsockopt(t->sock, SOL_SOCKET, SO_BINDTODEVICE,
+                                 vrf, strlen(vrf)) == -1) {
+--- a/snmplib/transports/snmpTCPIPv6Domain.c
++++ b/snmplib/transports/snmpTCPIPv6Domain.c
+@@ -184,7 +184,17 @@ netsnmp_tcp6_transport(struct sockaddr_i
+     t->flags = NETSNMP_TRANSPORT_FLAG_STREAM;
+ 
+     if (vrf && *vrf != '\0') {
+-#if defined(SO_BINDTODEVICE)
++#if defined(HAVE_ROUTING_DOMAIN)
++        int rdid = atoi(vrf);
++        DEBUGMSGTL(("netsnmp_tcp6", "netsnmp_tcp6_transport: rdid %u\n", rdid));
++        if (rdid && setsockopt(t->sock, SOL_SOCKET, SO_RTDOMAIN,
++                                &rdid, sizeof(rdid)) == -1) {
++            netsnmp_transport_free(t);
++            DEBUGMSGTL(("netsnmp_tcp6", "netsnmp_tcp6_transport: set rdid failed: %s\n",
++                            strerror(errno)));
++            return NULL;
++        }
++#elif defined(SO_BINDTODEVICE)
+         DEBUGMSGTL(("netsnmp_tcp6", "netsnmp_tcp6_transport: vrf %s\n", vrf));
+         if (setsockopt(t->sock, SOL_SOCKET, SO_BINDTODEVICE,
+                                 vrf, strlen(vrf)) == -1) {
+--- a/snmplib/transports/snmpUDPIPv4BaseDomain.c
++++ b/snmplib/transports/snmpUDPIPv4BaseDomain.c
+@@ -99,7 +99,17 @@ netsnmp_udpipv4base_transport(struct soc
+     _netsnmp_udp_sockopt_set(t->sock, local);
+ 
+     if (vrf && *vrf != '\0') {
+-#if defined(SO_BINDTODEVICE)
++#if defined(HAVE_ROUTING_DOMAIN)
++        int rdid = atoi(vrf);
++        DEBUGMSGTL(("netsnmp_udpbase", "netsnmp_udpipv4base_transport: rdid %u\n", rdid));
++        if (rdid && setsockopt(t->sock, SOL_SOCKET, SO_RTDOMAIN,
++                                &rdid, sizeof(rdid)) == -1) {
++            netsnmp_transport_free(t);
++            DEBUGMSGTL(("netsnmp_udpbase", "netsnmp_udpipv4base_transport: set rdid failed: %s\n",
++                            strerror(errno)));
++            return NULL;
++        }
++#elif defined(SO_BINDTODEVICE)
+         DEBUGMSGTL(("netsnmp_udpbase", "netsnmp_udpipv4base_transport: vrf %s\n", vrf));
+         if (setsockopt(t->sock, SOL_SOCKET, SO_BINDTODEVICE,
+                                 vrf, strlen(vrf)) == -1) {
+--- a/snmplib/transports/snmpUDPIPv6Domain.c
++++ b/snmplib/transports/snmpUDPIPv6Domain.c
+@@ -227,7 +227,17 @@ netsnmp_udp6_transport(struct sockaddr_i
+     _netsnmp_udp_sockopt_set(t->sock, local);
+ 
+     if (vrf && *vrf != '\0') {
+-#if defined(SO_BINDTODEVICE)
++#if defined(HAVE_ROUTING_DOMAIN)
++        int rdid = atoi(vrf);
++        DEBUGMSGTL(("netsnmp_udp6", "netsnmp_udp6_transport: rdid %u\n", rdid));
++        if (rdid && setsockopt(t->sock, SOL_SOCKET, SO_RTDOMAIN,
++                                &rdid, sizeof(rdid)) == -1) {
++            netsnmp_transport_free(t);
++            DEBUGMSGTL(("netsnmp_udp6", "netsnmp_udp6_transport: set rdid failed: %s\n",
++                            strerror(errno)));
++            return NULL;
++        }
++#elif defined(SO_BINDTODEVICE)
+         DEBUGMSGTL(("netsnmp_udp6", "netsnmp_udp6_transport: vrf %s\n", vrf));
+         if (setsockopt(t->sock, SOL_SOCKET, SO_BINDTODEVICE,
+                                 vrf, strlen(vrf)) == -1) {
+--- a/agent/agent_registry.c
++++ b/agent/agent_registry.c
+@@ -66,6 +66,10 @@
+ #include "agentx/client.h"
+ #endif
+ 
++#ifdef HAVE_ROUTING_DOMAIN
++#include <linux/rtg_domains.h>
++#endif
++
+ netsnmp_feature_child_of(agent_registry_all, libnetsnmpagent)
+ 
+ netsnmp_feature_child_of(unregister_mib_table_row, agent_registry_all)
+@@ -466,7 +470,7 @@ get_context_mapping(void)
+ const char *
+ netsnmp_context_find_vrf(const char *context)
+ {
+-#if defined(SO_BINDTODEVICE)
++#if defined(HAVE_ROUTING_DOMAIN) || defined(SO_BINDTODEVICE)
+     context_mapping *ptr;
+ 
+     if (!context || strcmp(context, "") == 0)
+@@ -486,6 +490,36 @@ netsnmp_context_find_vrf(const char *con
+ #endif
+ }
+ 
++/** Finds the rdid for given context. For backward compatibility.
++ *
++ *  @param context Text name of the context we're searching for.
++ *
++ *  @return rdid for this context element,
++ *  or -1 if not found.
++ */
++unsigned int
++netsnmp_context_find_rdid(const char *context)
++{
++#if defined(HAVE_ROUTING_DOMAIN)
++    context_mapping *ptr;
++
++    if (!context || strcmp(context, "") == 0)
++        return RD_DEFAULT;
++
++    for (ptr = ctx_mapping; ptr != NULL; ptr = ptr->next) {
++        if (ptr->context != NULL &&
++            strcmp(ptr->context, context) == 0) {
++            DEBUGMSGTL(("subtree", "found vrf %s for: %s\n", ptr->vrf, context));
++            return atoi(ptr->vrf);
++        }
++    }
++    DEBUGMSGTL(("subtree", "didn't find vrf for: %s\n", context));
++    return RD_INVALID;
++#else
++    return 0;
++#endif
++}
++
+ /** Finds the context for given vrf.
+  *
+  *  @param vrf Name of the VRF of the context we're searching for.
+@@ -508,6 +542,28 @@ netsnmp_context_get_context_vrf(const ch
+     return NULL;
+ }
+ 
++/** Finds the context for given rdid. For backward compatibility.
++ *
++ *  @param rdid Routing domain of the context we're searching for.
++ *
++ *  @return context for this rdid or NULL if not found
++ *
++ *  @note NULL will also be returned for the default routing context.
++ */
++const char *
++netsnmp_context_get_context(const unsigned int rdid)
++{
++    context_mapping *ptr = ctx_mapping;
++
++    while (ptr) {
++        if (atoi(ptr->vrf) == rdid)
++            return ptr->context;
++        ptr = ptr->next;
++    }
++    DEBUGMSGTL(("subtree", "didn't find context for: %u\n", rdid));
++    return NULL;
++}
++
+ /** Adds the context and vrf to Context Mapping.
+  *
+  *  @param context Text name of the context we're adding.
+@@ -538,6 +594,46 @@ netsnmp_add_context_vrf(char *context, c
+     if ((ptr->vrf = strdup(vrf)) == NULL) {
+         SNMP_FREE(ptr->context);
+         SNMP_FREE(ptr);
++        return NULL;
++    }
++    ctx_mapping = ptr;
++
++    return ptr->context;
++}
++
++/** Adds the context and rdid to Context Mapping. For backward compatibility.
++ *
++ *  @param context Text name of the context we're adding.
++ *
++ *  @param  rdid Routing ID of the context we're adding.
++ *
++ *  @return copy of the context pointer, or NULL if cannot add.
++ */
++const char *
++netsnmp_add_context_rdid(char *context, unsigned int rdid)
++{
++    if (!context) {
++        return NULL;
++    }
++
++    context_mapping *ptr = SNMP_MALLOC_TYPEDEF(context_mapping);
++    if (!ptr) {
++        return NULL;
++    }
++
++    DEBUGMSGTL(("subtree", "adding context: %s, rdid: %u\n", context, rdid));
++
++    ptr->next = ctx_mapping;
++    if ((ptr->context = strdup(context)) == NULL) {
++        SNMP_FREE(ptr);
++        return NULL;
++    }
++
++    char vrf[64];
++    sprintf(vrf, "%u", rdid);
++    if ((ptr->vrf = strdup(vrf)) == NULL) {
++        SNMP_FREE(ptr->context);
++        SNMP_FREE(ptr);
+         return NULL;
+     }
+     ctx_mapping = ptr;
+--- a/include/net-snmp/agent/agent_registry.h
++++ b/include/net-snmp/agent/agent_registry.h
+@@ -87,9 +87,12 @@ subtree_context_cache *get_top_context_c
+ context_mapping *get_context_mapping(void);
+ 
+ const char *netsnmp_context_find_vrf(const char *context);
++unsigned int netsnmp_context_find_rdid(const char *context);
+ const char *netsnmp_context_get_context_vrf(const char *vrf);
++const char *netsnmp_context_get_context(const unsigned int rdid);
+ 
+ const char *netsnmp_add_context_vrf(char *context, char *vrf);
++const char *netsnmp_add_context_rdid(char *context, unsigned int rdid);
+ 
+ void netsnmp_clear_context_mapping(void);
+ 

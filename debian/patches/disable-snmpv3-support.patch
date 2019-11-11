@@ -1,0 +1,70 @@
+Index: net-snmp/agent/agent_read_config.c
+===================================================================
+--- net-snmp.orig/agent/agent_read_config.c	2015-03-02 09:55:46.237710887 -0800
++++ net-snmp/agent/agent_read_config.c	2015-03-02 09:58:34.953966881 -0800
+@@ -266,6 +266,9 @@
+     netsnmp_ds_register_config(ASN_BOOLEAN, app, "leave_pidfile", 
+ 			       NETSNMP_DS_APPLICATION_ID,
+ 			       NETSNMP_DS_AGENT_LEAVE_PIDFILE);
++    netsnmp_ds_register_config(ASN_BOOLEAN, app, "disablesnmpv3", 
++			       NETSNMP_DS_APPLICATION_ID,
++			       NETSNMP_DS_AGENT_DISABLE_SNMPV3);
+     netsnmp_ds_register_config(ASN_BOOLEAN, app, "dontLogTCPWrappersConnects",
+                                NETSNMP_DS_APPLICATION_ID,
+                                NETSNMP_DS_AGENT_DONT_LOG_TCPWRAPPERS_CONNECTS);
+Index: net-snmp/agent/snmpd.c
+===================================================================
+--- net-snmp.orig/agent/snmpd.c	2015-03-02 09:55:46.425711175 -0800
++++ net-snmp/agent/snmpd.c	2015-03-02 10:05:27.190572697 -0800
+@@ -503,6 +503,11 @@
+     netsnmp_ds_set_int(NETSNMP_DS_APPLICATION_ID,
+                        NETSNMP_DS_AGENT_CACHE_TIMEOUT, 5);
+     /*
++     * Default to SNMPV3 enabled.  
++     */
++    netsnmp_ds_set_boolean(NETSNMP_DS_APPLICATION_ID, 
++			   NETSNMP_DS_AGENT_DISABLE_SNMPV3, 0);
++    /*
+      * Add some options if they are available.  
+      */
+ #if HAVE_UNISTD_H
+Index: net-snmp/include/net-snmp/agent/ds_agent.h
+===================================================================
+--- net-snmp.orig/include/net-snmp/agent/ds_agent.h	2015-03-02 09:54:54.185630864 -0800
++++ net-snmp/include/net-snmp/agent/ds_agent.h	2015-03-02 09:59:52.078082259 -0800
+@@ -36,6 +36,7 @@
+ #define NETSNMP_DS_AGENT_DISKIO_NO_FD   18      /* 1 = don't report /dev/fd*   entries in diskIOTable */
+ #define NETSNMP_DS_AGENT_DISKIO_NO_LOOP 19      /* 1 = don't report /dev/loop* entries in diskIOTable */
+ #define NETSNMP_DS_AGENT_DISKIO_NO_RAM  20      /* 1 = don't report /dev/ram*  entries in diskIOTable */
++#define NETSNMP_DS_AGENT_DISABLE_SNMPV3 21      /* 1 = disable snmpv3 - block all v3 client requests */
+ 
+ /* WARNING: The trap receiver also uses DS flags and must not conflict with these!
+  * If you define additional boolean entries, check in "apps/snmptrapd_ds.h" first */
+Index: net-snmp/snmplib/snmp_api.c
+===================================================================
+--- net-snmp.orig/snmplib/snmp_api.c	2015-03-02 09:55:46.389711120 -0800
++++ net-snmp/snmplib/snmp_api.c	2015-03-02 10:03:50.494432908 -0800
+@@ -39,6 +39,7 @@
+  */
+ #include <net-snmp/net-snmp-config.h>
+ #include <net-snmp/net-snmp-features.h>
++#include <net-snmp/agent/ds_agent.h> 
+ 
+ #include <stdio.h>
+ #include <ctype.h>
+@@ -5173,6 +5174,15 @@
+ 	      "session %p fd %d pkt %p length %d\n", sessp,
+ 	      transport->sock, packetptr, length));
+ 
++  /* Check if SNMPV3 is disabled */
++  if (snmp_parse_version(packetptr,length) == SNMP_VERSION_3 && 
++      netsnmp_ds_get_boolean(NETSNMP_DS_APPLICATION_ID,
++                              NETSNMP_DS_AGENT_DISABLE_SNMPV3)) {
++      DEBUGMSGTL(("sess_process_packet", "SNMPV3 disabled - v3 request blocked\n"));
++      SNMP_FREE(opaque);
++      return -1;
++  }    
++
+   if (netsnmp_ds_get_boolean(NETSNMP_DS_LIBRARY_ID,NETSNMP_DS_LIB_DUMP_PACKET)) {
+       char *addrtxt = netsnmp_transport_peer_string(transport, opaque, olength);
+       snmp_log(LOG_DEBUG, "\nReceived %d byte packet from %s\n",

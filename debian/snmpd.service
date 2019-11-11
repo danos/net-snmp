@@ -4,11 +4,14 @@ After=network.target
 ConditionPathExists=/etc/snmp/snmpd.conf
 
 [Service]
+Environment=TMP_OPTS=/run/snmpd/snmpd-args
 Environment="MIBSDIR=/usr/share/snmp/mibs:/usr/share/snmp/mibs/iana:/usr/share/snmp/mibs/ietf:/usr/share/mibs/site:/usr/share/snmp/mibs:/usr/share/mibs/iana:/usr/share/mibs/ietf:/usr/share/mibs/netsnmp"
-Environment="MIBS="
+Environment="SNMPD_DEFAULT_ARGS=-Lsd -Lf /dev/null -u snmp -g snmp -I -smux -p /run/snmpd.pid -f"
+EnvironmentFile=/run/snmpd/snmpd-args
 Type=simple
 ExecStartPre=/bin/mkdir -p /var/run/agentx
-ExecStart=/usr/sbin/snmpd -Lsd -Lf /dev/null -u Debian-snmp -g Debian-snmp -I -smux,mteTrigger,mteTriggerConf -f -p /run/snmpd.pid
+ExecStartPre=/bin/bash -c "echo -n 'SNMPD_OPTS=${SNMPD_DEFAULT_ARGS} ' > $TMP_OPTS"
+ExecStart=/usr/sbin/snmpd $SNMPD_OPTS
 ExecReload=/bin/kill -HUP $MAINPID
 
 [Install]

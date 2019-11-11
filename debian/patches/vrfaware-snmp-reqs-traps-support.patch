@@ -1,0 +1,534 @@
+--- a/agent/agent_read_config.c
++++ b/agent/agent_read_config.c
+@@ -229,7 +229,7 @@ init_agent_read_config(const char *app)
+         register_app_config_handler("trap2sink",
+                                     snmpd_parse_config_trap2sink, 
+                                     snmpd_free_trapsinks,
+-                                    "host [community] [port]");
++                                    "[-n context] host [community] [port]");
+         register_app_config_handler("informsink",
+                                     snmpd_parse_config_informsink,
+                                     snmpd_free_trapsinks,
+--- a/agent/agent_trap.c
++++ b/agent/agent_trap.c
+@@ -221,8 +221,8 @@ remove_trap_session(netsnmp_session * ss
+ 
+ #if !defined(NETSNMP_DISABLE_SNMPV1) || !defined(NETSNMP_DISABLE_SNMPV2C)
+ static int
+-create_trap_session2(const char *sink, const char* sinkport,
+-		     char *com, int version, int pdutype)
++create_trap_session2_context(const char *sink, const char* sinkport,
++		     char *com, int version, int pdutype, char *context)
+ {
+     netsnmp_transport *t;
+     netsnmp_session session, *sesp;
+@@ -234,6 +234,11 @@ create_trap_session2(const char *sink, c
+         session.community_len = strlen(com);
+     }
+ 
++    if (context && *context != '\0') {
++        session.contextName = context;
++        session.contextNameLen = strlen(context);
++    }
++
+     /*
+      * for informs, set retries to default
+      */
+@@ -266,6 +271,13 @@ create_trap_session2(const char *sink, c
+     return 0;
+ }
+ 
++static int
++create_trap_session2(const char *sink, const char* sinkport,
++		     char *com, int version, int pdutype)
++{
++    return create_trap_session2_context(sink, sinkport, com, version, pdutype, NULL);
++}
++
+ int
+ create_trap_session(char *sink, u_short sinkport,
+ 		    char *com, int version, int pdutype)
+@@ -820,13 +832,15 @@ netsnmp_send_traps(int trap, int specifi
+ #ifndef NETSNMP_DISABLE_SNMPV1
+         if (sink->version == SNMP_VERSION_1) {
+           if (template_v1pdu) {
+-            send_trap_to_sess(sink->sesp, template_v1pdu);
++            if (send_trap_with_context(sink->sesp, template_v1pdu))
++                send_trap_to_sess(sink->sesp, template_v1pdu);
+           }
+         } else {
+ #endif
+           if (template_v2pdu) {
+             template_v2pdu->command = sink->pdutype;
+-            send_trap_to_sess(sink->sesp, template_v2pdu);
++            if (send_trap_with_context(sink->sesp, template_v2pdu))
++                send_trap_to_sess(sink->sesp, template_v2pdu);
+           }
+ #ifndef NETSNMP_DISABLE_SNMPV1
+         }
+@@ -894,6 +908,20 @@ handle_inform_response(int op, netsnmp_s
+     return 1;
+ }
+ 
++/*
++ * send_trap_with_context: checks if trap PDU and trap session have context
++ * and if they match. If no context in PDU or session, or context in both
++ * and they match, send the trap.
++*/
++int
++send_trap_with_context(netsnmp_session *sess, netsnmp_pdu *trap_pdu)
++{
++    if (sess->contextNameLen == 0 || trap_pdu->contextNameLen == 0 ||
++        (sess->contextNameLen == trap_pdu->contextNameLen &&
++        strcmp(sess->contextName, trap_pdu->contextName) == 0))
++        return 1;
++    return 0;
++}
+ 
+ /*
+  * send_trap_to_sess: sends a trap to a session but assumes that the
+@@ -1150,16 +1178,30 @@ snmpd_parse_config_trapsink(const char *
+ void
+ snmpd_parse_config_trap2sink(const char *word, char *cptr)
+ {
+-    char           *st, *sp, *cp, *pp = NULL;
++    char           *st, *sp, *cp, *pp = NULL, *ctxt = NULL;
+ 
+     if (!snmp_trapcommunity)
+         snmp_trapcommunity = strdup("public");
+     sp = strtok_r(cptr, " \t\n", &st);
++    if (0 == strcmp(sp, "-n")) {
++        ctxt = strtok_r(NULL, " \t", &st);
++        sp = strtok_r(NULL, " \t\n", &st);
++        if (!ctxt || !sp || !netsnmp_context_find_vrf(ctxt)) {
++            netsnmp_config_error("cannot create trap2sink with context: %s", cptr);
++            return;
++        }
++    }
+     cp = strtok_r(NULL, " \t\n", &st);
+     if (cp)
+         pp = strtok_r(NULL, " \t\n", &st);
+     if (pp)
+ 	config_pwarn("The separate port argument to trapsink2 is deprecated");
++    if (ctxt) {
++        if (create_trap_session2_context(sp, pp, cp ? cp : snmp_trapcommunity,
++				                SNMP_VERSION_2c, SNMP_MSG_TRAP2, ctxt) == 0)
++            netsnmp_config_error("cannot create trap2sink with context: %s", cptr);
++        return;
++    }
+     if (create_v2_trap_session(sp, pp, cp ? cp : snmp_trapcommunity) == 0) {
+ 	netsnmp_config_error("cannot create trap2sink: %s", cptr);
+     }
+--- a/include/net-snmp/library/snmpSocketBaseDomain.h
++++ b/include/net-snmp/library/snmpSocketBaseDomain.h
+@@ -17,6 +17,7 @@ extern          "C" {
+     int netsnmp_socketbase_close(netsnmp_transport *t);
+     int netsnmp_sock_buffer_set(int s, int optname, int local, int size);
+     int netsnmp_set_non_blocking_mode(int sock, int non_blocking_mode);
++    unsigned int netsnmp_get_vrf(char **addr, char **vrf);
+ 
+ #ifdef __cplusplus
+ }
+--- a/include/net-snmp/library/snmpTCPDomain.h
++++ b/include/net-snmp/library/snmpTCPDomain.h
+@@ -25,7 +25,8 @@ extern          "C" {
+ #define TRANSPORT_DOMAIN_TCP_IP		1,3,6,1,2,1,100,1,5
+ NETSNMP_IMPORT oid netsnmp_snmpTCPDomain[];
+ 
+-netsnmp_transport *netsnmp_tcp_transport(struct sockaddr_in *addr, int local);
++netsnmp_transport *netsnmp_tcp_transport(struct sockaddr_in *addr, int local,
++                                            char *vrf);
+ 
+ /*
+  * "Constructor" for transport domain object.  
+--- a/include/net-snmp/library/snmpTCPIPv6Domain.h
++++ b/include/net-snmp/library/snmpTCPIPv6Domain.h
+@@ -24,7 +24,7 @@ extern          "C" {
+ NETSNMP_IMPORT oid      netsnmp_TCPIPv6Domain[];
+ 
+ netsnmp_transport *netsnmp_tcp6_transport(struct sockaddr_in6 *addr, 
+-					  int local);
++					  int local, char *vrf);
+ 
+ /*
+  * "Constructor" for transport domain object.  
+--- a/include/net-snmp/library/snmpUDPDomain.h
++++ b/include/net-snmp/library/snmpUDPDomain.h
+@@ -18,7 +18,8 @@ extern          "C" {
+ config_require(UDPIPv4Base)
+ #include <net-snmp/library/snmpUDPIPv4BaseDomain.h>
+ 
+-netsnmp_transport *netsnmp_udp_transport(struct sockaddr_in *addr, int local);
++netsnmp_transport *netsnmp_udp_transport(struct sockaddr_in *addr, int local,
++                                            char *vrf);
+ 
+ 
+ /*
+--- a/include/net-snmp/library/snmpUDPIPv4BaseDomain.h
++++ b/include/net-snmp/library/snmpUDPIPv4BaseDomain.h
+@@ -25,7 +25,7 @@ extern          "C" {
+  */
+ 
+     netsnmp_transport *netsnmp_udpipv4base_transport(struct sockaddr_in *addr,
+-                                                     int local);
++                                                     int local, char *vrf);
+ 
+ #if defined(HAVE_IP_PKTINFO) || defined(HAVE_IP_RECVDSTADDR)
+     int netsnmp_udpipv4_recvfrom(int s, void *buf, int len,
+--- a/include/net-snmp/library/snmpUDPIPv6Domain.h
++++ b/include/net-snmp/library/snmpUDPIPv6Domain.h
+@@ -23,7 +23,7 @@ config_require(UDPBase)
+ NETSNMP_IMPORT oid      netsnmp_UDPIPv6Domain[];
+ 
+ netsnmp_transport *netsnmp_udp6_transport(struct sockaddr_in6 *addr,
+-                                          int local);
++                                          int local, char *vrf);
+ 
+ 
+ /*
+--- a/snmplib/transports/snmpDTLSUDPDomain.c
++++ b/snmplib/transports/snmpDTLSUDPDomain.c
+@@ -1420,7 +1420,7 @@ netsnmp_dtlsudp_transport(struct sockadd
+ 
+     DEBUGTRACETOK("dtlsudp");
+ 
+-    t = netsnmp_udp_transport(addr, local);
++    t = netsnmp_udp_transport(addr, local, NULL);
+     if (NULL == t)
+         return NULL;
+ 
+@@ -1464,7 +1464,7 @@ netsnmp_dtlsudp6_transport(struct sockad
+ 
+     DEBUGTRACETOK("dtlsudp");
+ 
+-    t = netsnmp_udp6_transport(addr, local);
++    t = netsnmp_udp6_transport(addr, local, NULL);
+     if (NULL == t)
+         return NULL;
+ 
+--- a/snmplib/transports/snmpSocketBaseDomain.c
++++ b/snmplib/transports/snmpSocketBaseDomain.c
+@@ -360,3 +360,60 @@ netsnmp_set_non_blocking_mode(int sock,
+         return -1;
+ #endif
+ }
++
++/**
++ * Gets routing domain in given address
++ *
++ * @param[in] The address in: <address>:<port>:<vrf>
++ *          - address could be addr, port, address:port,
++ *                             port:vrf, address:port:vrf
++ * @param[out] pointer to vrf in address
++ *
++ * @return 0 if error, else 1
++ */
++unsigned int
++netsnmp_get_vrf(char **str, char **vrf)
++{
++    char *cp, *addr6;
++    char *delim;
++    unsigned int delim_cnt = 0;
++
++    DEBUGMSGTL(("socket:buffer", "addr string %s\n", *str));
++    *vrf = NULL;
++    if (*str == NULL || **str == '\0')
++        return 1;
++    cp = strrchr(*str, ':');
++    if (cp && *(++cp) == '\0')
++        return 0;
++    cp = *str;
++    if (**str == '[' && (addr6 = strchr(*str, ']')))
++        cp = addr6;
++    delim = cp;
++    while (delim = strchr(delim, ':')) {
++        delim_cnt++;
++        delim++;
++        if (delim_cnt > 2) {
++            DEBUGMSGTL(("socket:buffer", "addr %s vrf %s\n", *str, *vrf));
++            return 0;
++        }
++    }
++    if (delim_cnt == 1) {
++        while (*cp != ':') {
++            if (!isdigit(*cp)) {
++                DEBUGMSGTL(("socket:buffer", "addr %s vrf %s\n", *str, *vrf));
++                return 1;
++            }
++            cp++;
++        }
++        /* port:vrf */
++        *cp = '\0';
++        *vrf = ++cp;
++    } else if (delim_cnt == 2) {
++        /* address:port:vrf */
++        cp = strrchr(cp, ':');
++        *cp = '\0';
++        *vrf = ++cp;
++    }
++    DEBUGMSGTL(("socket:buffer", "addr %s vrf %s\n", *str, *vrf));
++    return 1;
++}
+--- a/snmplib/transports/snmpTCPDomain.c
++++ b/snmplib/transports/snmpTCPDomain.c
+@@ -144,7 +144,8 @@ netsnmp_tcp_accept(netsnmp_transport *t)
+  */
+ 
+ netsnmp_transport *
+-netsnmp_tcp_transport(struct sockaddr_in *addr, int local)
++netsnmp_tcp_transport(struct sockaddr_in *addr, int local,
++                        char *vrf)
+ {
+     netsnmp_transport *t = NULL;
+     netsnmp_udp_addr_pair *addr_pair = NULL;
+@@ -186,6 +187,19 @@ netsnmp_tcp_transport(struct sockaddr_in
+ 
+     t->flags = NETSNMP_TRANSPORT_FLAG_STREAM;
+ 
++    if (vrf && *vrf != '\0') {
++#if defined(SO_BINDTODEVICE)
++        DEBUGMSGTL(("netsnmp_tcp", "netsnmp_tcp_transport: vrf %s\n", vrf));
++        if (setsockopt(t->sock, SOL_SOCKET, SO_BINDTODEVICE,
++                                vrf, strlen(vrf)) == -1) {
++            netsnmp_transport_free(t);
++            DEBUGMSGTL(("netsnmp_tcp", "netsnmp_tcp_transport: set vrf failed: %s\n",
++                            strerror(errno)));
++            return NULL;
++        }
++#endif
++    }
++
+     if (local) {
+ #ifndef NETSNMP_NO_LISTEN_SUPPORT
+         int opt = 1;
+@@ -308,9 +322,12 @@ netsnmp_tcp_create_tstring(const char *s
+ 			   const char *default_target)
+ {
+     struct sockaddr_in addr;
++    char *vrf = NULL;
+ 
++    if (!netsnmp_get_vrf(&str, &vrf))
++        return NULL;
+     if (netsnmp_sockaddr_in2(&addr, str, default_target)) {
+-        return netsnmp_tcp_transport(&addr, local);
++        return netsnmp_tcp_transport(&addr, local, vrf);
+     } else {
+         return NULL;
+     }
+@@ -328,7 +345,7 @@ netsnmp_tcp_create_ostring(const u_char
+         addr.sin_family = AF_INET;
+         memcpy((u_char *) & (addr.sin_addr.s_addr), o, 4);
+         addr.sin_port = htons(porttmp);
+-        return netsnmp_tcp_transport(&addr, local);
++        return netsnmp_tcp_transport(&addr, local, 0);
+     }
+     return NULL;
+ }
+--- a/snmplib/transports/snmpTCPIPv6Domain.c
++++ b/snmplib/transports/snmpTCPIPv6Domain.c
+@@ -136,7 +136,8 @@ netsnmp_tcp6_accept(netsnmp_transport *t
+  */
+ 
+ netsnmp_transport *
+-netsnmp_tcp6_transport(struct sockaddr_in6 *addr, int local)
++netsnmp_tcp6_transport(struct sockaddr_in6 *addr, int local,
++                        char *vrf)
+ {
+     netsnmp_transport *t = NULL;
+     int             rc = 0;
+@@ -182,6 +183,19 @@ netsnmp_tcp6_transport(struct sockaddr_i
+ 
+     t->flags = NETSNMP_TRANSPORT_FLAG_STREAM;
+ 
++    if (vrf && *vrf != '\0') {
++#if defined(SO_BINDTODEVICE)
++        DEBUGMSGTL(("netsnmp_tcp6", "netsnmp_tcp6_transport: vrf %s\n", vrf));
++        if (setsockopt(t->sock, SOL_SOCKET, SO_BINDTODEVICE,
++                                vrf, strlen(vrf)) == -1) {
++            netsnmp_transport_free(t);
++            DEBUGMSGTL(("netsnmp_tcp6", "netsnmp_tcp6_transport: set vrf failed: %s\n",
++                            strerror(errno)));
++            return NULL;
++        }
++#endif
++    }
++
+     if (local) {
+ #ifndef NETSNMP_NO_LISTEN_SUPPORT
+         int opt = 1;
+@@ -320,9 +334,12 @@ netsnmp_tcp6_create_tstring(const char *
+ 			    const char *default_target)
+ {
+     struct sockaddr_in6 addr;
++    char *vrf = NULL;
+ 
++    if (!netsnmp_get_vrf(&str, &vrf))
++        return NULL;
+     if (netsnmp_sockaddr_in6_2(&addr, str, default_target)) {
+-        return netsnmp_tcp6_transport(&addr, local);
++        return netsnmp_tcp6_transport(&addr, local, vrf);
+     } else {
+         return NULL;
+     }
+@@ -348,7 +365,7 @@ netsnmp_tcp6_create_ostring(const u_char
+         addr.sin6_family = AF_INET6;
+         memcpy((u_char *) & (addr.sin6_addr.s6_addr), o, 16);
+         addr.sin6_port = htons((o[16] << 8) + o[17]);
+-        return netsnmp_tcp6_transport(&addr, local);
++        return netsnmp_tcp6_transport(&addr, local, NULL);
+     }
+     return NULL;
+ }
+--- a/snmplib/transports/snmpUDPDomain.c
++++ b/snmplib/transports/snmpUDPDomain.c
+@@ -125,11 +125,12 @@ int netsnmp_udp_sendto(int fd, struct in
+  */
+ 
+ netsnmp_transport *
+-netsnmp_udp_transport(struct sockaddr_in *addr, int local)
++netsnmp_udp_transport(struct sockaddr_in *addr, int local,
++                        char *vrf)
+ {
+     netsnmp_transport *t = NULL;
+ 
+-    t = netsnmp_udpipv4base_transport(addr, local);
++    t = netsnmp_udpipv4base_transport(addr, local, vrf);
+     if (NULL == t) {
+         return NULL;
+     }
+@@ -476,9 +477,12 @@ netsnmp_udp_create_tstring(const char *s
+ 			   const char *default_target)
+ {
+     struct sockaddr_in addr;
++    char *vrf = NULL;
+ 
++    if (!netsnmp_get_vrf(&str, &vrf))
++        return NULL;
+     if (netsnmp_sockaddr_in2(&addr, str, default_target)) {
+-        return netsnmp_udp_transport(&addr, local);
++        return netsnmp_udp_transport(&addr, local, vrf);
+     } else {
+         return NULL;
+     }
+@@ -495,7 +499,7 @@ netsnmp_udp_create_ostring(const u_char
+         addr.sin_family = AF_INET;
+         memcpy((u_char *) & (addr.sin_addr.s_addr), o, 4);
+         addr.sin_port = htons(porttmp);
+-        return netsnmp_udp_transport(&addr, local);
++        return netsnmp_udp_transport(&addr, local, NULL);
+     }
+     return NULL;
+ }
+--- a/snmplib/transports/snmpUDPIPv4BaseDomain.c
++++ b/snmplib/transports/snmpUDPIPv4BaseDomain.c
+@@ -57,7 +57,8 @@ int netsnmp_udpipv4_sendto(int fd, struc
+ #endif /* HAVE_IP_PKTINFO || HAVE_IP_RECVDSTADDR */
+ 
+ netsnmp_transport *
+-netsnmp_udpipv4base_transport(struct sockaddr_in *addr, int local)
++netsnmp_udpipv4base_transport(struct sockaddr_in *addr, int local,
++                                char *vrf)
+ {
+     netsnmp_transport *t = NULL;
+     int             rc = 0, rc2;
+@@ -97,6 +98,19 @@ netsnmp_udpipv4base_transport(struct soc
+ 
+     _netsnmp_udp_sockopt_set(t->sock, local);
+ 
++    if (vrf && *vrf != '\0') {
++#if defined(SO_BINDTODEVICE)
++        DEBUGMSGTL(("netsnmp_udpbase", "netsnmp_udpipv4base_transport: vrf %s\n", vrf));
++        if (setsockopt(t->sock, SOL_SOCKET, SO_BINDTODEVICE,
++                                vrf, strlen(vrf)) == -1) {
++            netsnmp_transport_free(t);
++            DEBUGMSGTL(("netsnmp_udpbase", "netsnmp_udpipv4base_transport: set vrf failed: %s\n",
++                            strerror(errno)));
++            return NULL;
++        }
++#endif
++    }
++
+     if (local) {
+ #ifndef NETSNMP_NO_LISTEN_SUPPORT
+         /*
+--- a/snmplib/transports/snmpUDPIPv6Domain.c
++++ b/snmplib/transports/snmpUDPIPv6Domain.c
+@@ -186,7 +186,8 @@ netsnmp_udp6_send(netsnmp_transport *t,
+  */
+ 
+ netsnmp_transport *
+-netsnmp_udp6_transport(struct sockaddr_in6 *addr, int local)
++netsnmp_udp6_transport(struct sockaddr_in6 *addr, int local,
++                        char *vrf)
+ {
+     netsnmp_transport *t = NULL;
+     int             rc = 0;
+@@ -225,6 +226,19 @@ netsnmp_udp6_transport(struct sockaddr_i
+ 
+     _netsnmp_udp_sockopt_set(t->sock, local);
+ 
++    if (vrf && *vrf != '\0') {
++#if defined(SO_BINDTODEVICE)
++        DEBUGMSGTL(("netsnmp_udp6", "netsnmp_udp6_transport: vrf %s\n", vrf));
++        if (setsockopt(t->sock, SOL_SOCKET, SO_BINDTODEVICE,
++                                vrf, strlen(vrf)) == -1) {
++            netsnmp_transport_free(t);
++            DEBUGMSGTL(("netsnmp_udp6", "netsnmp_udp6_transport: set vrf failed: %s\n",
++                            strerror(errno)));
++            return NULL;
++        }
++#endif
++    }
++
+     if (local) {
+ #ifndef NETSNMP_NO_LISTEN_SUPPORT
+         /*
+@@ -727,9 +741,12 @@ netsnmp_udp6_create_tstring(const char *
+ 			    const char *default_target)
+ {
+     struct sockaddr_in6 addr;
++    char *vrf = NULL;
+ 
++    if (!netsnmp_get_vrf(&str, &vrf))
++        return NULL;
+     if (netsnmp_sockaddr_in6_2(&addr, str, default_target)) {
+-        return netsnmp_udp6_transport(&addr, local);
++        return netsnmp_udp6_transport(&addr, local, vrf);
+     } else {
+         return NULL;
+     }
+@@ -755,7 +772,7 @@ netsnmp_udp6_create_ostring(const u_char
+         addr.sin6_family = AF_INET6;
+         memcpy((u_char *) & (addr.sin6_addr.s6_addr), o, 16);
+         addr.sin6_port = htons((o[16] << 8) + o[17]);
+-        return netsnmp_udp6_transport(&addr, local);
++        return netsnmp_udp6_transport(&addr, local, NULL);
+     }
+     return NULL;
+ }
+--- a/agent/mibgroup/notification/snmpNotifyTable.c
++++ b/agent/mibgroup/notification/snmpNotifyTable.c
+@@ -260,8 +260,10 @@ send_notifications(int major, int minor,
+                     send = 0;
+             }
+             if (send) {
+-                send_trap_to_sess(sptr, template_pdu);
+-                ++count;
++                if (send_trap_with_context(sptr, template_pdu)) {
++                    send_trap_to_sess(sptr, template_pdu);
++                    ++count;
++                }
+             } /* session to send to */
+         } /* for(sptr) */
+     } /* for(hptr) */
+--- a/include/net-snmp/agent/agent_trap.h
++++ b/include/net-snmp/agent/agent_trap.h
+@@ -38,6 +38,8 @@ void            snmpd_parse_config_trapc
+ void            snmpd_free_trapcommunity(void);
+ void            send_trap_to_sess(netsnmp_session * sess,
+                                   netsnmp_pdu *template_pdu);
++int             send_trap_with_context(netsnmp_session * sess,
++                                  netsnmp_pdu *template_pdu);
+ 
+ int             create_trap_session(char *, u_short, char *, int, int);
+ int             add_trap_session(netsnmp_session *, int, int, int);

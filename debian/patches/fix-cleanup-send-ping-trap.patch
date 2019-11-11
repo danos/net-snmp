@@ -1,0 +1,22 @@
+--- a/agent/mibgroup/disman/ping/pingCtlTable.c
++++ b/agent/mibgroup/disman/ping/pingCtlTable.c
+@@ -1164,7 +1164,6 @@ send_ping_trap(struct pingCtlTable_data
+                               item->pingCtlTestName,
+                               item->pingCtlTestNameLen);
+     StorageTmp = header_complex_get(pingResultsTableStorage, vars);
+-    snmp_free_varbind(vars);
+     if (!StorageTmp)
+         return;
+ 
+@@ -1269,9 +1268,9 @@ send_ping_trap(struct pingCtlTable_data
+     DEBUGMSG(("pingTest:send_ping_trap", "success!\n"));
+ 
+     send_v2trap(var_list);
+-    snmp_free_varbind(vars);
+-    vars = NULL;
+     snmp_free_varbind(var_list);
++    var_list = NULL;
++    snmp_free_varbind(vars);
+     vars = NULL;
+ }
+ 

@@ -25,7 +25,7 @@ OLD_MIBS_DIR="/usr/share/mibs/site:/usr/share/snmp/mibs:/usr/share/mibs/iana:/us
 MIBS_DIR="/usr/share/snmp/mibs:/usr/share/snmp/mibs/iana:/usr/share/snmp/mibs/ietf"
 export MIBDIRS="$MIBS_DIR:$OLD_MIBS_DIR"
 
-DEFAULT_SNMPDOPTS="-Lsd -Lf /dev/null -u Debian-snmp -g Debian-snmp -I -smux,mteTrigger,mteTriggerConf"
+DEFAULT_SNMPDOPTS="-Lsd -Lf /dev/null -u snmp -g snmp -I -smux"
 [ -z "$SNMPDOPTS" ] && SNMPDOPTS=$DEFAULT_SNMPDOPTS
 
 DAEMON_ARGS="$SNMPDOPTS -p $PIDFILE"

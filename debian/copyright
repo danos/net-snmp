@@ -78,6 +78,37 @@ Files: apps/snmppcap.c
 Copyright: 2013 Arista Networks, Inc.
 License: BSD-3-clause
 
+Files: debian/patches/
+  commit-50085bc
+  commit-9e70806
+  commit-653754b
+  commit-51d4e87
+  commit-24c4337
+  netlink-support-for-routes.patch
+  commit-d070f89
+  commit-bf95010
+  ignore-spathintf-interface.patch
+  disable-snmpv3-support.patch
+  fix-ipaddress-prefix-update.patch
+  dup-ip-addr-detect.patch
+  snmpstatus_use_unsigned_for_counters.patch
+  vrfaware-snmp-agentx-subagent-mib-support.patch
+  vrfaware-snmp-reqs-traps-support.patch
+  vrfaware-snmp-rdid.patch
+  add-context-to-send_linkUpDownNotifications.patch
+  use-netlink-to-scan-interfaces.patch
+  use-netlink-for-ipRouteTable.patch
+  add-context-to-findvarmethod.patch
+  fix-cleanup-send-ping-trap.patch
+  use-setreuid-cap-set-proc.patch
+  make-pingCtlTable-objects-writable.patch
+  fix-snmpd-restart-linkupdown-traps.patch
+  dataplane-intf-ifdescr-use-ethtool.patch
+  get-ifalias-from-sysfs.patch
+Copyright: 2014-2017 Brocade Communications Systems, Inc.
+           2018-2019 AT&T Intellectual Property.
+License: BSD-3-clause
+
 License: BSD-LIKE
  Permission to use, copy, modify and distribute this software and its
  documentation for any purpose and without fee is hereby granted,
@@ -149,4 +180,3 @@ License: GPL-2.0+
  .
  On Debian systems, the complete text of the GNU General
  Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".
-

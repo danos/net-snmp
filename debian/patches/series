@@ -1,3 +1,4 @@
+restore-Debian-deleted-MIBs.patch
 pingmib_perl_path
 02_statistics.patch
 03_makefiles.patch
@@ -17,7 +18,8 @@ fix_spelling_error.patch
 fix_logging_option.patch
 fix_typo_in_snmpd.conf.patch
 fix_man_error.patch
-after_RFC5378
+# We don't follow DFSG
+#after_RFC5378
 fix_manpage-has-errors_break_line.patch
 add_rocommunity6.patch
 fix_manpage-has-errors-from-man.patch
@@ -38,3 +40,37 @@ perl-parallel-build.patch
 snmpwalk_args_in_snmpcheck
 CVE-2018-18065.patch
 snmptrapd_mysql_init
+
+# Backports from 5.8
+snmpd-Speed-up-ipAddressTable-loading.patch
+Fix-leaks-and-memory-errors-in-the-previous-patch.patch
+
+# Vyatta Patches
+commit-50085bc
+commit-9e70806
+# Been omitted.
+#commit-653754b
+commit-51d4e87
+commit-24c4337
+netlink-support-for-routes.patch
+commit-d070f89
+commit-bf95010
+ignore-spathintf-interface.patch
+disable-snmpv3-support.patch
+fix-ipaddress-prefix-update.patch
+dup-ip-addr-detect.patch
+snmpstatus_use_unsigned_for_counters.patch
+vrfaware-snmp-agentx-subagent-mib-support.patch
+vrfaware-snmp-reqs-traps-support.patch
+vrfaware-snmp-rdid.patch
+add-context-to-send_linkUpDownNotifications.patch
+use-netlink-to-scan-interfaces.patch
+use-netlink-for-ipRouteTable.patch
+add-context-to-findvarmethod.patch
+
+fix-cleanup-send-ping-trap.patch
+use-setreuid-cap-set-proc.patch
+make-pingCtlTable-objects-writable.patch
+fix-snmpd-restart-linkupdown-traps.patch
+dataplane-intf-ifdescr-use-ethtool.patch
+get-ifalias-from-sysfs.patch

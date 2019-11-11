@@ -1,0 +1,57 @@
+commit 653754bd875612fca7746773673b0a62bfb63de5
+Author: Stephen Hemminger <stephen.hemminger@vyatta.com>
+Date:   Thu Nov 11 10:29:42 2010 -0800
+
+    Improve performance of sort in binary_container_array
+    
+    Performance improvements of qsort routine.
+      1. Choose proper mid point
+      2. Reorder conditionals to avoid calling compare
+      3. Use insertion sort for small segments
+    (cherry picked from commit 7d27fe75b2f009691e427345a82ae0fa6a2e0417)
+
+diff --git a/snmplib/container_binary_array.c b/snmplib/container_binary_array.c
+index 249a3a9..c8e3f61 100644
+--- a/snmplib/container_binary_array.c
++++ b/snmplib/container_binary_array.c
+@@ -48,6 +48,23 @@ typedef struct binary_array_iterator_s {
+ 
+ static netsnmp_iterator *_ba_iterator_get(netsnmp_container *c);
+ 
++/* basic insertion sort */
++static void
++insert_sort(void **data, int size, netsnmp_container_compare *f)
++{
++    int i, j;
++    void *tmp;
++
++    for (i = 1; i < size; i++) {
++	if ((*f)(data[i-1], data[i]) <= 0)
++	    continue;
++	tmp = data[i];
++	for (j = i - 1; j >= 0 && (*f)(data[j], tmp) > 0; j--)
++	    data[j+1] = data[j];
++	data[j+1] = tmp;
++    }
++}
++
+ /**********************************************************************
+  *
+  * 
+@@ -59,9 +76,15 @@ array_qsort(void **data, int first, int last, netsnmp_container_compare *f)
+     int i, j;
+     void *mid, *tmp;
+     
++    /* for small ranges, insertion sort is faster. */
++    if (last - first + 1 < 32) {
++	insert_sort(data + first, last - first + 1, f);
++	return;
++    }
++
+     i = first;
+     j = last;
+-    mid = data[(first+last)/2];
++    mid = data[first + ((last - first) >> 1)];
+     
+     do {
+         while (i < last && (*f)(data[i], mid) < 0)

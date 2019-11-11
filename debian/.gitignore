@@ -1,0 +1,16 @@
+*.debhelper
+*.log
+*.substvars
+autoreconf.*
+files
+libsnmp-base/
+libsnmp-dev/
+libsnmp-perl/
+libsnmp30-dbg/
+libsnmp30/
+python-netsnmp/
+snmp/
+snmpd/
+snmptrapd/
+tkmib/
+tmp/

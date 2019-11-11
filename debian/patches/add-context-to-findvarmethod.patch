@@ -1,0 +1,996 @@
+--- a/agent/helpers/old_api.c
++++ b/agent/helpers/old_api.c
+@@ -323,7 +323,8 @@ netsnmp_old_api_helper(netsnmp_mib_handl
+                                  requests->requestvb->name_length*sizeof(oid));
+                 tmp_len = requests->requestvb->name_length;
+                 access = (*(vp->findVar)) (cvp, tmp_name, &tmp_len,
+-                                           exact, &len, &write_method);
++                                           exact, &len, &write_method,
++                                           reginfo->contextName);
+                 snmp_set_var_objid( requests->requestvb, tmp_name, tmp_len );
+             }
+             else
+--- a/agent/mibgroup/agent/extend.c
++++ b/agent/mibgroup/agent/extend.c
+@@ -1493,7 +1493,8 @@ var_extensible_old(struct variable * vp,
+                      oid * name,
+                      size_t * length,
+                      int exact,
+-                     size_t * var_len, WriteMethod ** write_method)
++                     size_t * var_len, WriteMethod ** write_method,
++                     char * contextName)
+ {
+     netsnmp_old_extend *exten = NULL;
+     static long     long_ret;
+--- a/agent/mibgroup/host/hr_device.c
++++ b/agent/mibgroup/host/hr_device.c
+@@ -224,7 +224,8 @@ u_char         *
+ var_hrdevice(struct variable *vp,
+              oid * name,
+              size_t * length,
+-             int exact, size_t * var_len, WriteMethod ** write_method)
++             int exact, size_t * var_len, WriteMethod ** write_method,
++             char * contextName)
+ {
+     int             dev_idx, type;
+     oid            *oid_p;
+--- a/agent/mibgroup/host/hr_disk.c
++++ b/agent/mibgroup/host/hr_disk.c
+@@ -618,7 +618,8 @@ u_char         *
+ var_hrdisk(struct variable * vp,
+            oid * name,
+            size_t * length,
+-           int exact, size_t * var_len, WriteMethod ** write_method)
++           int exact, size_t * var_len, WriteMethod ** write_method,
++           char * contextName)
+ {
+     int             disk_idx;
+ 
+--- a/agent/mibgroup/host/hr_network.c
++++ b/agent/mibgroup/host/hr_network.c
+@@ -162,7 +162,8 @@ u_char         *
+ var_hrnet(struct variable * vp,
+           oid * name,
+           size_t * length,
+-          int exact, size_t * var_len, WriteMethod ** write_method)
++          int exact, size_t * var_len, WriteMethod ** write_method,
++          char * contextName)
+ {
+     int             net_idx;
+ 
+--- a/agent/mibgroup/host/hr_partition.c
++++ b/agent/mibgroup/host/hr_partition.c
+@@ -229,7 +229,8 @@ u_char         *
+ var_hrpartition(struct variable * vp,
+                 oid * name,
+                 size_t * length,
+-                int exact, size_t * var_len, WriteMethod ** write_method)
++                int exact, size_t * var_len, WriteMethod ** write_method,
++                char * contextName)
+ {
+     int             part_idx;
+     static char     string[1024];
+--- a/agent/mibgroup/host/hr_print.c
++++ b/agent/mibgroup/host/hr_print.c
+@@ -162,7 +162,8 @@ u_char         *
+ var_hrprint(struct variable * vp,
+             oid * name,
+             size_t * length,
+-            int exact, size_t * var_len, WriteMethod ** write_method)
++            int exact, size_t * var_len, WriteMethod ** write_method,
++            char * contextName)
+ {
+     int             print_idx;
+ 
+--- a/agent/mibgroup/host/hr_proc.c
++++ b/agent/mibgroup/host/hr_proc.c
+@@ -161,7 +161,8 @@ u_char         *
+ var_hrproc(struct variable * vp,
+            oid * name,
+            size_t * length,
+-           int exact, size_t * var_len, WriteMethod ** write_method)
++           int exact, size_t * var_len, WriteMethod ** write_method,
++           char * contextName)
+ {
+     int             proc_idx;
+     unsigned long long value;
+--- a/agent/mibgroup/host/hr_system.c
++++ b/agent/mibgroup/host/hr_system.c
+@@ -249,7 +249,8 @@ u_char         *
+ var_hrsys(struct variable * vp,
+           oid * name,
+           size_t * length,
+-          int exact, size_t * var_len, WriteMethod ** write_method)
++          int exact, size_t * var_len, WriteMethod ** write_method,
++          char * contextName)
+ {
+     static char     string[129]; /* per MIB, max size is 128 */
+ #if defined(solaris2)
+--- a/agent/mibgroup/host/hrh_filesys.c
++++ b/agent/mibgroup/host/hrh_filesys.c
+@@ -217,7 +217,8 @@ u_char         *
+ var_hrhfilesys(struct variable *vp,
+               oid * name,
+               size_t * length,
+-              int exact, size_t * var_len, WriteMethod ** write_method)
++              int exact, size_t * var_len, WriteMethod ** write_method,
++              char * contextName)
+ {
+     int             fsys_idx;
+     static char     string[1024];
+--- a/agent/mibgroup/host/hrh_storage.c
++++ b/agent/mibgroup/host/hrh_storage.c
+@@ -352,7 +352,8 @@ u_char         *
+ var_hrstore(struct variable *vp,
+             oid * name,
+             size_t * length,
+-            int exact, size_t * var_len, WriteMethod ** write_method)
++            int exact, size_t * var_len, WriteMethod ** write_method,
++            char * contextName)
+ {
+     int             store_idx = 0;
+     static char     string[1024];
+--- a/agent/mibgroup/mibII/at.c
++++ b/agent/mibgroup/mibII/at.c
+@@ -184,7 +184,8 @@ u_char         *
+ var_atEntry(struct variable *vp,
+             oid * name,
+             size_t * length,
+-            int exact, size_t * var_len, WriteMethod ** write_method)
++            int exact, size_t * var_len, WriteMethod ** write_method,
++            char * contextName)
+ {
+     /*
+      * Address Translation table object identifier is of form:
+@@ -371,7 +372,8 @@ u_char         *
+ var_atEntry(struct variable * vp,
+             oid * name,
+             size_t * length,
+-            int exact, size_t * var_len, WriteMethod ** write_method)
++            int exact, size_t * var_len, WriteMethod ** write_method,
++            char * contextName)
+ {
+     /*
+      * object identifier is of form:
+@@ -868,7 +870,8 @@ u_char         *
+ var_atEntry(struct variable *vp,
+             oid * name,
+             size_t * length,
+-            int exact, size_t * var_len, WriteMethod ** write_method)
++            int exact, size_t * var_len, WriteMethod ** write_method,
++            char * contextName)
+ {
+     /*
+      * Address Translation table object identifier is of form:
+--- a/agent/mibgroup/mibII/ipv6.c
++++ b/agent/mibgroup/mibII/ipv6.c
+@@ -812,7 +812,8 @@ u_char         *
+ var_ipv6(register struct variable * vp,
+          oid * name,
+          size_t * length,
+-         int exact, size_t * var_len, WriteMethod ** write_method)
++         int exact, size_t * var_len, WriteMethod ** write_method,
++         char * contextName)
+ {
+     int             i;
+ 
+@@ -920,7 +921,8 @@ u_char         *
+ var_ifv6Entry(register struct variable * vp,
+               oid * name,
+               size_t * length,
+-              int exact, size_t * var_len, WriteMethod ** write_method)
++              int exact, size_t * var_len, WriteMethod ** write_method,
++              char * contextName)
+ {
+ #ifndef HAVE_IF_NAMEINDEX
+     return NULL;
+@@ -1258,7 +1260,8 @@ u_char         *
+ var_icmpv6Entry(register struct variable * vp,
+                 oid * name,
+                 size_t * length,
+-                int exact, size_t * var_len, WriteMethod ** write_method)
++                int exact, size_t * var_len, WriteMethod ** write_method,
++                char * contextName)
+ {
+ #ifndef HAVE_IF_NAMEINDEX
+     return NULL;
+@@ -1456,7 +1459,8 @@ u_char         *
+ var_udp6(register struct variable * vp,
+          oid * name,
+          size_t * length,
+-         int exact, size_t * var_len, WriteMethod ** write_method)
++         int exact, size_t * var_len, WriteMethod ** write_method,
++         char * contextName)
+ {
+     oid             newname[MAX_OID_LEN];
+     oid             savname[MAX_OID_LEN];
+@@ -1680,7 +1684,8 @@ u_char         *
+ var_tcp6(register struct variable * vp,
+          oid * name,
+          size_t * length,
+-         int exact, size_t * var_len, WriteMethod ** write_method)
++         int exact, size_t * var_len, WriteMethod ** write_method,
++         char * contextName)
+ {
+     oid             newname[MAX_OID_LEN];
+     oid             savname[MAX_OID_LEN];
+@@ -1899,7 +1904,8 @@ u_char         *
+ var_tcp6(register struct variable * vp,
+          oid * name,
+          size_t * length,
+-         int exact, size_t * var_len, WriteMethod ** write_method)
++         int exact, size_t * var_len, WriteMethod ** write_method,
++         char * contextName)
+ {
+     oid             newname[MAX_OID_LEN];
+     oid             savname[MAX_OID_LEN];
+@@ -2165,7 +2171,8 @@ u_char         *
+ var_ipv6(register struct variable *vp,
+          oid * name,
+          size_t * length,
+-         int exact, size_t * var_len, WriteMethod ** write_method)
++         int exact, size_t * var_len, WriteMethod ** write_method,
++         char * contextName)
+ {
+     static struct ip6_mib ip6stat;
+ 
+@@ -2200,7 +2207,8 @@ u_char         *
+ var_ifv6Entry(register struct variable * vp,
+               oid * name,
+               size_t * length,
+-              int exact, size_t * var_len, WriteMethod ** write_method)
++              int exact, size_t * var_len, WriteMethod ** write_method,
++              char * contextName)
+ {
+ #ifndef HAVE_IF_NAMEINDEX
+     return NULL;
+@@ -2328,7 +2336,8 @@ u_char         *
+ var_icmpv6Entry(register struct variable * vp,
+                 oid * name,
+                 size_t * length,
+-                int exact, size_t * var_len, WriteMethod ** write_method)
++                int exact, size_t * var_len, WriteMethod ** write_method,
++                char * contextName)
+ {
+     return NULL;
+ }
+@@ -2337,7 +2346,8 @@ u_char         *
+ var_udp6(register struct variable * vp,
+          oid * name,
+          size_t * length,
+-         int exact, size_t * var_len, WriteMethod ** write_method)
++         int exact, size_t * var_len, WriteMethod ** write_method,
++         char * contextName)
+ {
+     return NULL;
+ }
+@@ -2346,7 +2356,8 @@ u_char         *
+ var_tcp6(register struct variable * vp,
+          oid * name,
+          size_t * length,
+-         int exact, size_t * var_len, WriteMethod ** write_method)
++         int exact, size_t * var_len, WriteMethod ** write_method,
++         char * contextName)
+ {
+     return NULL;
+ }
+--- a/agent/mibgroup/mibII/mta_sendmail.c
++++ b/agent/mibgroup/mibII/mta_sendmail.c
+@@ -1171,7 +1171,8 @@ unsigned char  *
+ var_mtaEntry(struct variable *vp,
+              oid * name,
+              size_t * length,
+-             int exact, size_t * var_len, WriteMethod ** write_method)
++             int exact, size_t * var_len, WriteMethod ** write_method,
++             char * contextName)
+ {
+ 
+ 
+@@ -1323,7 +1324,8 @@ unsigned char  *
+ var_mtaGroupEntry(struct variable *vp,
+                   oid * name,
+                   size_t * length,
+-                  int exact, size_t * var_len, WriteMethod ** write_method)
++                  int exact, size_t * var_len, WriteMethod ** write_method,
++                  char * contextName)
+ {
+     static long     long_ret;
+     auto long       row;
+--- a/agent/mibgroup/mibII/vacm_vars.c
++++ b/agent/mibgroup/mibII/vacm_vars.c
+@@ -140,7 +140,8 @@ var_vacm_sec2group(struct variable * vp,
+                    oid * name,
+                    size_t * length,
+                    int exact,
+-                   size_t * var_len, WriteMethod ** write_method)
++                   size_t * var_len, WriteMethod ** write_method,
++                   char * contextName)
+ {
+     struct vacm_groupEntry *gp;
+     oid            *groupSubtree;
+@@ -264,7 +265,8 @@ u_char         *
+ var_vacm_access(struct variable * vp,
+                 oid * name,
+                 size_t * length,
+-                int exact, size_t * var_len, WriteMethod ** write_method)
++                int exact, size_t * var_len, WriteMethod ** write_method,
++                char * contextName)
+ {
+     struct vacm_accessEntry *gp;
+     int             secmodel, seclevel;
+@@ -486,7 +488,8 @@ u_char         *
+ var_vacm_view(struct variable * vp,
+               oid * name,
+               size_t * length,
+-              int exact, size_t * var_len, WriteMethod ** write_method)
++              int exact, size_t * var_len, WriteMethod ** write_method,
++              char * contextName)
+ {
+     struct vacm_viewEntry *gp = NULL;
+     char            viewName[VACMSTRINGLEN] = { 0 };
+--- a/agent/mibgroup/mibII/var_route.c
++++ b/agent/mibgroup/mibII/var_route.c
+@@ -104,7 +104,8 @@ u_char         *
+ var_ipRouteEntry(struct variable *vp,
+                  oid * name,
+                  size_t * length,
+-                 int exact, size_t * var_len, WriteMethod ** write_method)
++                 int exact, size_t * var_len, WriteMethod ** write_method,
++                 char * contextName)
+ {
+     /*
+      * object identifier is of form:
+@@ -429,7 +430,8 @@ u_char         *
+ var_ipRouteEntry(struct variable * vp,
+                  oid * name,
+                  size_t * length,
+-                 int exact, size_t * var_len, WriteMethod ** write_method)
++                 int exact, size_t * var_len, WriteMethod ** write_method,
++                 char * contextName)
+ {
+     /*
+      * object identifier is of form:
+@@ -731,7 +733,8 @@ u_char         *
+ var_ipRouteEntry(struct variable * vp,
+                  oid * name,
+                  size_t * length,
+-                 int exact, size_t * var_len, WriteMethod ** write_method)
++                 int exact, size_t * var_len, WriteMethod ** write_method,
++                 char * contextName)
+ {
+     /*
+      * object identifier is of form:
+@@ -1582,7 +1585,8 @@ u_char         *
+ var_ipRouteEntry(struct variable *vp,
+                  oid * name,
+                  size_t * length,
+-                 int exact, size_t * var_len, WriteMethod ** write_method)
++                 int exact, size_t * var_len, WriteMethod ** write_method,
++                 char * contextName)
+ {
+     /*
+      * object identifier is of form:
+@@ -1944,7 +1948,8 @@ u_char         *
+ var_ipRouteEntry(struct variable * vp,
+                  oid * name,
+                  size_t * length,
+-                 int exact, size_t * var_len, WriteMethod ** write_method)
++                 int exact, size_t * var_len, WriteMethod ** write_method,
++                 char * contextName)
+ {
+     /*
+      * object identifier is of form:
+--- a/agent/mibgroup/notification/snmpNotifyFilterProfileTable.c
++++ b/agent/mibgroup/notification/snmpNotifyFilterProfileTable.c
+@@ -291,7 +291,8 @@ var_snmpNotifyFilterProfileTable(struct
+                                  size_t * length,
+                                  int exact,
+                                  size_t * var_len,
+-                                 WriteMethod ** write_method)
++                                 WriteMethod ** write_method,
++                                 char * contextName)
+ {
+ 
+ 
+--- a/agent/mibgroup/notification/snmpNotifyTable.c
++++ b/agent/mibgroup/notification/snmpNotifyTable.c
+@@ -703,7 +703,8 @@ var_snmpNotifyTable(struct variable *vp,
+                     oid * name,
+                     size_t * length,
+                     int exact,
+-                    size_t * var_len, WriteMethod ** write_method)
++                    size_t * var_len, WriteMethod ** write_method,
++                    char * contextName)
+ {
+     struct snmpNotifyTable_data *StorageTmp = NULL;
+     int             found = 1;
+--- a/agent/mibgroup/snmpv3/snmpEngine.c
++++ b/agent/mibgroup/snmpv3/snmpEngine.c
+@@ -89,7 +89,8 @@ u_char         *
+ var_snmpEngine(struct variable *vp,
+                oid * name,
+                size_t * length,
+-               int exact, size_t * var_len, WriteMethod ** write_method)
++               int exact, size_t * var_len, WriteMethod ** write_method,
++               char * contextName)
+ {
+ 
+     /*
+--- a/agent/mibgroup/snmpv3/usmUser.c
++++ b/agent/mibgroup/snmpv3/usmUser.c
+@@ -294,7 +294,8 @@ u_char         *
+ var_usmUser(struct variable * vp,
+             oid * name,
+             size_t * length,
+-            int exact, size_t * var_len, WriteMethod ** write_method)
++            int exact, size_t * var_len, WriteMethod ** write_method,
++            char * contextName)
+ {
+     struct usmUser *uptr = NULL, *nptr;
+     int             i, rtest, result;
+--- a/agent/mibgroup/target/snmpTargetAddrEntry.c
++++ b/agent/mibgroup/target/snmpTargetAddrEntry.c
+@@ -739,7 +739,8 @@ var_snmpTargetAddrEntry(struct variable
+                         oid * name,
+                         size_t * length,
+                         int exact,
+-                        size_t * var_len, WriteMethod ** write_method)
++                        size_t * var_len, WriteMethod ** write_method,
++                        char * contextName)
+ {
+ 
+     /*
+@@ -1675,7 +1676,8 @@ var_targetSpinLock(struct variable * vp,
+                    oid * name,
+                    size_t * length,
+                    int exact,
+-                   size_t * var_len, WriteMethod ** write_method)
++                   size_t * var_len, WriteMethod ** write_method,
++                   char * contextName)
+ {
+     if (header_generic(vp, name, length, exact, var_len, write_method) ==
+         MATCH_FAILED) {
+--- a/agent/mibgroup/target/snmpTargetParamsEntry.c
++++ b/agent/mibgroup/target/snmpTargetParamsEntry.c
+@@ -605,7 +605,8 @@ var_snmpTargetParamsEntry(struct variabl
+                           oid * name,
+                           size_t * length,
+                           int exact,
+-                          size_t * var_len, WriteMethod ** write_method)
++                          size_t * var_len, WriteMethod ** write_method,
++                          char * contextName)
+ {
+     /*
+      * variables we may use later 
+--- a/agent/mibgroup/ucd-snmp/disk.c
++++ b/agent/mibgroup/ucd-snmp/disk.c
+@@ -818,7 +818,8 @@ var_extensible_disk(struct variable *vp,
+                     oid * name,
+                     size_t * length,
+                     int exact,
+-                    size_t * var_len, WriteMethod ** write_method)
++                    size_t * var_len, WriteMethod ** write_method,
++                    char * contextName)
+ {
+     int             ret;
+ 	unsigned int	disknum = 0;
+--- a/agent/mibgroup/ucd-snmp/disk_hw.c
++++ b/agent/mibgroup/ucd-snmp/disk_hw.c
+@@ -298,7 +298,8 @@ var_extensible_disk(struct variable *vp,
+                     oid * name,
+                     size_t * length,
+                     int exact,
+-                    size_t * var_len, WriteMethod ** write_method)
++                    size_t * var_len, WriteMethod ** write_method,
++                    char * contextName)
+ {
+     int             disknum = 0;
+   netsnmp_fsys_info *entry;
+--- a/agent/mibgroup/ucd-snmp/diskio.c
++++ b/agent/mibgroup/ucd-snmp/diskio.c
+@@ -319,7 +319,8 @@ u_char         *
+ var_diskio(struct variable * vp,
+            oid * name,
+            size_t * length,
+-           int exact, size_t * var_len, WriteMethod ** write_method)
++           int exact, size_t * var_len, WriteMethod ** write_method,
++           char * contextName)
+ {
+     /*
+      * define any variables we might return as static! 
+@@ -449,7 +450,8 @@ u_char         *
+ var_diskio(struct variable * vp,
+            oid * name,
+            size_t * length,
+-           int exact, size_t * var_len, WriteMethod ** write_method)
++           int exact, size_t * var_len, WriteMethod ** write_method,
++           char * contextName)
+ {
+     static long     long_ret;
+     unsigned int    indx;
+@@ -563,7 +565,8 @@ u_char         *
+ var_diskio(struct variable * vp,
+            oid * name,
+            size_t * length,
+-           int exact, size_t * var_len, WriteMethod ** write_method)
++           int exact, size_t * var_len, WriteMethod ** write_method,
++           char * contextName)
+ {
+     static long     long_ret;
+     static struct counter64 c64_ret;
+@@ -696,7 +699,8 @@ u_char *
+ var_diskio(struct variable * vp,
+            oid * name,
+            size_t * length,
+-           int exact, size_t * var_len, WriteMethod ** write_method)
++           int exact, size_t * var_len, WriteMethod ** write_method,
++           char * contextName)
+ {
+     static long     long_ret;
+     unsigned int    indx;
+@@ -913,7 +917,8 @@ u_char         *
+ var_diskio(struct variable * vp,
+            oid * name,
+            size_t * length,
+-           int exact, size_t * var_len, WriteMethod ** write_method)
++           int exact, size_t * var_len, WriteMethod ** write_method,
++           char * contextName)
+ {
+     static long     long_ret;
+     static struct   counter64 c64_ret;
+@@ -1211,7 +1216,8 @@ var_diskio(struct variable * vp,
+ 	   size_t * length,
+ 	   int exact,
+ 	   size_t * var_len,
+-	   WriteMethod ** write_method)
++	   WriteMethod ** write_method,
++           char * contextName)
+ {
+     unsigned int indx;
+     static unsigned long long_ret;
+--- a/agent/mibgroup/ucd-snmp/dlmod.c
++++ b/agent/mibgroup/ucd-snmp/dlmod.c
+@@ -390,7 +390,8 @@ static u_char         *
+ var_dlmod(struct variable * vp,
+           oid * name,
+           size_t * length,
+-          int exact, size_t * var_len, WriteMethod ** write_method)
++          int exact, size_t * var_len, WriteMethod ** write_method,
++          char * contextName)
+ {
+ 
+     /*
+@@ -591,7 +592,8 @@ static u_char         *
+ var_dlmodEntry(struct variable * vp,
+                oid * name,
+                size_t * length,
+-               int exact, size_t * var_len, WriteMethod ** write_method)
++               int exact, size_t * var_len, WriteMethod ** write_method,
++               char * contextName)
+ {
+     /*
+      * variables we may use later
+--- a/agent/mibgroup/ucd-snmp/errormib.c
++++ b/agent/mibgroup/ucd-snmp/errormib.c
+@@ -192,7 +192,8 @@ var_extensible_errors(struct variable *v
+                       oid * name,
+                       size_t * length,
+                       int exact,
+-                      size_t * var_len, WriteMethod ** write_method)
++                      size_t * var_len, WriteMethod ** write_method,
++                      char * contextName)
+ {
+ 
+     static long     long_ret;
+--- a/agent/mibgroup/ucd-snmp/extensible.c
++++ b/agent/mibgroup/ucd-snmp/extensible.c
+@@ -426,7 +426,8 @@ var_extensible_shell(struct variable * v
+                      oid * name,
+                      size_t * length,
+                      int exact,
+-                     size_t * var_len, WriteMethod ** write_method)
++                     size_t * var_len, WriteMethod ** write_method,
++                     char * contextName)
+ {
+ 
+     static struct extensible *exten = 0;
+@@ -525,7 +526,8 @@ var_extensible_relocatable(struct variab
+                            oid * name,
+                            size_t * length,
+                            int exact,
+-                           size_t * var_len, WriteMethod ** write_method)
++                           size_t * var_len, WriteMethod ** write_method,
++                           char * contextName)
+ {
+ 
+     int             i;
+--- a/agent/mibgroup/ucd-snmp/file.c
++++ b/agent/mibgroup/ucd-snmp/file.c
+@@ -123,7 +123,8 @@ u_char         *
+ var_file_table(struct variable *vp,
+                oid * name,
+                size_t * length,
+-               int exact, size_t * var_len, WriteMethod ** write_method)
++               int exact, size_t * var_len, WriteMethod ** write_method,
++               char * contextName)
+ {
+     static long     long_ret;
+     static char     error[256];
+--- a/agent/mibgroup/ucd-snmp/hpux.c
++++ b/agent/mibgroup/ucd-snmp/hpux.c
+@@ -83,7 +83,8 @@ unsigned char  *
+ var_hp(struct variable *vp,
+        oid * name,
+        size_t * length,
+-       int exact, size_t * var_len, WriteMethod ** write_method)
++       int exact, size_t * var_len, WriteMethod ** write_method,
++       char * contextName)
+ {
+ 
+     oid             newname[MAX_OID_LEN];
+--- a/agent/mibgroup/ucd-snmp/lmSensors.c
++++ b/agent/mibgroup/ucd-snmp/lmSensors.c
+@@ -248,7 +248,8 @@ var_lmSensorsTable(struct variable *vp,
+                    oid * name,
+                    size_t * length,
+                    int exact,
+-                   size_t * var_len, WriteMethod ** write_method)
++                   size_t * var_len, WriteMethod ** write_method,
++                   char * contextName)
+ {
+     static long     long_ret;
+     static char     string[SPRINT_MAX_LEN];
+--- a/agent/mibgroup/ucd-snmp/loadave.c
++++ b/agent/mibgroup/ucd-snmp/loadave.c
+@@ -418,7 +418,8 @@ var_extensible_loadave(struct variable *
+                        oid * name,
+                        size_t * length,
+                        int exact,
+-                       size_t * var_len, WriteMethod ** write_method)
++                       size_t * var_len, WriteMethod ** write_method,
++                       char * contextName)
+ {
+ 
+     static long     long_ret;
+--- a/agent/mibgroup/ucd-snmp/logmatch.c
++++ b/agent/mibgroup/ucd-snmp/logmatch.c
+@@ -507,7 +507,8 @@ var_logmatch_table(struct variable *vp,
+                    oid * name,
+                    size_t * length,
+                    int exact,
+-                   size_t * var_len, WriteMethod ** write_method)
++                   size_t * var_len, WriteMethod ** write_method,
++                   char * contextName)
+ {
+     static long     long_ret;
+     static char     message[1024];
+--- a/agent/mibgroup/ucd-snmp/memory_aix4.c
++++ b/agent/mibgroup/ucd-snmp/memory_aix4.c
+@@ -116,7 +116,8 @@ var_extensible_mem(struct variable *vp,
+                    oid * name,
+                    size_t * length,
+                    int exact,
+-                   size_t * var_len, WriteMethod ** write_method)
++                   size_t * var_len, WriteMethod ** write_method,
++                   char * contextName)
+ {
+     static long     long_ret;
+ 
+--- a/agent/mibgroup/ucd-snmp/memory_darwin7.c
++++ b/agent/mibgroup/ucd-snmp/memory_darwin7.c
+@@ -200,7 +200,8 @@ var_extensible_mem(struct variable *vp,
+                    oid * name,
+                    size_t * length,
+                    int exact,
+-                   size_t * var_len, WriteMethod ** write_method)
++                   size_t * var_len, WriteMethod ** write_method,
++                   char * contextName)
+ {
+     static long     long_ret;
+     static char     errmsg[1024];
+--- a/agent/mibgroup/ucd-snmp/memory_dynix.c
++++ b/agent/mibgroup/ucd-snmp/memory_dynix.c
+@@ -92,7 +92,8 @@ var_extensible_mem(struct variable *vp,
+                    oid * name,
+                    size_t * length,
+                    int exact,
+-                   size_t * var_len, WriteMethod ** write_method)
++                   size_t * var_len, WriteMethod ** write_method,
++                   char * contextName)
+ {
+     static long     long_ret;
+ 
+--- a/agent/mibgroup/ucd-snmp/memory_freebsd2.c
++++ b/agent/mibgroup/ucd-snmp/memory_freebsd2.c
+@@ -250,7 +250,8 @@ var_extensible_mem(struct variable *vp,
+                    oid * name,
+                    size_t * length,
+                    int exact,
+-                   size_t * var_len, WriteMethod ** write_method)
++                   size_t * var_len, WriteMethod ** write_method,
++                   char * contextName)
+ {
+     static long     long_ret;
+     static char     errmsg[1024];
+--- a/agent/mibgroup/ucd-snmp/memory_hpux.c
++++ b/agent/mibgroup/ucd-snmp/memory_hpux.c
+@@ -124,7 +124,8 @@ var_extensible_mem(struct variable *vp,
+                    oid * name,
+                    size_t * length,
+                    int exact,
+-                   size_t * var_len, WriteMethod ** write_method)
++                   size_t * var_len, WriteMethod ** write_method,
++                   char * contextName)
+ {
+ 
+     struct swapinfo swap;
+--- a/agent/mibgroup/ucd-snmp/memory_netbsd1.c
++++ b/agent/mibgroup/ucd-snmp/memory_netbsd1.c
+@@ -159,7 +159,8 @@ var_extensible_mem(struct variable *vp,
+                    oid * name,
+                    size_t * length,
+                    int exact,
+-                   size_t * var_len, WriteMethod ** write_method)
++                   size_t * var_len, WriteMethod ** write_method,
++                   char * contextName)
+ {
+     static long     long_ret;
+     static char     errmsg[1024];
+--- a/agent/mibgroup/ucd-snmp/memory_solaris2.c
++++ b/agent/mibgroup/ucd-snmp/memory_solaris2.c
+@@ -106,7 +106,8 @@ var_extensible_mem(struct variable *vp,
+                    oid * name,
+                    size_t * length,
+                    int exact,
+-                   size_t * var_len, WriteMethod ** write_method)
++                   size_t * var_len, WriteMethod ** write_method,
++                   char * contextName)
+ {
+     static long     long_ret;
+ 
+--- a/agent/mibgroup/ucd-snmp/pass.c
++++ b/agent/mibgroup/ucd-snmp/pass.c
+@@ -188,7 +188,8 @@ var_extensible_pass(struct variable *vp,
+                     oid * name,
+                     size_t * length,
+                     int exact,
+-                    size_t * var_len, WriteMethod ** write_method)
++                    size_t * var_len, WriteMethod ** write_method,
++                    char * contextName)
+ {
+     oid             newname[MAX_OID_LEN];
+     int             i, rtest, fd, newlen;
+--- a/agent/mibgroup/ucd-snmp/pass_persist.c
++++ b/agent/mibgroup/ucd-snmp/pass_persist.c
+@@ -223,7 +223,8 @@ var_extensible_pass_persist(struct varia
+                             oid * name,
+                             size_t * length,
+                             int exact,
+-                            size_t * var_len, WriteMethod ** write_method)
++                            size_t * var_len, WriteMethod ** write_method,
++                            char * contextName)
+ {
+     oid             newname[MAX_OID_LEN];
+     int             i, rtest, newlen;
+--- a/agent/mibgroup/ucd-snmp/proc.c
++++ b/agent/mibgroup/ucd-snmp/proc.c
+@@ -233,7 +233,8 @@ var_extensible_proc(struct variable *vp,
+                     oid * name,
+                     size_t * length,
+                     int exact,
+-                    size_t * var_len, WriteMethod ** write_method)
++                    size_t * var_len, WriteMethod ** write_method,
++                    char * contextName)
+ {
+ 
+     struct myproc  *proc;
+--- a/agent/mibgroup/ucd-snmp/versioninfo.c
++++ b/agent/mibgroup/ucd-snmp/versioninfo.c
+@@ -85,7 +85,8 @@ var_extensible_version(struct variable *
+                        oid * name,
+                        size_t * length,
+                        int exact,
+-                       size_t * var_len, WriteMethod ** write_method)
++                       size_t * var_len, WriteMethod ** write_method,
++                       char * contextName)
+ {
+ 
+     static long     long_ret;
+--- a/agent/mibgroup/ucd-snmp/vmstat_aix4.c
++++ b/agent/mibgroup/ucd-snmp/vmstat_aix4.c
+@@ -526,7 +526,8 @@ var_extensible_vmstat(struct variable *v
+ 					  oid * name,
+ 					  size_t * length,
+ 					  int exact,
+-					  size_t * var_len, WriteMethod ** write_method)
++					  size_t * var_len, WriteMethod ** write_method,
++                                          char * contextName)
+ {
+ 	/*
+ 	 * Needed for returning the values 
+--- a/agent/mibgroup/ucd-snmp/vmstat_bsdi4.c
++++ b/agent/mibgroup/ucd-snmp/vmstat_bsdi4.c
+@@ -137,7 +137,8 @@ var_extensible_vmstat(struct variable *v
+                       oid * name,
+                       size_t * length,
+                       int exact,
+-                      size_t * var_len, WriteMethod ** write_method)
++                      size_t * var_len, WriteMethod ** write_method,
++                      char * contextName)
+ {
+ 
+     int             loop;
+--- a/agent/mibgroup/ucd-snmp/vmstat_darwin7.c
++++ b/agent/mibgroup/ucd-snmp/vmstat_darwin7.c
+@@ -158,7 +158,8 @@ var_extensible_vmstat(struct variable *v
+                       oid * name,
+                       size_t * length,
+                       int exact,
+-                      size_t * var_len, WriteMethod ** write_method)
++                      size_t * var_len, WriteMethod ** write_method,
++                      char * contextName)
+ {
+ 
+     int             loop;
+--- a/agent/mibgroup/ucd-snmp/vmstat_dynix.c
++++ b/agent/mibgroup/ucd-snmp/vmstat_dynix.c
+@@ -656,7 +656,8 @@ var_extensible_vmstat(struct variable *v
+                       oid * name,
+                       size_t * length,
+                       int exact,
+-                      size_t * var_len, WriteMethod ** write_method)
++                      size_t * var_len, WriteMethod ** write_method,
++                      char * contextName)
+ {
+     /*
+      * Needed for returning the values 
+--- a/agent/mibgroup/ucd-snmp/vmstat_freebsd2.c
++++ b/agent/mibgroup/ucd-snmp/vmstat_freebsd2.c
+@@ -172,7 +172,8 @@ var_extensible_vmstat(struct variable *v
+                       oid * name,
+                       size_t * length,
+                       int exact,
+-                      size_t * var_len, WriteMethod ** write_method)
++                      size_t * var_len, WriteMethod ** write_method,
++                      char * contextName)
+ {
+ 
+     int             loop;
+--- a/agent/mibgroup/ucd-snmp/vmstat_hpux.c
++++ b/agent/mibgroup/ucd-snmp/vmstat_hpux.c
+@@ -581,7 +581,8 @@ var_extensible_vmstat(struct variable *v
+                       oid * name,
+                       size_t * length,
+                       int exact,
+-                      size_t * var_len, WriteMethod ** write_method)
++                      size_t * var_len, WriteMethod ** write_method,
++                      char * contextName)
+ {
+     /*
+      * Needed for returning the values 
+--- a/agent/mibgroup/ucd-snmp/vmstat_linux.c
++++ b/agent/mibgroup/ucd-snmp/vmstat_linux.c
+@@ -474,7 +474,8 @@ var_extensible_vmstat(struct variable *v
+                       oid * name,
+                       size_t * length,
+                       int exact,
+-                      size_t * var_len, WriteMethod ** write_method)
++                      size_t * var_len, WriteMethod ** write_method,
++                      char * contextName)
+ {
+ 
+     static long     long_ret;
+--- a/agent/mibgroup/ucd-snmp/vmstat_netbsd1.c
++++ b/agent/mibgroup/ucd-snmp/vmstat_netbsd1.c
+@@ -147,7 +147,8 @@ var_extensible_vmstat(struct variable *v
+                       oid * name,
+                       size_t * length,
+                       int exact,
+-                      size_t * var_len, WriteMethod ** write_method)
++                      size_t * var_len, WriteMethod ** write_method,
++                      char * contextName)
+ {
+ 
+     int             loop;
+--- a/agent/mibgroup/ucd-snmp/vmstat_solaris2.c
++++ b/agent/mibgroup/ucd-snmp/vmstat_solaris2.c
+@@ -651,7 +651,8 @@ var_extensible_vmstat(struct variable *v
+                       oid * name,
+                       size_t * length,
+                       int exact,
+-                      size_t * var_len, WriteMethod ** write_method)
++                      size_t * var_len, WriteMethod ** write_method,
++                      char * contextName)
+ {
+     /*
+      * Needed for returning the values 
+--- a/include/net-snmp/agent/snmp_vars.h
++++ b/include/net-snmp/agent/snmp_vars.h
+@@ -80,7 +80,8 @@ PERFORMANCE OF THIS SOFTWARE.
+                                      size_t * length,
+                                      int exact,
+                                      size_t * var_len,
+-                                     WriteMethod ** write_method);
++                                     WriteMethod ** write_method,
++                                     char * contextName);
+ 
+     /*
+      * Function pointer called by the master agent for setting up subagent requests 
+--- a/agent/mibgroup/mibII/ipAddr.c
++++ b/agent/mibgroup/mibII/ipAddr.c
+@@ -177,7 +177,8 @@ u_char         *
+ var_ipAddrEntry(struct variable *vp,
+                 oid * name,
+                 size_t * length,
+-                int exact, size_t * var_len, WriteMethod ** write_method)
++                int exact, size_t * var_len, WriteMethod ** write_method,
++                char * contextName)
+ {
+     /*
+      * object identifier is of form:
+@@ -835,7 +836,8 @@ u_char         *
+ var_ipAddrEntry(struct variable * vp,
+                 oid * name,
+                 size_t * length,
+-                int exact, size_t * var_len, WriteMethod ** write_method)
++                int exact, size_t * var_len, WriteMethod ** write_method,
++                char * contextName)
+ {
+     /*
+      * object identifier is of form:
+@@ -1087,7 +1089,8 @@ u_char         *
+ var_ipAddrEntry(struct variable *vp,
+                 oid * name,
+                 size_t * length,
+-                int exact, size_t * var_len, WriteMethod ** write_method)
++                int exact, size_t * var_len, WriteMethod ** write_method,
++                char * contextName)
+ {
+     /*
+      * object identifier is of form:
+@@ -1189,7 +1192,8 @@ u_char         *
+ var_ipAddrEntry(struct variable *vp,
+                 oid * name,
+                 size_t * length,
+-                int exact, size_t * var_len, WriteMethod ** write_method)
++                int exact, size_t * var_len, WriteMethod ** write_method,
++                char * contextName)
+ {
+     /*
+      * object identifier is of form:
+--- a/agent/mibgroup/disman/ping/pingCtlTable.c
++++ b/agent/mibgroup/disman/ping/pingCtlTable.c
+@@ -715,7 +715,8 @@ unsigned char  *
+ var_pingCtlTable(struct variable *vp,
+                  oid * name,
+                  size_t *length,
+-                 int exact, size_t *var_len, WriteMethod ** write_method)
++                 int exact, size_t *var_len, WriteMethod ** write_method,
++                 char * contextName)
+ {
+ 
+ 
+--- a/agent/mibgroup/disman/ping/pingResultsTable.c
++++ b/agent/mibgroup/disman/ping/pingResultsTable.c
+@@ -349,7 +349,8 @@ var_pingResultsTable(struct variable *vp
+                      oid * name,
+                      size_t *length,
+                      int exact,
+-                     size_t *var_len, WriteMethod ** write_method)
++                     size_t *var_len, WriteMethod ** write_method,
++                     char * contextName)
+ {
+ 
+ 
+--- a/agent/mibgroup/disman/ping/pingProbeHistoryTable.c
++++ b/agent/mibgroup/disman/ping/pingProbeHistoryTable.c
+@@ -295,7 +295,8 @@ var_pingProbeHistoryTable(struct variabl
+                           oid * name,
+                           size_t *length,
+                           int exact,
+-                          size_t *var_len, WriteMethod ** write_method)
++                          size_t *var_len, WriteMethod ** write_method,
++                          char * contextName)
+ {
+ 
+ 

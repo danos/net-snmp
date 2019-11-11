@@ -1,7 +1,7 @@
 #!/bin/sh
 
 SNMP_DIR="/var/lib/snmp"
-SNMP_USER="Debian-snmp"
+SNMP_USER="snmp"
 SNMP_GROUP="$SNMP_USER"
 SNMP_SHELL="/bin/false"
 
@@ -16,6 +16,10 @@ case "$1" in
         adduser --quiet --system --group --home "$SNMP_DIR" \
                 --disabled-password  --disabled-login \
                 --shell "$SNMP_SHELL" --force-badname "$SNMP_USER"
+
+	    #snmp user needs to be able to send commands to
+	    #data plane to extract stats to populate MIBs.
+	    adduser $SNMP_USER adm
 
         # care if SNMP_DIR is used by previous "snmp" user
         chown -R "$SNMP_USER"."$SNMP_GROUP" "$SNMP_DIR"

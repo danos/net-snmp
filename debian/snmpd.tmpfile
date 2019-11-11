@@ -1,0 +1,4 @@
+d /run/snmpd - snmp snmp
+f /run/snmpd/snmpd-args - snmp snmp
+x /run/snmpd
+x /run/snmpd/snmpd-args

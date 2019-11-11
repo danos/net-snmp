@@ -1,0 +1,16 @@
+Index: net-snmp/agent/mibgroup/ip-mib/data_access/ipaddress_common.c
+===================================================================
+--- net-snmp.orig/agent/mibgroup/ip-mib/data_access/ipaddress_common.c	2015-03-04 12:39:50.285291448 -0800
++++ net-snmp/agent/mibgroup/ip-mib/data_access/ipaddress_common.c	2015-03-04 12:49:10.731506401 -0800
+@@ -305,6 +305,11 @@
+         memcpy(lhs->ia_address, rhs->ia_address, rhs->ia_address_len);
+     }
+ 
++    if (lhs->ia_prefix_len != rhs->ia_prefix_len) {
++        ++changed;
++        lhs->ia_prefix_len = rhs->ia_prefix_len;
++    }
++
+     if (lhs->ia_type != rhs->ia_type) {
+         ++changed;
+         lhs->ia_type = rhs->ia_type;

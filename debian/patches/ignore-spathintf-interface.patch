@@ -1,0 +1,15 @@
+Index: net-snmp/agent/mibgroup/if-mib/data_access/interface_linux.c
+===================================================================
+--- net-snmp.orig/agent/mibgroup/if-mib/data_access/interface_linux.c	2015-02-25 13:39:27.246354954 -0800
++++ net-snmp/agent/mibgroup/if-mib/data_access/interface_linux.c	2015-02-25 13:42:18.558731688 -0800
+@@ -724,6 +724,10 @@
+             continue;
+         }
+ 
++        /* Ignore interface with name beginning in a period */
++        if (ifstart[0] == '.')
++            continue;
++
+         entry = netsnmp_access_interface_entry_create(ifstart, 0);
+         if(NULL == entry) {
+ #ifdef NETSNMP_ENABLE_IPV6

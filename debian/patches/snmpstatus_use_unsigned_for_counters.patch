@@ -1,0 +1,21 @@
+--- a/apps/snmpstatus.c
++++ b/apps/snmpstatus.c
+@@ -141,7 +141,7 @@
+     char           *sysdescr = NULL;
+     u_long          uptime = 0;
+     int             status;
+-    int             ipin = 0, ipout = 0, ipackets = 0, opackets = 0;
++    uint64_t        ipin = 0, ipout = 0, ipackets = 0, opackets = 0;
+     int             good_var;
+     int             down_interfaces = 0;
+     char            buf[40];
+@@ -369,7 +369,8 @@
+         if (response)
+             snmp_free_pdu(response);
+     }
+-    printf("Interfaces: %d, Recv/Trans packets: %d/%d | IP: %d/%d\n",
++    printf("Interfaces: %d, Recv/Trans packets: %" PRIu64 "/%" PRIu64
++	   " | IP: %" PRIu64 "/%" PRIu64 "\n",
+            interfaces, ipackets, opackets, ipin, ipout);
+     if (down_interfaces > 0) {
+         printf("%d interface%s down!\n",

@@ -1,3 +1,9 @@
+net-snmp (5.7.3+dfsg-5+vyatta4) unstable; urgency=medium
+
+  * DANOS Import master
+
+ -- Vyatta Package Maintainers <DL-vyatta-help@att.com>  Fri, 08 Nov 2019 15:50:47 -0800
+
 net-snmp (5.7.3+dfsg-5) unstable; urgency=medium
 
   * Use debhelper macros for shlibs Closes: #912685

@@ -1,1 +1,4 @@
 libsnmp30: hardening-no-relro usr/lib/*/libnetsnmptrapd.so.*
+libsnmp30: copyright-without-copyright-notice
+libsnmp30: zero-byte-file-in-doc-directory usr/share/doc/libsnmp30/copyright
+libsnmp30: maintscript-calls-ldconfig postinst
