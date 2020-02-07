@@ -1,0 +1,28 @@
+Suppress unwanted SNMP log messages
+
+Issue: VRVDR-49442
+--- a/agent/mibgroup/hardware/fsys/fsys_mntent.c
++++ b/agent/mibgroup/hardware/fsys/fsys_mntent.c
+@@ -238,8 +238,10 @@ netsnmp_fsys_arch_load( void )
+         if ( NSFS_STATFS( entry->path, &stat_buf ) < 0 )
+ #endif
+         {
++#if 0
+             snprintf( tmpbuf, sizeof(tmpbuf), "Cannot statfs %s", entry->path );
+             snmp_log_perror( tmpbuf );
++#endif
+             continue;
+         }
+         entry->units =  stat_buf.NSFS_SIZE;
+--- a/agent/mibgroup/ucd-snmp/pass_persist.c
++++ b/agent/mibgroup/ucd-snmp/pass_persist.c
+@@ -476,7 +476,9 @@ static void check_persist_pipes(unsigned
+ 
+     for (i = 0; i <= numpersistpassthrus; i++) {
+         if (process_stopped(i)) {
++#if 0
+             snmp_log(LOG_INFO, "pass_persist[%d]: child process stopped - closing pipe\n", i);
++#endif
+             close_persist_pipe(i);
+         }
+     }
