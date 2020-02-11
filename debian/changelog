@@ -1,3 +1,9 @@
+net-snmp (5.7.3+dfsg-5+vyatta5) unstable; urgency=medium
+
+  * Suppress unwanted SNMP log messages
+
+ -- Sharmila Podury <sharmila.podury@att.com>  Tue, 11 Feb 2020 13:24:38 -0800
+
 net-snmp (5.7.3+dfsg-5+vyatta4) unstable; urgency=medium
 
   * DANOS Import master
