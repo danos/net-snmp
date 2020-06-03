@@ -41,9 +41,10 @@ snmpwalk_args_in_snmpcheck
 CVE-2018-18065.patch
 snmptrapd_mysql_init
 
-# Backports from 5.8
+# Backports from 5.8.x
 snmpd-Speed-up-ipAddressTable-loading.patch
 Fix-leaks-and-memory-errors-in-the-previous-patch.patch
+commit-6e1329b
 
 # Vyatta Patches
 commit-50085bc

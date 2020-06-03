@@ -4,6 +4,7 @@ usr/bin/mib2c-update
 usr/include/*
 usr/lib/*/lib*.a
 usr/lib/*/lib*.so
+usr/lib/*/pkgconfig
 # Install the "broke" headers
 agent/mibgroup/struct.h	usr/include/net-snmp/agent
 agent/mibgroup/util_funcs.h usr/include/net-snmp
