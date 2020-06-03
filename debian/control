@@ -114,6 +114,21 @@ Description: SNMP (Simple Network Management Protocol) library debug
  .
  This package contains the debug symbols for the Net-SNMP libraries.
 
+Package: libsnmp-vyatta30
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, libsnmp-base
+Description: SNMP (Simple Network Management Protocol) library (Vyatta variant)
+ The Simple Network Management Protocol (SNMP) provides a framework
+ for the exchange of management information between agents (servers)
+ and clients.
+ .
+ The Net-SNMP library contains common functions for the construction,
+ sending, receiving, decoding, and manipulation of the SNMP requests
+ and responses.
+
 Package: libsnmp-dev
 Section: libdevel
 Architecture: any
@@ -122,7 +137,8 @@ Replaces: libsnmp9-dev, libsnmp15-dev, snmp (<< 5.4~dfsg), libsnmp-base (<< 5.7.
 Provides: libsnmp9-dev, libsnmp-dev-vyatta
 Conflicts: libsnmp9-dev, libsnmp15-dev, snmp (<< 5.4~dfsg)
 Breaks: libsnmp-base (<< 5.7.2~dfsg-8.1~)
-Depends: libc6-dev, libsnmp30 (=${binary:Version}), libwrap0-dev, libssl1.0-dev | libssl-dev, procps,
+Depends: libc6-dev, libsnmp30 (=${binary:Version}), libsnmp-vyatta30 (=${binary:Version}),
+         libwrap0-dev, libssl1.0-dev | libssl-dev, procps,
          libkvm-dev [kfreebsd-any], libsensors4-dev [linux-any], ${misc:Depends},
          libpci-dev
 Description: SNMP (Simple Network Management Protocol) development files

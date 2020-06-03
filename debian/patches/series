@@ -67,6 +67,7 @@ vrfaware-snmp-rdid.patch
 add-context-to-send_linkUpDownNotifications.patch
 use-netlink-to-scan-interfaces.patch
 use-netlink-for-ipRouteTable.patch
+add-libnetsnmpagent-vyatta-lib.patch
 add-context-to-findvarmethod.patch
 
 fix-cleanup-send-ping-trap.patch

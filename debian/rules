@@ -93,13 +93,15 @@ override_dh_strip:
 
 override_dh_makeshlibs:
 	dh_makeshlibs -plibsnmp$(LIB_VERSION) -V"libsnmp$(LIB_VERSION) (>= $(COMPAT_VERSION))"
+	dh_makeshlibs -plibsnmp-vyatta$(LIB_VERSION) -V"libsnmp-vyatta$(LIB_VERSION) (>= $(COMPAT_VERSION))"
 
 override_dh_install-arch:
 	dh_install
 	install $(CURDIR)/EXAMPLE.conf $(CURDIR)/debian/snmpd/etc/snmp/snmpd.conf
+	rm -fv $(CURDIR)/debian/libsnmp30/usr/lib/*/*-vyatta*
 
 override_dh_installdocs:
-	dh_installdocs -plibsnmp-perl -ptkmib -plibsnmp-base -plibsnmp$(LIB_VERSION)
+	dh_installdocs -plibsnmp-perl -ptkmib -plibsnmp-base -plibsnmp$(LIB_VERSION) -plibsnmp-vyatta$(LIB_VERSION)
 	dh_installdocs --link-doc=libsnmp$(LIB_VERSION) \
 		       -plibsnmp-dev \
 		       -plibsnmp$(LIB_VERSION)-dbg \
