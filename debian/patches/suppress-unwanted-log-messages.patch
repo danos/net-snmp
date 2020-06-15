@@ -16,7 +16,7 @@ Issue: VRVDR-49442
          entry->units =  stat_buf.NSFS_SIZE;
 --- a/agent/mibgroup/ucd-snmp/pass_persist.c
 +++ b/agent/mibgroup/ucd-snmp/pass_persist.c
-@@ -476,7 +476,9 @@ static void check_persist_pipes(unsigned
+@@ -475,7 +475,9 @@ static void check_persist_pipes(unsigned
  
      for (i = 0; i <= numpersistpassthrus; i++) {
          if (process_stopped(i)) {
@@ -26,3 +26,65 @@ Issue: VRVDR-49442
              close_persist_pipe(i);
          }
      }
+--- a/agent/agent_trap.c
++++ b/agent/agent_trap.c
+@@ -340,12 +340,14 @@ snmpd_free_trapsinks(void)
+ 
+ 
+ netsnmp_pdu*
+-convert_v2pdu_to_v1( netsnmp_pdu* template_v2pdu )
++convert_v2pdu_to_v1( netsnmp_pdu* template_v2pdu, int *ignore_failure )
+ {
+     netsnmp_pdu           *template_v1pdu;
+     netsnmp_variable_list *first_vb, *vblist;
+     netsnmp_variable_list *var;
+ 
++    *ignore_failure = FALSE;
++
+     /*
+      * Make a copy of the v2 Trap PDU
+      *   before starting to convert this
+@@ -397,9 +399,12 @@ convert_v2pdu_to_v1( netsnmp_pdu* templa
+      */
+     for (var = vblist->next_variable; var; var = var->next_variable) {
+         if ( var->type == ASN_COUNTER64 ) {
++#if 0
+             snmp_log(LOG_WARNING,
+                      "send_trap: v1 traps can't carry Counter64 varbinds\n");
++#endif
+             snmp_free_pdu(template_v1pdu);
++            *ignore_failure = TRUE;
+             return NULL;
+         }
+     }
+@@ -646,6 +651,7 @@ netsnmp_send_traps(int trap, int specifi
+     struct trap_sink *sink;
+     const char            *v1trapaddress;
+     int                    res = 0;
++    int                    ignore_conversion_error = FALSE;
+ 
+     DEBUGMSGTL(( "trap", "send_trap %d %d ", trap, specific));
+     DEBUGMSGOID(("trap", enterprise, enterprise_length));
+@@ -739,8 +745,9 @@ netsnmp_send_traps(int trap, int specifi
+         /*
+          * If everything's OK, convert the v2 template into an SNMPv1 trap PDU.
+          */
+-        template_v1pdu = convert_v2pdu_to_v1( template_v2pdu );
+-        if (!template_v1pdu) {
++        template_v1pdu = convert_v2pdu_to_v1( template_v2pdu,
++                                              &ignore_conversion_error );
++        if (!ignore_conversion_error && !template_v1pdu) {
+             snmp_log(LOG_WARNING,
+                      "send_trap: failed to convert v2->v1 template PDU\n");
+         }
+--- a/include/net-snmp/agent/agent_trap.h
++++ b/include/net-snmp/agent/agent_trap.h
+@@ -47,7 +47,7 @@ int             remove_trap_session(nets
+ 
+ void                   convert_v2_to_v1(netsnmp_variable_list *, netsnmp_pdu *);
+ netsnmp_variable_list *convert_v1_to_v2(netsnmp_pdu *);
+-netsnmp_pdu    *convert_v2pdu_to_v1(netsnmp_pdu *);
++netsnmp_pdu    *convert_v2pdu_to_v1(netsnmp_pdu *, int *ignore_error);
+ netsnmp_pdu    *convert_v1pdu_to_v2(netsnmp_pdu *);
+ 
+ #ifdef __cplusplus
