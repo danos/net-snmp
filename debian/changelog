@@ -1,3 +1,10 @@
+net-snmp (5.7.3+dfsg-5+vyatta5.1) unstable; urgency=medium
+
+  [ Thomas Kiely ]
+  * Suppress further unwanted SNMP log messages.
+
+ -- Sharmila Podury <sharmila.podury@att.com>  Wed, 17 Jun 2020 09:38:46 -0700
+
 net-snmp (5.7.3+dfsg-5+vyatta5) unstable; urgency=medium
 
   * Suppress unwanted SNMP log messages
