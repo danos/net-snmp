@@ -1,4 +1,4 @@
-net-snmp (5.7.3+dfsg-6+deb10u1) buster-security; urgency=high
+net-snmp (5.7.3+dfsg-5+deb10u1) buster-security; urgency=high
 
   * snmpd: Make EXTEND-MIB readonly access
     Fixes CVE-2020-15862 Closes: #965166
