@@ -77,3 +77,4 @@ fix-snmpd-restart-linkupdown-traps.patch
 dataplane-intf-ifdescr-use-ethtool.patch
 get-ifalias-from-sysfs.patch
 suppress-unwanted-log-messages.patch
+log-msg-for-coldstart-trap.patch

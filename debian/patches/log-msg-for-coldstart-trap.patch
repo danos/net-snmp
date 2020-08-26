@@ -1,0 +1,47 @@
+--- a/agent/agent_trap.c
++++ b/agent/agent_trap.c
+@@ -765,6 +765,8 @@ netsnmp_send_traps(int trap, int specifi
+         }
+         template_v1pdu->trap_type     = trap;
+         template_v1pdu->specific_type = specific;
++        if (trap == SNMP_TRAP_COLDSTART)
++            template_v1pdu->is_coldstart = 1;
+         template_v1pdu->time          = netsnmp_get_agent_uptime();
+ 
+         if (snmp_clone_mem((void **) &template_v1pdu->enterprise,
+@@ -939,6 +941,7 @@ send_trap_to_sess(netsnmp_session * sess
+ {
+     netsnmp_pdu    *pdu;
+     int            result;
++    int            is_coldstart = 0;
+ 
+     if (!sess || !template_pdu)
+         return;
+@@ -954,6 +957,7 @@ send_trap_to_sess(netsnmp_session * sess
+         (template_pdu->command == SNMP_MSG_TRAP))
+         return;                 /* Skip v2+ sinks for v1 only traps */
+ #endif
++    is_coldstart = template_pdu->is_coldstart;
+     template_pdu->version = sess->version;
+     pdu = snmp_clone_pdu(template_pdu);
+     pdu->sessid = sess->sessid; /* AgentX only ? */
+@@ -984,6 +988,8 @@ send_trap_to_sess(netsnmp_session * sess
+         snmp_sess_perror("snmpd: send_trap", sess);
+         snmp_free_pdu(pdu);
+     } else {
++        if (is_coldstart)
++            snmp_log(LOG_INFO, "coldStart trap successfully sent\n");
+         snmp_increment_statistic(STAT_SNMPOUTTRAPS);
+         snmp_increment_statistic(STAT_SNMPOUTPKTS);
+     }
+--- a/include/net-snmp/types.h
++++ b/include/net-snmp/types.h
+@@ -236,6 +236,8 @@ typedef struct snmp_pdu {
+     long            specific_type;
+     /** This is ONLY used for v1 TRAPs  */
+     unsigned char   agent_addr[4];  
++    /** is coldStart trap */
++    int             is_coldstart;
+ 
+     /*
+      *  SNMPv3 fields
