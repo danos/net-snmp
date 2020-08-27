@@ -1,3 +1,9 @@
+net-snmp (5.7.3+dfsg-5+vyatta8) unstable; urgency=medium
+
+  * SIAD fails to send coldStart trap on system reboot
+
+ -- Sharmila Podury <sharmila.podury@att.com>  Thu, 27 Aug 2020 09:52:52 -0700
+
 net-snmp (5.7.3+dfsg-5+vyatta7) unstable; urgency=medium
 
   [ Thomas Kiely ]
