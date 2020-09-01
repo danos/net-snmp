@@ -17,6 +17,15 @@ net-snmp (5.7.3+dfsg-5+vyatta4) unstable; urgency=medium
 
  -- Vyatta Package Maintainers <DL-vyatta-help@att.com>  Fri, 08 Nov 2019 15:50:47 -0800
 
+net-snmp (5.7.3+dfsg-5+deb10u1) buster-security; urgency=high
+
+  * snmpd: Make EXTEND-MIB readonly access
+    Fixes CVE-2020-15862 Closes: #965166
+  * snmpd: Do not cache MIB directory
+    Fixes CVE-2020-15861 Closes: #966599
+
+ -- Craig Small <csmall@debian.org>  Fri, 31 Jul 2020 20:53:22 +1000
+
 net-snmp (5.7.3+dfsg-5) unstable; urgency=medium
 
   * Use debhelper macros for shlibs Closes: #912685
