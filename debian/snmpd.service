@@ -13,6 +13,7 @@ ExecStartPre=/bin/mkdir -p /var/run/agentx
 ExecStartPre=/bin/bash -c "echo -n 'SNMPD_OPTS=${SNMPD_DEFAULT_ARGS} ' > $TMP_OPTS"
 ExecStart=/usr/sbin/snmpd $SNMPD_OPTS
 ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
