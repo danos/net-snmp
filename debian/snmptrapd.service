@@ -8,6 +8,7 @@ Environment="MIBSDIR=/usr/share/snmp/mibs:/usr/share/snmp/mibs/iana:/usr/share/s
 Type=simple
 ExecStart=/usr/sbin/snmptrapd -Lsd -f -p /run/snmptrapd.pid
 ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
