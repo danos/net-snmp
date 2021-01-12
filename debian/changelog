@@ -1,3 +1,11 @@
+net-snmp (5.7.3+dfsg-5+vyatta10) unstable; urgency=medium
+
+  [ Duncan Eastoe ]
+  * snmpd.service: Specify Restart=on-failure
+  * snmptrapd.service: Specify Restart=on-failure
+
+ -- Sharmila Podury <sharmila.podury@att.com>  Tue, 12 Jan 2021 12:42:33 -0800
+
 net-snmp (5.7.3+dfsg-5+vyatta9) unstable; urgency=medium
 
   [ Craig Small ]
