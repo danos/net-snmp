@@ -69,11 +69,11 @@ override_dh_auto_configure:
 
 override_dh_auto_build:
 	dh_auto_build
-	cd python; python setup.py build --basedir=$(CURDIR)
+	cd python; python2 setup.py build --basedir=$(CURDIR)
 
 override_dh_auto_install:
 	dh_auto_install
-	cd python; python setup.py install --root=$(CURDIR)/debian/tmp \
+	cd python; python2 setup.py install --root=$(CURDIR)/debian/tmp \
 		--install-layout=deb --basedir=$(CURDIR) ; \
 		find $(CURDIR) -name *.pyc -delete
 
