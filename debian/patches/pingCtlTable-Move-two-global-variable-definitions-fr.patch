@@ -1,0 +1,75 @@
+From ac918c1a98c5954f8089d28b3020874e77d94d9b Mon Sep 17 00:00:00 2001
+From: Bart Van Assche <bvanassche@acm.org>
+Date: Sat, 3 Dec 2016 20:09:33 -0800
+Subject: [PATCH] pingCtlTable: Move two global variable definitions from .h to
+ .c
+
+---
+ agent/mibgroup/disman/ping/pingCtlTable.c | 17 +++++++++++++++++
+ agent/mibgroup/disman/ping/pingCtlTable.h | 15 ---------------
+ 2 files changed, 17 insertions(+), 15 deletions(-)
+
+diff --git a/agent/mibgroup/disman/ping/pingCtlTable.c b/agent/mibgroup/disman/ping/pingCtlTable.c
+index 6ef77813b..8fea89439 100644
+--- a/agent/mibgroup/disman/ping/pingCtlTable.c
++++ b/agent/mibgroup/disman/ping/pingCtlTable.c
+@@ -57,6 +57,23 @@ static char    *pr_addr(struct in6_addr *, int);
+ static char    *pr_addr_n(struct in6_addr *);
+ void pingCtlTable_cleaner(struct header_complex_index *thestuff);
+ 
++static char rcvd_tbl[MAX_DUP_CHK / 8];
++
++static struct proto {
++    int             (*fproc) (char *, ssize_t, struct timeval *, time_t,
++                              struct pingCtlTable_data *,
++                              struct addrinfo *, int, unsigned long *,
++                              unsigned long *, unsigned long *,
++                              unsigned long *, unsigned long, int, int,
++                              int, struct pingProbeHistoryTable_data *,
++                              pid_t);
++    void            (*fsend) (int, pid_t, int, int, char *);
++    struct sockaddr *sasend;    /* sockaddr{} for send, from getaddrinfo */
++    struct sockaddr *sarecv;    /* sockaddr{} for receiving */
++    socklen_t       salen;      /* length of sockaddr{}s */
++    int             icmpproto;  /* IPPROTO_xxx value for ICMP */
++} *pr;
++
+ /*
+  *pingCtlTable_variables_oid:
+  *                                                      
+diff --git a/agent/mibgroup/disman/ping/pingCtlTable.h b/agent/mibgroup/disman/ping/pingCtlTable.h
+index ca69d137c..f8976a5fa 100644
+--- a/agent/mibgroup/disman/ping/pingCtlTable.h
++++ b/agent/mibgroup/disman/ping/pingCtlTable.h
+@@ -285,20 +285,6 @@ void            readloop(struct pingCtlTable_data *, struct addrinfo *,
+ void            sig_alrm(int);
+ void            tv_sub(struct timeval *, struct timeval *);
+ unsigned long   round_double(double);
+-struct proto {
+-    int             (*fproc) (char *, ssize_t, struct timeval *, time_t,
+-                              struct pingCtlTable_data *,
+-                              struct addrinfo *, int, unsigned long *,
+-                              unsigned long *, unsigned long *,
+-                              unsigned long *, unsigned long, int, int,
+-                              int, struct pingProbeHistoryTable_data *,
+-                              pid_t);
+-    void            (*fsend) (int, pid_t, int, int, char *);
+-    struct sockaddr *sasend;    /* sockaddr{} for send, from getaddrinfo */
+-    struct sockaddr *sarecv;    /* sockaddr{} for receiving */
+-    socklen_t       salen;      /* length of sockaddr{}s */
+-    int             icmpproto;  /* IPPROTO_xxx value for ICMP */
+-}              *pr;
+ 
+ 
+ /*
+@@ -337,7 +323,6 @@ struct proto {
+ 
+ 
+ #define	MAX_DUP_CHK	0x10000
+-char            rcvd_tbl[MAX_DUP_CHK / 8];
+ 
+ volatile int    exiting;
+ volatile int    status_snapshot;
+-- 
+2.20.1
+

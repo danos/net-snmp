@@ -51,6 +51,10 @@ snmpd-Speed-up-ipAddressTable-loading.patch
 Fix-leaks-and-memory-errors-in-the-previous-patch.patch
 commit-6e1329b
 
+# Debian 11 build fixes 
+pingCtlTable-Move-two-global-variable-definitions-fr.patch
+pingCtlTable-Move-two-more-global-variable-definitio.patch
+
 # Vyatta Patches
 commit-50085bc
 commit-9e70806

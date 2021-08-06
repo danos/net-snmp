@@ -1,0 +1,42 @@
+From 46f755fe4e6c2a919eebae0c55495f5f1207d06c Mon Sep 17 00:00:00 2001
+From: Ramin Moussavi <lordrasmus@gmail.com>
+Date: Tue, 9 Jun 2020 13:42:50 +0200
+Subject: [PATCH] pingCtlTable: Move two more global variable definitions from
+ .h to .c
+
+---
+ agent/mibgroup/disman/ping/pingCtlTable.c | 4 ++++
+ agent/mibgroup/disman/ping/pingCtlTable.h | 2 --
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/agent/mibgroup/disman/ping/pingCtlTable.c b/agent/mibgroup/disman/ping/pingCtlTable.c
+index ce8c67d13..f8a65f9bb 100644
+--- a/agent/mibgroup/disman/ping/pingCtlTable.c
++++ b/agent/mibgroup/disman/ping/pingCtlTable.c
+@@ -74,6 +74,10 @@ static struct proto {
+     int             icmpproto;  /* IPPROTO_xxx value for ICMP */
+ } *pr;
+ 
++static volatile int    exiting;
++static volatile int    status_snapshot;
++
++
+ /*
+  *pingCtlTable_variables_oid:
+  *                                                      
+diff --git a/agent/mibgroup/disman/ping/pingCtlTable.h b/agent/mibgroup/disman/ping/pingCtlTable.h
+index 74a7a85e9..1bc304cae 100644
+--- a/agent/mibgroup/disman/ping/pingCtlTable.h
++++ b/agent/mibgroup/disman/ping/pingCtlTable.h
+@@ -327,8 +327,6 @@ unsigned long   round_double(double);
+ 
+ #define	MAX_DUP_CHK	0x10000
+ 
+-volatile int    exiting;
+-volatile int    status_snapshot;
+ 
+ #ifndef MSG_CONFIRM
+ #define MSG_CONFIRM 0
+-- 
+2.20.1
+
