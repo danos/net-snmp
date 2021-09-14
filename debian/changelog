@@ -1,3 +1,9 @@
+net-snmp (5.7.3+dfsg-5+vyatta12) unstable; urgency=medium
+
+  * SIAD fails to start SNMP service once it reboots
+
+ -- Sharmila Podury <sharmila.podury@att.com>  Tue, 14 Sep 2021 13:39:38 -0700
+
 net-snmp (5.7.3+dfsg-5+vyatta11) unstable; urgency=medium
 
   [ Daniel Gollub ]
